@@ -1,0 +1,24 @@
+
+# eclipse ignore
+.settings/
+.project
+.classpath
+bin
+
+# idea ignore
+.idea/
+*.ipr
+*.iml
+*.iws
+
+# maven ignore
+target/
+*.jar
+*.war
+*.zip
+*.tar
+*.tar.gz
+
+# system ignore
+.DS_Store
+Thumbs.db
