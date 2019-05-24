@@ -7,7 +7,7 @@
 - 支持 兼容xls文件  和 xlsx 文件格式，代码编写上屏蔽了文件区别，只需一行代码即可读取文件，无序考虑文件类型
 - 支持 事件流ExcelEventStream直接读取文件
 
-### 使用案例 查阅测试类 com.dc.eventpoi.Test1.java如下
+#### 使用案例 查阅测试类 com.dc.eventpoi.Test1.java如下
 ```java
 public class Test1 {
 	public static void main(String[] args) {
