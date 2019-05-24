@@ -17,6 +17,13 @@
 	<url>http://maven.apache.org</url>
 
 	<dependencies>
+	<!-- https://mvnrepository.com/artifact/xerces/xercesImpl -->
+<dependency>
+    <groupId>xerces</groupId>
+    <artifactId>xercesImpl</artifactId>
+    <version>RELEASE</version>
+</dependency>
+	
 		<!-- https://mvnrepository.com/artifact/org.apache.poi/poi -->
 		<dependency>
 			<groupId>org.apache.poi</groupId>

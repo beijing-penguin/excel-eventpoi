@@ -15,7 +15,6 @@ import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.xssf.eventusermodel.XSSFReader;
 import org.apache.poi.xssf.eventusermodel.XSSFReader.SheetIterator;
 import org.apache.poi.xssf.model.SharedStringsTable;
-import org.apache.poi.xssf.usermodel.XSSFRichTextString;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -123,7 +122,7 @@ public class ExcelXlsxStream extends BaseExcelStream implements ExcelEventStream
                 //性能优化，数据量越大，提高约2秒的速度
                 lastContents = lruCache.get(idx);
                 if (lastContents == null && !lruCache.containsKey(idx)) {
-                    lastContents = new XSSFRichTextString(sst.getEntryAt(idx)).toString();
+                    lastContents = sst.getItemAt(idx).toString();
                     lruCache.put(idx, lastContents);
                 }
                 nextIsString = false;
@@ -269,7 +268,7 @@ public class ExcelXlsxStream extends BaseExcelStream implements ExcelEventStream
         sheets = (SheetIterator)r.getSheetsData();
 
 
-        if(sheetIndexArr==null) {
+        if(sheetIndexArr==null || sheetIndexArr[0]==null) {
             while(sheets.hasNext()) {
                 is = sheets.next();
                 sheetName = sheets.getSheetName();
@@ -292,15 +291,6 @@ public class ExcelXlsxStream extends BaseExcelStream implements ExcelEventStream
         }
 
     }
-
-    public String getSheetName() {
-        return sheetName;
-    }
-
-    public short getSheetIndex() {
-        return sheetIndex;
-    }
-    
     /**
      * 指定工作簿
      * @param sheetIndexArr 索引数组
@@ -308,8 +298,15 @@ public class ExcelXlsxStream extends BaseExcelStream implements ExcelEventStream
      * @author 段超
      * @date 2019-01-21 11:01:45
      */
-    public ExcelXlsxStream sheetAt(Integer... sheetIndexArr) {
+    public ExcelEventStream sheetAt(Integer... sheetIndexArr) {
         this.sheetIndexArr = sheetIndexArr;
         return this;
+    }
+    public String getSheetName() {
+        return sheetName;
+    }
+
+    public short getSheetIndex() {
+        return sheetIndex;
     }
 }

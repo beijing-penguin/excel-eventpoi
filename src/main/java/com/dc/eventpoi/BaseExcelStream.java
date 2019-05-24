@@ -12,7 +12,7 @@ import java.util.List;
  * @author 段超
  * @date: 2019年1月18日
  */
-public class BaseExcelStream {
+public class BaseExcelStream{
     /**
      * 指定sheet数组
      */

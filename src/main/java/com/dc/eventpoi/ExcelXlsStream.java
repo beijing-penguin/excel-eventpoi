@@ -209,16 +209,6 @@ public class ExcelXlsStream extends BaseExcelStream implements ExcelEventStream{
     public ExcelXlsStream(byte[] bytes) {
         super.fileStream = new ByteArrayInputStream(bytes);
     }
-    /**
-     * 指定sheet
-     * @param sheetIndexArr sheetIndexArr
-     * @return ExcelXlsStream
-     */
-    @Override
-    public ExcelXlsStream sheetAt(Integer...sheetIndexArr) {
-        this.sheetIndexArr = sheetIndexArr;
-        return this;
-    }
 
     /**
      * 
@@ -287,5 +277,16 @@ public class ExcelXlsStream extends BaseExcelStream implements ExcelEventStream{
     @Override
     public short getSheetIndex() {
         return sheetIndex;
+    }
+    /**
+     * 指定工作簿
+     * @param sheetIndexArr 索引数组
+     * @return BaseExcelStream
+     * @author 段超
+     * @date 2019-01-21 11:01:45
+     */
+    public ExcelEventStream sheetAt(Integer... sheetIndexArr) {
+        this.sheetIndexArr = sheetIndexArr;
+        return this;
     }
 }

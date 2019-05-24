@@ -98,5 +98,4 @@ public interface ExcelEventStream {
 			throw new Exception("filetype is unsupport");
 		}
 	}
-
 }
