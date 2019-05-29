@@ -1,4 +1,4 @@
-package com.dc.eventpoi;
+package com.dc.eventpoi.test;
 
 public class Person {
 	private String no;

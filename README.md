@@ -6,7 +6,7 @@
 - 支持 指定工作簿sheetIndex读取
 - 支持 模板映射成实体对象读取文件
 - 支持 兼容xls文件  和 xlsx 文件格式，代码编写上屏蔽了文件区别，只需一行代码即可读取文件，无序考虑文件类型
-- 支持 事件流ExcelEventStream直接读取文件(默认读取模式)
+- 支持 事件流ExcelEventStream行回调读取文件
 
 #### 使用案例 查阅测试类 com.dc.eventpoi.Test1.java如下
 ```java
