@@ -1,10 +1,12 @@
 package com.dc.eventpoi.test;
 
+import java.math.BigDecimal;
+
 public class Person {
 	private String no;
 	private String name;
-	private String age;
-	private String salary;
+	private int age;
+	private BigDecimal salary;
 	
 	public String getNo() {
 		return no;
@@ -18,17 +20,17 @@ public class Person {
 	public void setName(String name) {
 		this.name = name;
 	}
-	public String getAge() {
+	
+	public int getAge() {
 		return age;
 	}
-	public void setAge(String age) {
+	public void setAge(int age) {
 		this.age = age;
 	}
-	public String getSalary() {
+	public BigDecimal getSalary() {
 		return salary;
 	}
-	public void setSalary(String salary) {
+	public void setSalary(BigDecimal salary) {
 		this.salary = salary;
 	}
-	
 }
