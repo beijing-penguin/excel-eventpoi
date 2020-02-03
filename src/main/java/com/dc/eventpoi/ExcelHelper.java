@@ -513,7 +513,7 @@ public class ExcelHelper {
         Workbook workbook = WorkbookFactory.create(new ByteArrayInputStream(templete));
         Sheet sheet = workbook.getSheetAt(sheetIndex);
 
-        for (int j = 0; j < sheet.getLastRowNum(); j++) {
+        for (int j = 0; j <=sheet.getLastRowNum(); j++) {
             Row row = sheet.getRow(j);
             for (int cellnum=0;cellnum<=row.getLastCellNum();cellnum++){
                 Cell cell = row.getCell(cellnum);

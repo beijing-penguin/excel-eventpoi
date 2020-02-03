@@ -4,9 +4,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.List;
-
-import org.apache.commons.compress.utils.Lists;
 
 import com.dc.eventpoi.ExcelHelper;
 
@@ -26,8 +23,7 @@ public class Test2 {
             Person p = new Person();
             p.setName("");
             p.setNo("123");
-            List<Person> list = Lists.newArrayList();
-            list.add(p);
+            p.setRemark("备注");
             Files.write(Paths.get("C:\\Users\\Administrator\\Desktop\\file.xlsx"), ExcelHelper.exportTitleExcel(output.toByteArray(), p,0));
         } catch (Exception e) {
             e.printStackTrace();
