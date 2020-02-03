@@ -512,13 +512,6 @@ public class ExcelHelper {
         Map<String, byte[]> fileDataMap = new LinkedHashMap<String, byte[]>();
         Workbook workbook = WorkbookFactory.create(new ByteArrayInputStream(templete));
         Sheet sheet = workbook.getSheetAt(sheetIndex);
-        CellStyle cellStyle = workbook.createCellStyle();
-        cellStyle.setAlignment(HorizontalAlignment.CENTER); // 水平居中
-        cellStyle.setVerticalAlignment(VerticalAlignment.CENTER); // 上下居中
-        cellStyle.setBorderTop(BorderStyle.THIN);
-        cellStyle.setBorderBottom(BorderStyle.THIN);
-        cellStyle.setBorderLeft(BorderStyle.THIN);
-        cellStyle.setBorderRight(BorderStyle.THIN);
 
         for (int j = 0; j < sheet.getLastRowNum(); j++) {
             Row row = sheet.getRow(j);
@@ -533,9 +526,8 @@ public class ExcelHelper {
                             if (!Modifier.isStatic(field.getModifiers()) && field.getName().equals(excelField)) {
                                 field.setAccessible(true);
                                 Object value = field.get(data);
-                                if (value != null && value.toString().trim().length() > 0) {
+                                if (value != null) {
                                     cell.setCellValue(String.valueOf(value));
-                                    cell.setCellStyle(cellStyle);
                                 }
                             }
                         }

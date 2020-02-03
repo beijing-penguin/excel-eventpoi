@@ -24,7 +24,7 @@ public class Test2 {
             }
             
             Person p = new Person();
-            p.setName("dc");
+            p.setName("");
             p.setNo("123");
             List<Person> list = Lists.newArrayList();
             list.add(p);
