@@ -215,7 +215,7 @@ public class ExcelHelper {
         if (type.equals("String")) {
             return v;
         }else if(v.trim().length()==0) {
-        	return null;
+            return null;
         } else if (type.equals("Integer") || type.equals("int")) {
             return Integer.parseInt(v);
         } else if (type.equals("Long") || type.equals("long")) {
@@ -468,12 +468,104 @@ public class ExcelHelper {
             fileDataMap.put(newName, byteStream.toByteArray());
         }
         if(isZip) {
-        	throw new Exception("zip is unsupport");
+            throw new Exception("zip is unsupport");
             //return ZipUtils.batchCompress(fileDataMap);
         }else {
             return fileDataMap.values().iterator().next();
         }
     }
+
+
+    /**
+     * 导出zip文件,或者导出xlxs文件
+     * @param templeteFileName 模板文件名
+     * @param templete 模板文件数据
+     * @param dataList 对象数据集合
+     * @param sheetIndex 工作簿
+     * @param isZip 是否压缩成zip文件
+     * @return byte[]
+     * @throws Exception
+     * @author 段超
+     * @date 2019-02-22 14:29:52
+     */
+    public static byte[] exportTitleExcel(byte[] templete,Object data,int sheetIndex) throws Exception {
+        List<ExcelRow> rowList  = new ArrayList<ExcelRow>();
+        List<ExcelCell> keyCellList = new ArrayList<ExcelCell>();
+        ExcelEventStream fileStream = ExcelEventStream.readExcel(templete);
+        fileStream.sheetAt(sheetIndex).rowStream(new RowCallBack() {
+            @Override
+            public void getRow(ExcelRow row) {
+                rowList.add(row);
+            }
+        });
+        for (int i = 0; i < rowList.size(); i++) {
+            ExcelRow row = rowList.get(i);
+            List<ExcelCell> cellList = row.getCellList();
+            for (int j = 0; j < cellList.size(); j++) {
+                ExcelCell cell = cellList.get(j);
+                if(cell.getValue().startsWith("${")) {
+                    keyCellList.addAll(cellList);
+                    break;
+                }
+            }
+        }
+        Map<String, byte[]> fileDataMap = new LinkedHashMap<String, byte[]>();
+        Workbook workbook = WorkbookFactory.create(new ByteArrayInputStream(templete));
+        Sheet sheet = workbook.getSheetAt(sheetIndex);
+        CellStyle cellStyle = workbook.createCellStyle();
+        cellStyle.setAlignment(HorizontalAlignment.CENTER); // 水平居中
+        cellStyle.setVerticalAlignment(VerticalAlignment.CENTER); // 上下居中
+        cellStyle.setBorderTop(BorderStyle.THIN);
+        cellStyle.setBorderBottom(BorderStyle.THIN);
+        cellStyle.setBorderLeft(BorderStyle.THIN);
+        cellStyle.setBorderRight(BorderStyle.THIN);
+
+        for (int j = 0; j < sheet.getLastRowNum(); j++) {
+            Row row = sheet.getRow(j);
+            for (int cellnum=0;cellnum<=row.getLastCellNum();cellnum++){
+                Cell cell = row.getCell(cellnum);
+                if (cell != null ) {
+                    String cellValue = cell.getStringCellValue();
+                    if(cellValue!=null && cellValue.startsWith("${")) {
+                        String excelField = cellValue.substring(cellValue.indexOf("${") + 2, cellValue.lastIndexOf("}"));
+                        Field[] fieldArr = FieldUtils.getAllFields(data.getClass());
+                        for (Field field : fieldArr) {
+                            if (!Modifier.isStatic(field.getModifiers()) && field.getName().equals(excelField)) {
+                                field.setAccessible(true);
+                                Object value = field.get(data);
+                                if (value != null && value.toString().trim().length() > 0) {
+                                    cell.setCellValue(String.valueOf(value));
+                                    cell.setCellStyle(cellStyle);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        ByteArrayOutputStream byteStream =new ByteArrayOutputStream();
+        workbook.write(byteStream);
+        try {
+            byteStream.flush();
+        }catch (Exception e) {
+            LOG.error("",e);
+            throw e;
+        }
+        try {
+            byteStream.close();
+        }catch (Exception e) {
+            LOG.error("",e);
+            throw e;
+        }
+        workbook.close();
+        workbook = null;
+        String newName = "temp";
+        fileDataMap.put(newName, byteStream.toByteArray());
+        return fileDataMap.values().iterator().next();
+    }
+
+
+
     /**
      * 导出zip数据
      * @param templete 模板数据
@@ -542,16 +634,16 @@ public class ExcelHelper {
      * @date 2019-02-25 11:27:10
      */
     public static FileType judgeFileType(InputStream inp) throws Exception {
-    	InputStream is = FileMagic.prepareToCheckMagic(inp);
+        InputStream is = FileMagic.prepareToCheckMagic(inp);
         FileMagic fm = FileMagic.valueOf(is);
 
         switch (fm) {
-            case OLE2:
-            	return FileType.XLS;
-            case OOXML:
-            	return FileType.XLSX;
-            default:
-                throw new IOException("Your InputStream was neither an OLE2 stream, nor an OOXML stream");
+        case OLE2:
+            return FileType.XLS;
+        case OOXML:
+            return FileType.XLSX;
+        default:
+            throw new IOException("Your InputStream was neither an OLE2 stream, nor an OOXML stream");
         }
     }
     /**
