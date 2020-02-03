@@ -221,7 +221,7 @@ public class ExcelHelper {
         } else if (type.equals("Long") || type.equals("long")) {
             return Long.parseLong(v);
         } else if (type.equals("Double") || type.equals("double")) {
-            return Long.parseLong(v);
+            return Double.parseDouble(v);
         } else if (type.equals("Short") || type.equals("short")) {
             return Short.parseShort(v);
         } else if (type.equals("Float") || type.equals("float")) {
