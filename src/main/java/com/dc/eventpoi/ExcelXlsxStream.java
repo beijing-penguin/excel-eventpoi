@@ -225,14 +225,14 @@ public class ExcelXlsxStream extends BaseExcelStream implements ExcelEventStream
                 LOG.info("",e);
             }
         }
-        /*if(sst!=null) {//新版本启用此方法
+        if(sst!=null) {//新版本启用此方法
             try {
                 sst.close();
                 sst=null;
             }catch (Exception e) {
                 LOG.info("",e);
             }
-        }*/
+        }
         if(pkg!=null) {
             try {
                 pkg.close();
