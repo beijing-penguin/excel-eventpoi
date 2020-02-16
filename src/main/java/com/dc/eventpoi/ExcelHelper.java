@@ -488,7 +488,7 @@ public class ExcelHelper {
      * @author 段超
      * @date 2019-02-22 14:29:52
      */
-    public static byte[] exportTitleExcel(byte[] templete,Object data,int sheetIndex) throws Exception {
+    public static byte[] exportTableExcel(byte[] templete,Object data,int sheetIndex) throws Exception {
         List<ExcelRow> rowList  = new ArrayList<ExcelRow>();
         List<ExcelCell> keyCellList = new ArrayList<ExcelCell>();
         ExcelEventStream fileStream = ExcelEventStream.readExcel(templete);
@@ -526,9 +526,10 @@ public class ExcelHelper {
                             if (!Modifier.isStatic(field.getModifiers()) && field.getName().equals(excelField)) {
                                 field.setAccessible(true);
                                 Object value = field.get(data);
-                                if (value != null) {
-                                    cell.setCellValue(String.valueOf(value));
+                                if (value==null) {
+                                    value = "";
                                 }
+                                cell.setCellValue(String.valueOf(value));
                             }
                         }
                     }
