@@ -25,7 +25,6 @@ public class Test1 {
 			List<Person> objList = ExcelHelper.parseExcelToObject(dataList1, templeteList1, Person.class);
 			System.out.println("---------------------------excel转对象----------------------");
 			System.out.println(JSON.toJSONString(objList));
-			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
