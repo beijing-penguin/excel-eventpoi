@@ -24,7 +24,7 @@ public class Test2 {
             p.setName("");
             p.setNo("123");
             p.setRemark("备注");
-            Files.write(Paths.get("C:\\Users\\Administrator\\Desktop\\file.xlsx"), ExcelHelper.exportTableExcel(output.toByteArray(), p,0));
+            Files.write(Paths.get("./my_test_temp/file.xlsx"), ExcelHelper.exportTableExcel(output.toByteArray(), p,0));
         } catch (Exception e) {
             e.printStackTrace();
         }

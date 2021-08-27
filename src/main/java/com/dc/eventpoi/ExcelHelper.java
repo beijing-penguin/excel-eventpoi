@@ -478,6 +478,18 @@ public class ExcelHelper {
 
     /**
      * 导出zip文件,或者导出xlxs文件
+     * @param templete 模板文件数据
+     * @param dataList 对象数据集合
+     * @return byte[]
+     * @throws Exception
+     * @author 段超
+     * @date 2019-02-22 14:29:52
+     */
+    public static byte[] exportTableExcel(byte[] templete,Object data) throws Exception {
+        return exportTableExcel(templete, data, 0);
+    }
+    /**
+     * 导出zip文件,或者导出xlxs文件
      * @param templeteFileName 模板文件名
      * @param templete 模板文件数据
      * @param dataList 对象数据集合
