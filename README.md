@@ -38,7 +38,7 @@ public class 使用一行代码导出excel {
         personList.add(p1);
         personList.add(p2);
         
-        //第三个参数表示，导出时，删除那些列（按模板文件中的key删除）
+        //第三个参数表示，导出时，删除那些列（按模板文件中的key删除，可不传）
         byte[] exportByteData = ExcelHelper.exportExcel(Test1.class.getResourceAsStream("demo1Templete.xlsx"), personList, "${salary}");
         Files.write(Paths.get("./my_test_temp/测试导出指定对象并删除指定列.xlsx"), exportByteData);
     }

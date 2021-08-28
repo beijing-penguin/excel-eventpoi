@@ -28,7 +28,7 @@ public class 使用一行代码导出excel {
         personList.add(p1);
         personList.add(p2);
         
-        //第三个参数表示，导出时，删除那些列（按模板文件中的key删除）
+        //第三个参数表示，导出时，删除那些列（按模板文件中的key删除，可不传）
         byte[] exportByteData = ExcelHelper.exportExcel(Test1.class.getResourceAsStream("demo1Templete.xlsx"), personList, "${salary}");
         //支持设置单元格样式噢！！！^_^
 //        byte[] exportByteData = ExcelHelper.exportExcel(Test1.class.getResourceAsStream("demo1Templete.xlsx"), personList,new CallBackCellStyle() {
