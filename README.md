@@ -6,8 +6,8 @@
 - 支持 指定工作簿sheetIndex读取
 - 支持 自动识别xls文件  和 xlsx 文件格式
 - 支持 自动识别date列时间格式
-- 支持 事件流ExcelEventStream行回调异步实时读取文件（无论文件多个G，都不会直接占用内存，而是异步小批量循环的方式抓取）
-- 支持 java集合对象转excel模板导出
+- 支持 事件流ExcelEventStream行回调异步实时读取文件（无论文件有多大，都不会直接占用内存，而是异步小批量缓冲流的方式抓取）
+- 支持 java List集合对象转excel模板数据导出
 
 #### 使用案例 查阅测试类 com.dc.eventpoi.test.Test1.java如下
 ```java
