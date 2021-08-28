@@ -19,143 +19,29 @@ public class 使用一行代码读取excel {
     }
 }
 ```
-#### 程序运行结果
+
+#### 使用一行代码导出excel
 ```java
-java.io.BufferedInputStream@15db9742
----------------------------excel转系统自带ExcelRow对象----------------------
-[
-	{
-		"cellList":[
-			{
-				"index":0,
-				"value":"编号"
-			},
-			{
-				"index":1,
-				"value":"姓名"
-			},
-			{
-				"index":2,
-				"value":"年龄"
-			},
-			{
-				"index":3,
-				"value":"工资"
-			}
-		],
-		"rowIndex":0
-	},
-	{
-		"cellList":[
-			{
-				"index":0,
-				"value":"NO1"
-			},
-			{
-				"index":1,
-				"value":"dc1"
-			},
-			{
-				"index":2,
-				"value":"18"
-			},
-			{
-				"index":3,
-				"value":"1000.11"
-			}
-		],
-		"rowIndex":1
-	},
-	{
-		"cellList":[
-			{
-				"index":0,
-				"value":"NO2"
-			},
-			{
-				"index":1,
-				"value":"dc2"
-			},
-			{
-				"index":2,
-				"value":"19"
-			},
-			{
-				"index":3,
-				"value":"1001.11"
-			}
-		],
-		"rowIndex":2
-	},
-	{
-		"cellList":[
-			{
-				"index":0,
-				"value":"NO3"
-			},
-			{
-				"index":1,
-				"value":"dc3"
-			},
-			{
-				"index":2,
-				"value":"20"
-			},
-			{
-				"index":3,
-				"value":"1002.11"
-			}
-		],
-		"rowIndex":3
-	},
-	{
-		"cellList":[
-			{
-				"index":0,
-				"value":"NO4"
-			},
-			{
-				"index":1,
-				"value":"dc4"
-			},
-			{
-				"index":2,
-				"value":"21"
-			},
-			{
-				"index":3,
-				"value":"1003.11"
-			}
-		],
-		"rowIndex":4
-	}
-]
----------------------------excel转对象----------------------
-[
-	{
-		"age":18,
-		"name":"dc1",
-		"no":"NO1",
-		"salary":1000.11
-	},
-	{
-		"age":19,
-		"name":"dc2",
-		"no":"NO2",
-		"salary":1001.11
-	},
-	{
-		"age":20,
-		"name":"dc3",
-		"no":"NO3",
-		"salary":1002.11
-	},
-	{
-		"age":21,
-		"name":"dc4",
-		"no":"NO4",
-		"salary":1003.11
-	}
-]
+
+public class 使用一行代码导出excel {
+    public static void main(String[] args) throws Exception {
+        List<Person> personList = new ArrayList<Person>();
+        Person p1 = new Person();
+        p1.setAge(11);
+        p1.setName("ssssss111");
+        p1.setRemark("测试测试啊remark111");
+        
+        Person p2 = new Person();
+        p2.setAge(22);
+        p2.setName("ssssss222");
+        p2.setRemark("测试测试啊remark2222");
+        personList.add(p1);
+        personList.add(p2);
+        
+        //第三个参数表示，导出时，删除那些列（按模板文件中的key删除）
+        byte[] exportByteData = ExcelHelper.exportExcel(Test1.class.getResourceAsStream("demo1Templete.xlsx"), personList, "${salary}");
+        Files.write(Paths.get("./my_test_temp/测试导出指定对象并删除指定列.xlsx"), exportByteData);
+    }
+}
 
 ```
