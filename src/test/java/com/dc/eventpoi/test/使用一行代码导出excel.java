@@ -13,7 +13,7 @@ import org.apache.poi.ss.usermodel.VerticalAlignment;
 import com.dc.eventpoi.ExcelHelper;
 import com.dc.eventpoi.core.CallBackCellStyle;
 
-public class 测试导出指定对象并删除指定列 {
+public class 使用一行代码导出excel {
     public static void main(String[] args) throws Exception {
         List<Person> personList = new ArrayList<Person>();
         Person p1 = new Person();
