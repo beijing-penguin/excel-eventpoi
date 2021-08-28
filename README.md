@@ -9,30 +9,14 @@
 - 支持 事件流ExcelEventStream行回调异步实时读取文件（无论文件有多大，都不会直接占用内存，而是异步小批量缓冲流的方式抓取）
 - 支持 java List集合对象转excel模板数据导出
 
-#### 使用案例 查阅测试类 com.dc.eventpoi.test.Test1.java如下
+#### 使用案例见/eventpoi/src/test/java目录
+#### 使用一行代码读取excel
 ```java
-public class Test1 {
-	public static void main(String[] args) {
-		/***********返回List<ExcelRow>类型数据*********************************/
-		InputStream excelInput = Test1.class.getResourceAsStream("demo1.xlsx");
-		System.out.println(excelInput);
-		try {
-			List<ExcelRow> dataList1 = ExcelHelper.parseExcelRowList(excelInput);//默认只读取所有工作簿数据，第二个参数指定工作簿
-			//指定工作薄eg:
-			//List<ExcelRow> dataList2 = ExcelHelper.parseExcelRowList(excelInput,0);//默认只读取sheetIndex=0的工作簿数据，第二个参数指定工作簿
-			System.out.println("---------------------------excel转系统自带ExcelRow对象----------------------");
-			System.out.println(JSON.toJSONString(dataList1,true));
-			
-			/***********返回一个自定义对象List<Person>类型数据，需要提前定义excel模板文件，如测试中的demo1Templete.xlsx*********************************/
-			InputStream templeteInput = Test1.class.getResourceAsStream("demo1Templete.xlsx");
-			List<ExcelRow> templeteList1 = ExcelHelper.parseExcelRowList(templeteInput);
-			List<Person> objList = ExcelHelper.parseExcelToObject(dataList1, templeteList1, Person.class);
-			System.out.println("---------------------------excel转对象----------------------");
-			System.out.println(JSON.toJSONString(objList,true)); 
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+public class 使用一行代码读取excel {
+    public static void main(String[] args) throws Exception {
+        List<Person> objList = ExcelHelper.parseExcelToObject(Test1.class.getResourceAsStream("demo1.xlsx"), Test1.class.getResourceAsStream("demo1Templete.xlsx"), Person.class);
+        System.err.println(JSON.toJSONString(objList,true));
+    }
 }
 ```
 #### 程序运行结果
