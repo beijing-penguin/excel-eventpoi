@@ -1,4 +1,4 @@
-package com.dc.eventpoi;
+package com.dc.eventpoi.core;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;

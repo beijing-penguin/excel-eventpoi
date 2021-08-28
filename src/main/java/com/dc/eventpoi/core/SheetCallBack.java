@@ -1,4 +1,4 @@
-package com.dc.eventpoi;
+package com.dc.eventpoi.core;
 
 /**
  * @Description: 行回调接口

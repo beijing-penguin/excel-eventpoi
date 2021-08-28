@@ -1,7 +1,7 @@
 /**
  * ExcelFileType.java
  */
-package com.dc.eventpoi;
+package com.dc.eventpoi.core;
 
 /**
  * @Description: 文件类型

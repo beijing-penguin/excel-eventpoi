@@ -1,7 +1,7 @@
 /**
  * ExcelRow.java
  */
-package com.dc.eventpoi;
+package com.dc.eventpoi.core;
 
 import java.util.List;
 

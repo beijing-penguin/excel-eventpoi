@@ -1,7 +1,7 @@
 /**
  * BaseExcelStream.java
  */
-package com.dc.eventpoi;
+package com.dc.eventpoi.core;
 
 import java.io.InputStream;
 import java.util.ArrayList;

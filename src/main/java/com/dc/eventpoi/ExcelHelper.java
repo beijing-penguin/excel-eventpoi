@@ -38,6 +38,12 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 
 import com.alibaba.fastjson.JSON;
+import com.dc.eventpoi.core.CallBackCellStyle;
+import com.dc.eventpoi.core.ExcelCell;
+import com.dc.eventpoi.core.ExcelEventStream;
+import com.dc.eventpoi.core.ExcelRow;
+import com.dc.eventpoi.core.FileType;
+import com.dc.eventpoi.core.RowCallBack;
 
 /**
  * @Description: excel操作
@@ -49,6 +55,12 @@ public class ExcelHelper {
      * 
      */
     private static Log LOG   = LogFactory.getLog(ExcelHelper.class);
+    
+    public static <T> List<T> parseExcelToObject(InputStream excelDataSourceStream,InputStream excelTemplateStream, Class<T> clazz) throws Exception{
+        List<ExcelRow> dataList = ExcelHelper.parseExcelRowList(excelDataSourceStream);
+        List<ExcelRow> templeteList = ExcelHelper.parseExcelRowList(excelTemplateStream);
+        return ExcelHelper.parseExcelToObject(dataList, templeteList, clazz);
+    }
     /**
      * 
      * @param fileList 数据文件
@@ -161,10 +173,6 @@ public class ExcelHelper {
             });
         }catch (Exception e) {
             throw e;
-        }finally {
-            if(fileStream!=null) {
-                fileStream.close();
-            }
         }
         return fileList;
     }
@@ -361,7 +369,7 @@ public class ExcelHelper {
      * @author 段超
      * @date 2019-02-22 14:29:52
      */
-    public static byte[] exportExcel(String templeteFileName,byte[] templete,List<?> dataList,int sheetIndex,boolean isZip) throws Exception {
+    public static byte[] exportExcel(String templeteFileName,byte[] templete,List<?> dataList,int sheetIndex,CallBackCellStyle callBackCellStyle,boolean isZip) throws Exception {
         FileType fileType = judgeFileType(new ByteArrayInputStream(templete));
         if(templeteFileName==null) {
             if(fileType==FileType.XLSX) {
@@ -413,12 +421,12 @@ public class ExcelHelper {
             Workbook workbook = WorkbookFactory.create(new ByteArrayInputStream(templete));
             Sheet sheet = workbook.getSheetAt(sheetIndex);
             CellStyle cellStyle = workbook.createCellStyle();
-            cellStyle.setAlignment(HorizontalAlignment.CENTER); // 水平居中
-            cellStyle.setVerticalAlignment(VerticalAlignment.CENTER); // 上下居中
-            cellStyle.setBorderTop(BorderStyle.THIN);
-            cellStyle.setBorderBottom(BorderStyle.THIN);
-            cellStyle.setBorderLeft(BorderStyle.THIN);
-            cellStyle.setBorderRight(BorderStyle.THIN);
+//            cellStyle.setAlignment(HorizontalAlignment.CENTER); // 水平居中
+//            cellStyle.setVerticalAlignment(VerticalAlignment.CENTER); // 上下居中
+//            cellStyle.setBorderTop(BorderStyle.THIN);
+//            cellStyle.setBorderBottom(BorderStyle.THIN);
+//            cellStyle.setBorderLeft(BorderStyle.THIN);
+//            cellStyle.setBorderRight(BorderStyle.THIN);
 
             for (int j = i*dataTotal; j < (i+1)*dataTotal; j++) {
                 if(j>=len) {
@@ -437,7 +445,10 @@ public class ExcelHelper {
                             Object value = field.get(obj);
                             if (value != null && value.toString().trim().length() > 0) {
                                 cell.setCellValue(String.valueOf(value));
-                                cell.setCellStyle(cellStyle);
+                                if(callBackCellStyle!=null) {
+                                    callBackCellStyle.callBack(cellStyle);
+                                    cell.setCellStyle(cellStyle);
+                                }
                             }
                         }
                     }
@@ -580,8 +591,8 @@ public class ExcelHelper {
      * @author 段超
      * @date 2019-02-22 14:33:33
      */
-    public static byte[] exportExcel(byte[] templete,List<?> dataList) throws Exception {
-        return exportExcel(null,templete, dataList,0,true);
+    public static byte[] exportExcel(byte[] templete,List<?> dataList,CallBackCellStyle callBackCellStyle) throws Exception {
+        return exportExcel(null,templete, dataList,0,callBackCellStyle,false);
     }
     /**
      * 导出zip数据
@@ -594,7 +605,7 @@ public class ExcelHelper {
      * @date 2019-02-22 14:33:33
      */
     public static byte[] exportExcel(String templeteFileName , byte[] templete,List<?> dataList) throws Exception {
-        return exportExcel(templeteFileName,templete, dataList,0,true);
+        return exportExcel(templeteFileName,templete, dataList,0,null,true);
     }
     /**
      * 导出zip数据
@@ -607,7 +618,7 @@ public class ExcelHelper {
      * @date 2019-02-22 14:33:33
      */
     public static byte[] exportExcel(byte[] templete,List<?> dataList,boolean isZip) throws Exception {
-        return exportExcel(null,templete, dataList,0,isZip);
+        return exportExcel(null,templete, dataList,0,null,isZip);
     }
     /**
      * 流转byte[]
@@ -727,5 +738,113 @@ public class ExcelHelper {
      */
     public static String getValueBy(List<ExcelRow> rowList ,int rowIndex,int cellIndex) throws Exception {
         return getValueBy(rowList, rowIndex,cellIndex,String.class);
+    }
+
+
+    public static void deleteColumn(Sheet sheet, int columnToDeleteIndex) {
+        for (int rId = 0; rId <= sheet.getLastRowNum(); rId++) {
+            Row row = sheet.getRow(rId);
+            for (int cID = columnToDeleteIndex; cID < row.getLastCellNum(); cID++) {
+                Cell cOld = row.getCell(cID);
+                if (cOld != null) {
+                    row.removeCell(cOld);
+                }
+                Cell cNext = row.getCell(cID + 1);
+                if (cNext != null) {
+                    Cell cNew = row.createCell(cID, cNext.getCellType());
+                    cloneCell(cNew, cNext);
+                    //Set the column width only on the first row.
+                    //Other wise the second row will overwrite the original column width set previously.
+                    if(rId == 0) {
+                        sheet.setColumnWidth(cID, sheet.getColumnWidth(cID + 1));
+                    }
+                }
+            }
+        }
+    }
+
+    public static void cloneCell(Cell cNew, Cell cOld) {
+        cNew.setCellComment(cOld.getCellComment());
+        cNew.setCellStyle(cOld.getCellStyle());
+
+        if (CellType.BOOLEAN == cNew.getCellType()) {
+            cNew.setCellValue(cOld.getBooleanCellValue());
+        } else if (CellType.NUMERIC == cNew.getCellType()) {
+            cNew.setCellValue(cOld.getNumericCellValue());
+        } else if (CellType.STRING == cNew.getCellType()) {
+            cNew.setCellValue(cOld.getStringCellValue());
+        } else if (CellType.ERROR == cNew.getCellType()) {
+            cNew.setCellValue(cOld.getErrorCellValue());
+        } else if (CellType.FORMULA == cNew.getCellType()) {
+            cNew.setCellValue(cOld.getCellFormula());
+        }
+    }
+
+    public static byte[] deleteTemplateColumn(InputStream excelFileInput, String...key) throws Exception {
+        ByteArrayOutputStream output = new ByteArrayOutputStream(); 
+        byte[] buff = new byte[1024*4];
+        int n = 0; 
+        while (-1 != (n=excelFileInput.read(buff))) { 
+            output.write(buff, 0, n); 
+        }
+        return deleteTemplateColumn(output.toByteArray(), 0, key);
+    }
+    
+    public static byte[] deleteTemplateColumn(InputStream excelFileInput,int sheetIndex, String...keys) throws Exception {
+        ByteArrayOutputStream output = new ByteArrayOutputStream(); 
+        byte[] buff = new byte[1024*4];
+        int n = 0; 
+        while (-1 != (n=excelFileInput.read(buff))) { 
+            output.write(buff, 0, n); 
+        } 
+        return deleteTemplateColumn(output.toByteArray(), sheetIndex, keys);
+    }
+    
+    public static byte[] deleteTemplateColumn(byte[] templateFile, String...key) throws Exception {
+        return deleteTemplateColumn(templateFile,0 ,key);
+    }
+    public static byte[] deleteTemplateColumn(byte[] templateFile,int sheetIndex, String...keys) throws Exception {
+        Workbook workbook = WorkbookFactory.create(new ByteArrayInputStream(templateFile));
+        Sheet sheet = workbook.getSheetAt(sheetIndex);
+        
+        List<ExcelRow> rowList = ExcelHelper.parseExcelRowList(new ByteArrayInputStream(templateFile));
+        for (String kk : keys) {
+            for (ExcelRow row : rowList) {
+                List<ExcelCell> cellList = row.getCellList();
+                for (ExcelCell cell : cellList) {
+                    if(cell.getValue().equals(kk)) {
+                        ExcelHelper.deleteColumn(sheet, cell.getIndex());
+                    }
+                }
+            }
+        }
+
+        ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
+        workbook.write(byteOut);
+        byteOut.flush();
+        byteOut.close();
+        return byteOut.toByteArray();
+    }
+    
+    public static byte[] exportExcel(List<?> dataList) {
+        Field[] fieldArr = dataList.get(0).getClass().getDeclaredFields();
+        for (int i = 0; i < fieldArr.length; i++) {
+            System.err.println(fieldArr[i].getName());
+        }
+        return null;
+    }
+    
+    public static byte[] exportExcel(InputStream templeteStream, List<?> personList, String...delCellKey) throws Exception {
+        return exportExcel(templeteStream, personList,null,delCellKey);
+    }
+    public static byte[] exportExcel(InputStream templeteStream, List<?> personList, CallBackCellStyle callBackCellStyle, String...delCellKey) throws Exception {
+        ByteArrayOutputStream templeteOutput = new ByteArrayOutputStream(); 
+        byte[] buff = new byte[1024*4];
+        int n = 0; 
+        while (-1 != (n=templeteStream.read(buff))) { 
+            templeteOutput.write(buff, 0, n); 
+        }
+        byte[] newTemPleteExcel = ExcelHelper.deleteTemplateColumn(templeteOutput.toByteArray(),delCellKey);
+        return ExcelHelper.exportExcel(newTemPleteExcel, personList,callBackCellStyle);
     }
 }
