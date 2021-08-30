@@ -28,7 +28,7 @@ import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 
 /**
  * 事件流xlx处理
- * @author 段超
+ * @author beijing-penguin
  * @date: 2019年1月16日
  * @eg:https://svn.apache.org/repos/asf/poi/trunk/src/examples/src/org/apache/poi/hssf/usermodel/examples/EventExample.java
  * @mainUrl:http://poi.apache.org/components/spreadsheet/examples.html
@@ -172,7 +172,6 @@ public class ExcelXlsStream extends BaseExcelStream implements ExcelEventStream{
      * @param sheetIndexArr sheetIndexArr
      * @param sheetIndex sheetIndex
      * @return boolean
-     * @author 段超
      * @date 2019-01-16 13:58:00
      */
     public boolean allowSheet(Integer[] sheetIndexArr,short sheetIndex) {
@@ -212,7 +211,6 @@ public class ExcelXlsStream extends BaseExcelStream implements ExcelEventStream{
 
     /**
      * 
-     * @author 段超
      * @date 2019-01-15 13:39:02
      */
     public void close() {
@@ -233,7 +231,6 @@ public class ExcelXlsStream extends BaseExcelStream implements ExcelEventStream{
     /**
      * 获取事件发生时的工作簿名称
      * @return String
-     * @author 段超
      * @date 2019-01-15 10:59:53
      */
     public String getSheetName() {
@@ -243,7 +240,6 @@ public class ExcelXlsStream extends BaseExcelStream implements ExcelEventStream{
     /**
      * 行回调
      * @param baseCallBack 回调函数
-     * @author 段超
      * @throws Exception 
      * @date 2019-01-14 18:06:24
      */
@@ -253,7 +249,6 @@ public class ExcelXlsStream extends BaseExcelStream implements ExcelEventStream{
     }
     /**
      * 
-     * @author 段超
      * @throws Exception 
      * @date 2019-01-15 11:19:06
      */
@@ -282,7 +277,6 @@ public class ExcelXlsStream extends BaseExcelStream implements ExcelEventStream{
      * 指定工作簿
      * @param sheetIndexArr 索引数组
      * @return BaseExcelStream
-     * @author 段超
      * @date 2019-01-21 11:01:45
      */
     public ExcelEventStream sheetAt(Integer... sheetIndexArr) {

@@ -9,7 +9,7 @@ import java.util.List;
 
 /**
  * @Description: 基础excel流对象
- * @author 段超
+ * @author beijing-penguin
  * @date: 2019年1月18日
  */
 public class BaseExcelStream{
@@ -29,7 +29,6 @@ public class BaseExcelStream{
     /**
      * @param baseCallBack 回调
      * @param entity 实体
-     * @author 段超
      * @date 2019-01-18 10:36:42
      */
     protected void excuteCallBack(BaseCallBack baseCallBack,BaseExcelEntity entity) {

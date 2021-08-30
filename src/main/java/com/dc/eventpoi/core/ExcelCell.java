@@ -5,7 +5,7 @@ package com.dc.eventpoi.core;
 
 /**
  * @Description: 单元格实体对象
- * @author 段超
+ * @author beijing-penguin
  * @date: 2019年1月14日
  */
 public class ExcelCell extends BaseExcelEntity{

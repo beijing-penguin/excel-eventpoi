@@ -44,7 +44,7 @@ import com.dc.eventpoi.core.RowCallBack;
 
 /**
  * @Description: excel操作
- * @author 段超
+ * @author beijing-penguin
  * @date: 2019年1月28日
  */
 public class ExcelHelper {
@@ -66,7 +66,7 @@ public class ExcelHelper {
      * @return 集合
      * @throws Exception
      * @param  <T> T
-     * @author 段超
+     * @author beijing-penguin
      * @date 2019-01-28 14:25:20
      */
     public static <T> List<T> parseExcelToObject(List<ExcelRow> fileList,List<ExcelRow> templeteList, Class<T> clazz) throws Exception{
@@ -84,7 +84,7 @@ public class ExcelHelper {
         for (ExcelRow row : fileList) {
             int rowIndex = row.getRowIndex();
             if(rowIndex>=startRow) {
-                T obj = clazz.newInstance();
+                T obj = clazz.getDeclaredConstructor().newInstance();
                 List<ExcelCell> fieldList = row.getCellList();
                 for (ExcelCell fieldCell : fieldList) {
                     for (ExcelCell tempCell : tempFieldList) {
@@ -187,7 +187,7 @@ public class ExcelHelper {
      * @param fileList 原始上传文件
      * @param templeteList 模板文件
      * @throws Exception
-     * @author 段超
+     * @author beijing-penguin
      * @date 2019-01-28 14:24:09
      */
     public static void checkTemplete(List<ExcelRow> fileList,List<ExcelRow> templeteList) throws Exception{
@@ -311,7 +311,6 @@ public class ExcelHelper {
      * @param sheetIndex 工作簿索引下标
      * @return ByteArrayOutputStream
      * @throws Exception
-     * @author 段超
      * @date 2019-01-30 16:59:13
      */
     public static ByteArrayOutputStream deleteTempleteFormat(InputStream inputSrc,int sheetIndex) throws Exception {
@@ -363,7 +362,6 @@ public class ExcelHelper {
      * @param isZip 是否压缩成zip文件
      * @return byte[]
      * @throws Exception
-     * @author 段超
      * @date 2019-02-22 14:29:52
      */
     public static byte[] exportExcel(String templeteFileName,byte[] templete,List<?> dataList,int sheetIndex,CallBackCellStyle callBackCellStyle,boolean isZip) throws Exception {
@@ -490,7 +488,6 @@ public class ExcelHelper {
      * @param dataList 对象数据集合
      * @return byte[]
      * @throws Exception
-     * @author 段超
      * @date 2019-02-22 14:29:52
      */
     public static byte[] exportTableExcel(byte[] templete,Object data) throws Exception {
@@ -505,7 +502,6 @@ public class ExcelHelper {
      * @param isZip 是否压缩成zip文件
      * @return byte[]
      * @throws Exception
-     * @author 段超
      * @date 2019-02-22 14:29:52
      */
     public static byte[] exportTableExcel(byte[] templete,Object data,int sheetIndex) throws Exception {
@@ -585,7 +581,6 @@ public class ExcelHelper {
      * @param dataList 对象数据集合
      * @return byte[]
      * @throws Exception
-     * @author 段超
      * @date 2019-02-22 14:33:33
      */
     public static byte[] exportExcel(byte[] templete,List<?> dataList,CallBackCellStyle callBackCellStyle) throws Exception {
@@ -598,7 +593,6 @@ public class ExcelHelper {
      * @param dataList dataList
      * @return byte[]
      * @throws Exception
-     * @author 段超
      * @date 2019-02-22 14:33:33
      */
     public static byte[] exportExcel(String templeteFileName , byte[] templete,List<?> dataList) throws Exception {
@@ -611,7 +605,6 @@ public class ExcelHelper {
      * @param isZip 是否压缩
      * @return byte[]
      * @throws Exception
-     * @author 段超
      * @date 2019-02-22 14:33:33
      */
     public static byte[] exportExcel(byte[] templete,List<?> dataList,boolean isZip) throws Exception {
@@ -622,7 +615,6 @@ public class ExcelHelper {
      * @param is is
      * @return byte[]
      * @throws Exception
-     * @author 段超
      * @date 2019-02-22 15:16:47
      */
     public static byte[] inputStreamToByte(InputStream is) throws Exception{
@@ -643,7 +635,7 @@ public class ExcelHelper {
      * @param inp 数据流
      * @return FileType
      * @throws Exception
-     * @author 段超
+     * @author beijing-penguin
      * @date 2019-02-25 11:27:10
      */
     public static FileType judgeFileType(InputStream inp) throws Exception {
@@ -667,7 +659,6 @@ public class ExcelHelper {
      * @param <T> 返回类型
      * @return T
      * @throws Exception
-     * @author 段超
      * @date 2019-02-26 18:36:22
      */
     @SuppressWarnings("unchecked")
@@ -686,7 +677,6 @@ public class ExcelHelper {
      * @param cellIndex 索引号
      * @return String
      * @throws Exception
-     * @author 段超
      * @date 2019-02-26 18:46:16
      */
     public static String getValueBy(List<ExcelCell> cellList ,int cellIndex) throws Exception {
@@ -701,7 +691,6 @@ public class ExcelHelper {
      * @param <T> 返回类型
      * @return T
      * @throws Exception
-     * @author 段超
      * @date 2019-02-26 19:19:49
      */
     @SuppressWarnings("unchecked")
@@ -730,7 +719,6 @@ public class ExcelHelper {
      * @param cellIndex 列下标
      * @return String
      * @throws Exception
-     * @author 段超
      * @date 2019-02-26 19:19:49
      */
     public static String getValueBy(List<ExcelRow> rowList ,int rowIndex,int cellIndex) throws Exception {

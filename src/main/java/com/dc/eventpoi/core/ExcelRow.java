@@ -7,7 +7,7 @@ import java.util.List;
 
 /**
  * @Description: 行对象
- * @author 段超
+ * @author beijing-penguin
  * @date: 2019年1月14日
  */
 public class ExcelRow extends BaseExcelEntity{

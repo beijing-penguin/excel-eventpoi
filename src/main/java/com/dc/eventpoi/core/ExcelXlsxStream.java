@@ -9,6 +9,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.parsers.SAXParserFactory;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.poi.openxml4j.opc.OPCPackage;
@@ -20,11 +22,10 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
-import org.xml.sax.helpers.XMLReaderFactory;
 
 /**
  * 新版xlxs事件流解析对象
- * @author 段超
+ * @author beijing-penguin
  * @date: 2019年1月16日
  */
 public class ExcelXlsxStream extends BaseExcelStream implements ExcelEventStream{
@@ -176,7 +177,6 @@ public class ExcelXlsxStream extends BaseExcelStream implements ExcelEventStream
      * 解析cell编号
      * @param cellNo 编号
      * @return String[]
-     * @author 段超
      * @date 2019-01-16 14:03:22
      */
     private static String[] parseCellNo(String cellNo) {
@@ -195,7 +195,6 @@ public class ExcelXlsxStream extends BaseExcelStream implements ExcelEventStream
      * 列字母转列数
      * @param colStr 列字母
      * @return short
-     * @author 段超
      * @date 2019-01-16 14:03:47
      */
     private static short excelColStrToNum(String colStr) {
@@ -213,7 +212,6 @@ public class ExcelXlsxStream extends BaseExcelStream implements ExcelEventStream
 
     /**
      * 
-     * @author 段超
      * @date 2019-01-14 15:15:58
      */
     public void close() {
@@ -260,7 +258,8 @@ public class ExcelXlsxStream extends BaseExcelStream implements ExcelEventStream
      */
     public void rowStream(BaseCallBack baseCallBack) throws Exception {
         this.baseCallBack = baseCallBack;
-        parser = XMLReaderFactory.createXMLReader("org.apache.xerces.parsers.SAXParser");
+        
+        parser = SAXParserFactory.newInstance().newSAXParser().getXMLReader();
         parser.setContentHandler(defaultHandler);
         pkg = OPCPackage.open(fileStream);
         r = new XSSFReader(pkg);
@@ -295,7 +294,6 @@ public class ExcelXlsxStream extends BaseExcelStream implements ExcelEventStream
      * 指定工作簿
      * @param sheetIndexArr 索引数组
      * @return BaseExcelStream
-     * @author 段超
      * @date 2019-01-21 11:01:45
      */
     public ExcelEventStream sheetAt(Integer... sheetIndexArr) {
