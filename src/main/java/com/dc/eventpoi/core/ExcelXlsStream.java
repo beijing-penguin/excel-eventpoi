@@ -30,7 +30,7 @@ import org.apache.poi.poifs.filesystem.POIFSFileSystem;
  * 事件流xlx处理
  * @author beijing-penguin
  * @date: 2019年1月16日
- * @eg:https://svn.apache.org/repos/asf/poi/trunk/src/examples/src/org/apache/poi/hssf/usermodel/examples/EventExample.java
+ * @eg:https://svn.apache.org/repos/asf/poi/trunk/poi-examples/src/main/java/org/apache/poi/examples/hssf/usermodel/EventExample.java
  * @mainUrl:http://poi.apache.org/components/spreadsheet/examples.html
  */
 public class ExcelXlsStream extends BaseExcelStream implements ExcelEventStream{
