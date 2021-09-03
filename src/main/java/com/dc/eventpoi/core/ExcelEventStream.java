@@ -53,7 +53,7 @@ public interface ExcelEventStream {
 	 * 关闭所有流，清空对象内存
 	 * @date 2019-01-30 11:00:51
 	 */
-	void close();
+	void close() throws Exception;
 	/**
 	 * 读取文件
 	 * @param file 文件

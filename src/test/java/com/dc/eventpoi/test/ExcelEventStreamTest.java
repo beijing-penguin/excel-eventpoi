@@ -7,6 +7,11 @@ import com.dc.eventpoi.core.ExcelEventStream;
 import com.dc.eventpoi.core.ExcelRow;
 import com.dc.eventpoi.core.RowCallBack;
 
+/**
+ * 按行回调的方式读取数据，回调返回 ExcelRow 对象
+ * @author DC
+ *
+ */
 public class ExcelEventStreamTest {
 	public static void main(String[] args) {
 		try {
