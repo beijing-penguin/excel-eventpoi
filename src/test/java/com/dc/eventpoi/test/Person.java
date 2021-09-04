@@ -5,8 +5,9 @@ import java.math.BigDecimal;
 public class Person {
 	private String no;
 	private String name;
-	private int age;
+	private Integer age;
 	private BigDecimal salary;
+	private BigDecimal oldSalary;
 	private String remark;
 	
 	public String getRemark() {
@@ -29,10 +30,10 @@ public class Person {
 		this.name = name;
 	}
 	
-	public int getAge() {
+	public Integer getAge() {
 		return age;
 	}
-	public void setAge(int age) {
+	public void setAge(Integer age) {
 		this.age = age;
 	}
 	public BigDecimal getSalary() {
@@ -41,4 +42,11 @@ public class Person {
 	public void setSalary(BigDecimal salary) {
 		this.salary = salary;
 	}
+	public BigDecimal getOldSalary() {
+		return oldSalary;
+	}
+	public void setOldSalary(BigDecimal oldSalary) {
+		this.oldSalary = oldSalary;
+	}
+	
 }

@@ -82,6 +82,7 @@ public class ExcelXlsStream extends BaseExcelStream implements ExcelEventStream{
 				if(allowSheet(sheetIndexArr, sheetIndex)) {
 					ExcelRow excelRow= new ExcelRow();
 					excelRow.setRowIndex(excelRow.getRowIndex());
+					excelRow.setSheetIndex(sheetIndex);
 					excuteCallBack(baseCallBack,excelRow);
 				}
 				sheetIndex++;
@@ -96,6 +97,7 @@ public class ExcelXlsStream extends BaseExcelStream implements ExcelEventStream{
 				if(allowSheet(sheetIndexArr, sheetIndex)) {
 					excelRow.setCellList(valueList);
 					excelRow.setRowIndex(curRowIndex);
+					excelRow.setSheetIndex(sheetIndex);
 					excuteCallBack(baseCallBack,excelRow);
 					//rowCallBack.getRow(excelRow);
 				}

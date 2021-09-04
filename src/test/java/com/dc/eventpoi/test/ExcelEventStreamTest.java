@@ -21,7 +21,7 @@ public class ExcelEventStreamTest {
 			stream.rowStream(new RowCallBack() {
 				@Override
 				public void getRow(ExcelRow row) {
-					System.out.println(JSON.toJSONString(row));
+					System.out.println(stream.getSheetName() +"=="+JSON.toJSONString(row));
 				}
 			});
 			stream.close();

@@ -50,6 +50,7 @@ public class ExcelHelper {
 	public static <T> List<T> parseExcelToObject(InputStream excelDataSourceStream,InputStream excelTemplateStream, Class<T> clazz) throws Exception{
 		List<ExcelRow> dataList = ExcelHelper.parseExcelRowList(excelDataSourceStream);
 		List<ExcelRow> templeteList = ExcelHelper.parseExcelRowList(excelTemplateStream);
+		checkTemplete(dataList, templeteList);
 		return ExcelHelper.parseExcelToObject(dataList, templeteList, clazz);
 	}
 	/**
@@ -64,41 +65,46 @@ public class ExcelHelper {
 	 * @date 2019-01-28 14:25:20
 	 */
 	public static <T> List<T> parseExcelToObject(List<ExcelRow> fileList,List<ExcelRow> templeteList, Class<T> clazz) throws Exception{
-		int startRow = 0;
+		List<T> rtn = new ArrayList<T>();
 		List<ExcelCell> tempFieldList = new ArrayList<ExcelCell>();
+		int size = fileList.size();
+		int x = 0;
+		int startRow = 0;
 		for (int i = 0; i < templeteList.size(); i++) {
 			if(templeteList.get(i).getCellList().get(0).getValue().startsWith("$")) {
 				startRow = templeteList.get(i).getRowIndex();
+				short  sheetIndex = templeteList.get(i).getSheetIndex();
 				tempFieldList = templeteList.get(i).getCellList();
-				break;
-			}
-		}
-
-		List<T> rtn = new ArrayList<T>();
-		for (ExcelRow row : fileList) {
-			int rowIndex = row.getRowIndex();
-			if(rowIndex>=startRow) {
-				T obj = clazz.getDeclaredConstructor().newInstance();
-				List<ExcelCell> fieldList = row.getCellList();
-				for (ExcelCell fieldCell : fieldList) {
-					for (ExcelCell tempCell : tempFieldList) {
-						if(fieldCell.getIndex()==tempCell.getIndex()) {
-							for (Field field : FieldUtils.getAllFields(clazz)) {
-								if (!Modifier.isStatic(field.getModifiers())) {
-									if (tempCell.getValue().contains(field.getName())) {
-										field.setAccessible(true);
-										Object vall = getValueByFieldType(fieldCell.getValue(), field.getType());
-										field.set(obj, vall);
-										break;
+				
+				for (int j = (x+startRow); j < size; j++) {
+					ExcelRow row = fileList.get(j);
+					int rowIndex = row.getRowIndex();
+					if(rowIndex>=startRow && row.getSheetIndex() == sheetIndex) {
+						x++;
+						T obj = clazz.getDeclaredConstructor().newInstance();
+						List<ExcelCell> fieldList = row.getCellList();
+						for (ExcelCell fieldCell : fieldList) {
+							for (ExcelCell tempCell : tempFieldList) {
+								if(fieldCell.getIndex()==tempCell.getIndex()) {
+									for (Field field : FieldUtils.getAllFields(clazz)) {
+										if (!Modifier.isStatic(field.getModifiers())) {
+											if (tempCell.getValue().contains(field.getName())) {
+												field.setAccessible(true);
+												Object vall = getValueByFieldType(fieldCell.getValue(), field.getType());
+												field.set(obj, vall);
+												break;
+											}
+										}
 									}
 								}
 							}
 						}
+						rtn.add(obj);
 					}
 				}
-				rtn.add(obj);
 			}
 		}
+		
 		return rtn;
 	}
 	/**
@@ -194,7 +200,7 @@ public class ExcelHelper {
 			List<ExcelCell> excelCell = row.getCellList();
 			if(!excelCell.get(0).getValue().startsWith("${")) {
 				if(!JSON.toJSONString(templeteList.get(i)).equals(JSON.toJSONString(fileList.get(i)))) {
-					throw new Exception("fileList is not the same as templeteList");
+					throw new Exception("fileList is not the same as templeteList[读取文件的excel头信息和模板头信息不匹配，文件格式不一致]");
 				}
 			}else {
 				break;

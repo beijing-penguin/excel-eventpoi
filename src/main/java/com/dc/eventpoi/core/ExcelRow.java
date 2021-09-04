@@ -11,6 +11,12 @@ import java.util.List;
  * @date: 2019年1月14日
  */
 public class ExcelRow extends BaseExcelEntity{
+	
+	/**
+     * sheet索引
+     */
+    private short sheetIndex;
+    
     /**
      * 行索引
      */
@@ -32,4 +38,11 @@ public class ExcelRow extends BaseExcelEntity{
     public void setCellList(List<ExcelCell> cellList) {
         this.cellList = cellList;
     }
+	public short getSheetIndex() {
+		return sheetIndex;
+	}
+	public void setSheetIndex(short sheetIndex) {
+		this.sheetIndex = sheetIndex;
+	}
+    
 }
