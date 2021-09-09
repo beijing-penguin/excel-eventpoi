@@ -1,7 +1,7 @@
 # 高性能事件驱动  eventpoi 目前开源版本只支持poi4.x以上，不支持3.x
 
 #### 功能介绍
-- 支持 excel文件高性能读取 并自动转java对象，只需一行代码即可
+- 支持 excel文件高性能读取 并自动转java对象，只需一行代码即可：案例查看文件<code> com.dc.eventpoi.test.使用一行代码读取excel</code>
 - 特点：性能高、支持excel大数据量读取、LruCache进一步提高excel读取性能
 - 支持 指定工作簿sheetIndex读取
 - 支持 自动识别xls文件  和 xlsx 文件格式
