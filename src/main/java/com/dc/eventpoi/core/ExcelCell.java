@@ -17,6 +17,10 @@ public class ExcelCell extends BaseExcelEntity{
      * 值
      */
     private String value;
+    /**
+     * 图片数组
+     */
+    private byte[] imgBytes;
     
     /**
      * 
@@ -28,6 +32,15 @@ public class ExcelCell extends BaseExcelEntity{
         this.value = value;
     }
 
+    /**
+     * 
+     * @param index 列索引
+     * @param value 值
+     */
+    public ExcelCell(Short index, byte[] value) {
+        this.index = index;
+        this.imgBytes = value;
+    }
     
     public Short getIndex() {
         return index;
@@ -48,6 +61,14 @@ public class ExcelCell extends BaseExcelEntity{
         this.value = value;
     }
 
-    
+
+    public byte[] getImgBytes() {
+        return imgBytes;
+    }
+
+
+    public void setImgBytes(byte[] imgBytes) {
+        this.imgBytes = imgBytes;
+    }
     
 }

@@ -3,6 +3,7 @@ package com.dc.eventpoi.test;
 import java.math.BigDecimal;
 
 public class Person {
+    private byte[] headImage;
 	private String no;
 	private String name;
 	private Integer age;
@@ -10,7 +11,14 @@ public class Person {
 	private BigDecimal oldSalary;
 	private String remark;
 	
-	public String getRemark() {
+	
+    public byte[] getHeadImage() {
+        return headImage;
+    }
+    public void setHeadImage(byte[] headImage) {
+        this.headImage = headImage;
+    }
+    public String getRemark() {
         return remark;
     }
     public void setRemark(String remark) {
