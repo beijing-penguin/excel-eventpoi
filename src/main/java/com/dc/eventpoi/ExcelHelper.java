@@ -28,6 +28,7 @@ import org.apache.commons.lang3.reflect.FieldUtils;
 import org.apache.poi.hssf.usermodel.HSSFClientAnchor;
 import org.apache.poi.hssf.usermodel.HSSFPicture;
 import org.apache.poi.hssf.usermodel.HSSFPictureData;
+import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFShape;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -49,12 +50,13 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.openxmlformats.schemas.drawingml.x2006.spreadsheetDrawing.CTMarker;
 
 import com.alibaba.fastjson.JSON;
-import com.dc.eventpoi.core.CallBackCellStyle;
-import com.dc.eventpoi.core.ExcelCell;
-import com.dc.eventpoi.core.ExcelEventStream;
-import com.dc.eventpoi.core.ExcelRow;
-import com.dc.eventpoi.core.FileType;
-import com.dc.eventpoi.core.RowCallBack;
+import com.dc.eventpoi.core.entity.ExcelCell;
+import com.dc.eventpoi.core.entity.ExcelRow;
+import com.dc.eventpoi.core.entity.ExportExcelCell;
+import com.dc.eventpoi.core.enums.FileType;
+import com.dc.eventpoi.core.inter.CallBackCellStyle;
+import com.dc.eventpoi.core.inter.ExcelEventStream;
+import com.dc.eventpoi.core.inter.RowCallBack;
 
 /**
  * @Description: excel操作
@@ -487,16 +489,18 @@ public class ExcelHelper {
      * @throws Exception
      * @date 2019-02-22 14:29:52
      */
-    public static byte[] exportExcel(String templeteFileName,byte[] templete,List<?> dataList,int sheetIndex,CallBackCellStyle callBackCellStyle,boolean isZip) throws Exception {
+    public static byte[] exportExcel(byte[] templete,List<?> dataList,int sheetIndex,CallBackCellStyle callBackCellStyle,boolean isZip) throws Exception {
         FileType fileType = judgeFileType(new ByteArrayInputStream(templete));
-        if(templeteFileName==null) {
-            if(fileType==FileType.XLSX) {
-                templeteFileName = "file.xlxs";
-            }else {
-                templeteFileName = "file.xls";
-            }
+        String templeteFileName = null;
+        Workbook tempWb = null;
+        if(fileType==FileType.XLSX) {
+            templeteFileName = "file.xlxs";
+            tempWb = new XSSFWorkbook(new ByteArrayInputStream(templete));
+        }else {
+            tempWb = (HSSFWorkbook)WorkbookFactory.create(new ByteArrayInputStream(templete));
+            templeteFileName = "file.xls";
         }
-        Integer startRow = null;
+        
         int dataTotal = 45000;
         if(isZip) {
             if(fileType==FileType.XLSX) {
@@ -507,37 +511,34 @@ public class ExcelHelper {
         }else {
             dataTotal = Integer.MAX_VALUE;
         }
-
-        List<ExcelRow> rowList  =new ArrayList<ExcelRow>();
-        List<ExcelCell> keyCellList = null;
-        ExcelEventStream fileStream = ExcelEventStream.readExcel(templete);
-        fileStream.sheetAt(sheetIndex).rowStream(new RowCallBack() {
-            @Override
-            public void getRow(ExcelRow row) {
-                rowList.add(row);
-            }
-        });
-        for (int i = 0; i < rowList.size(); i++) {
-            if(startRow!=null) {
-                break;
-            }
-            ExcelRow row = rowList.get(i);
-            List<ExcelCell> cellList = row.getCellList();
-            for (int j = 0; j < cellList.size(); j++) {
-                ExcelCell cell = cellList.get(j);
-                if(cell.getValue().startsWith("${")) {
-                    startRow = row.getRowIndex();
-                    keyCellList = cellList;
-                    break;
+        int sheetNumbers = tempWb.getNumberOfSheets();
+        List<ExportExcelCell> keyCellList = new ArrayList<ExportExcelCell>();
+        Integer startRow = null;
+        Short rowheight = null;
+        Sheet tempsheet = tempWb.getSheetAt(sheetIndex);
+        int rowIndex = tempsheet.getPhysicalNumberOfRows();
+        for (int j = 0; j < rowIndex; j++) {
+            int cellIndex = tempsheet.getRow(j).getPhysicalNumberOfCells();
+            for (int k = 0; k < cellIndex; k++) {
+                Cell cell = tempsheet.getRow(j).getCell(k);
+                String vv = cell.getStringCellValue();
+                if(vv != null && vv.startsWith("${")) {
+                    startRow = j;
+                    rowheight = tempsheet.getRow(j).getHeight();
+                    ExportExcelCell cc = new ExportExcelCell((short)k,vv,cell.getCellStyle());
+                    keyCellList.add(cc);
                 }
             }
         }
+        tempWb.close();
+
         int len = dataList.size();
         int l = len/dataTotal+(len%dataTotal!=0?1:0);
         Map<String, byte[]> fileDataMap = new LinkedHashMap<String, byte[]>();
         for (int i = 0; i < l; i++) {
             Workbook workbook = WorkbookFactory.create(new ByteArrayInputStream(templete));
             Sheet sheet = workbook.getSheetAt(sheetIndex);
+            XSSFDrawing patriarch = (XSSFDrawing) sheet.createDrawingPatriarch();
             CellStyle cellStyle = workbook.createCellStyle();
             //            cellStyle.setAlignment(HorizontalAlignment.CENTER); // 水平居中
             //            cellStyle.setVerticalAlignment(VerticalAlignment.CENTER); // 上下居中
@@ -551,9 +552,10 @@ public class ExcelHelper {
                     break;
                 }
                 Row row = sheet.createRow(j+startRow-i*dataTotal);
+                row.setHeight(rowheight);
                 Object obj = dataList.get(j);
                 for (int k = 0; k < keyCellList.size(); k++) {
-                    ExcelCell cellField = keyCellList.get(k);
+                    ExportExcelCell cellField = keyCellList.get(k);
                     String excelField = cellField.getValue().substring(cellField.getValue().indexOf("${") + 2, cellField.getValue().lastIndexOf("}"));
                     Field[] fieldArr = FieldUtils.getAllFields(obj.getClass());
                     for (Field field : fieldArr) {
@@ -562,7 +564,18 @@ public class ExcelHelper {
                             field.setAccessible(true);
                             Object value = field.get(obj);
                             if (value != null && value.toString().trim().length() > 0) {
-                                cell.setCellValue(String.valueOf(value));
+
+                                if(value instanceof byte[]) {
+                                    if(getImageType((byte[]) value) != null) {
+                                        XSSFClientAnchor anchor = new XSSFClientAnchor(0, 0, 0, 0, k, j+startRow, k+1, j+1+startRow);   
+                                        int picIndex = workbook.addPicture((byte[]) value, HSSFWorkbook.PICTURE_TYPE_JPEG);
+                                        patriarch.createPicture(anchor, picIndex);
+                                    }else {
+                                        cell.setCellValue(new String((byte[])value));
+                                    }
+                                }else {
+                                    cell.setCellValue(String.valueOf(value));
+                                }
                                 if(callBackCellStyle!=null) {
                                     callBackCellStyle.callBack(cellStyle);
                                     cell.setCellStyle(cellStyle);
@@ -670,7 +683,25 @@ public class ExcelHelper {
         return fileDataMap.values().iterator().next();
     }
 
-
+    public static String getImageType(byte[] b10) {
+        byte b0 = b10[0];
+        byte b1 = b10[1];
+        byte b2 = b10[2];
+        byte b3 = b10[3];
+        byte b6 = b10[6];
+        byte b7 = b10[7];
+        byte b8 = b10[8];
+        byte b9 = b10[9];
+        if (b0 == (byte) 'G' && b1 == (byte) 'I' && b2 == (byte) 'F') {
+            return "gif";
+        } else if (b1 == (byte) 'P' && b2 == (byte) 'N' && b3 == (byte) 'G') {
+            return "png";
+        } else if (b6 == (byte) 'J' && b7 == (byte) 'F' && b8 == (byte) 'I' && b9 == (byte) 'F') {
+            return "jpg";
+        } else {
+            return null;
+        }
+    }
 
     /**
      * 导出zip数据
@@ -681,7 +712,7 @@ public class ExcelHelper {
      * @date 2019-02-22 14:33:33
      */
     public static byte[] exportExcel(byte[] templete,List<?> dataList,CallBackCellStyle callBackCellStyle) throws Exception {
-        return exportExcel(null,templete, dataList,0,callBackCellStyle,false);
+        return exportExcel(templete, dataList,0,callBackCellStyle,false);
     }
     /**
      * 导出zip数据
@@ -693,7 +724,7 @@ public class ExcelHelper {
      * @date 2019-02-22 14:33:33
      */
     public static byte[] exportExcel(String templeteFileName , byte[] templete,List<?> dataList) throws Exception {
-        return exportExcel(templeteFileName,templete, dataList,0,null,true);
+        return exportExcel(templete, dataList,0,null,true);
     }
     /**
      * 导出zip数据
@@ -705,7 +736,7 @@ public class ExcelHelper {
      * @date 2019-02-22 14:33:33
      */
     public static byte[] exportExcel(byte[] templete,List<?> dataList,boolean isZip) throws Exception {
-        return exportExcel(null,templete, dataList,0,null,isZip);
+        return exportExcel(templete, dataList,0,null,isZip);
     }
     /**
      * 流转byte[]
@@ -894,7 +925,7 @@ public class ExcelHelper {
             for (ExcelRow row : rowList) {
                 List<ExcelCell> cellList = row.getCellList();
                 for (ExcelCell cell : cellList) {
-                    if(cell.getValue().equals(kk)) {
+                    if(cell.getValue().equals(kk) && sheetIndex == row.getSheetIndex()) {
                         ExcelHelper.deleteColumn(sheet, cell.getIndex());
                     }
                 }

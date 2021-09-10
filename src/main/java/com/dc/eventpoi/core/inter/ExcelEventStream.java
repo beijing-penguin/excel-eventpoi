@@ -1,7 +1,7 @@
 /**
  * ExcelStream.java
  */
-package com.dc.eventpoi.core;
+package com.dc.eventpoi.core.inter;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -10,6 +10,9 @@ import java.io.InputStream;
 import java.util.List;
 
 import com.dc.eventpoi.ExcelHelper;
+import com.dc.eventpoi.core.ExcelXlsStream;
+import com.dc.eventpoi.core.ExcelXlsxStream;
+import com.dc.eventpoi.core.enums.FileType;
 
 /**
  * @Description: excel大数据处理机遇事件流，行事件处理接口

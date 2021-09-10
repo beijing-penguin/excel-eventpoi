@@ -1,4 +1,4 @@
-package com.dc.eventpoi.core;
+package com.dc.eventpoi.core.entity;
 
 import java.util.List;
 

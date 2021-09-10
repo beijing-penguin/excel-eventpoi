@@ -1,7 +1,9 @@
 /**
  * RowStream.java
  */
-package com.dc.eventpoi.core;
+package com.dc.eventpoi.core.inter;
+
+import com.dc.eventpoi.core.entity.ExcelCell;
 
 /**
  * @Description: excel单元格流式解析

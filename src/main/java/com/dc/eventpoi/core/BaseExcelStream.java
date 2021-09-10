@@ -7,6 +7,11 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.dc.eventpoi.core.entity.BaseExcelEntity;
+import com.dc.eventpoi.core.entity.ExcelRow;
+import com.dc.eventpoi.core.inter.BaseCallBack;
+import com.dc.eventpoi.core.inter.RowCallBack;
+
 /**
  * @Description: 基础excel流对象
  * @author beijing-penguin

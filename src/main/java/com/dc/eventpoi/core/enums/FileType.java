@@ -1,7 +1,7 @@
 /**
  * ExcelFileType.java
  */
-package com.dc.eventpoi.core;
+package com.dc.eventpoi.core.enums;
 
 /**
  * @Description: 文件类型

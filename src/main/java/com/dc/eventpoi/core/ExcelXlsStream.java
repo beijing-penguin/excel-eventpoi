@@ -26,6 +26,11 @@ import org.apache.poi.hssf.record.SSTRecord;
 import org.apache.poi.hssf.record.SelectionRecord;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 
+import com.dc.eventpoi.core.entity.ExcelCell;
+import com.dc.eventpoi.core.entity.ExcelRow;
+import com.dc.eventpoi.core.inter.BaseCallBack;
+import com.dc.eventpoi.core.inter.ExcelEventStream;
+
 /**
  * 事件流xlx处理
  * @author beijing-penguin

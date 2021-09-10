@@ -1,14 +1,16 @@
 /**
  * ExcelRow.java
  */
-package com.dc.eventpoi.core;
+package com.dc.eventpoi.core.entity;
+
+import org.apache.poi.ss.usermodel.CellStyle;
 
 /**
  * @Description: 单元格实体对象
  * @author beijing-penguin
  * @date: 2019年1月14日
  */
-public class ExcelCell extends BaseExcelEntity{
+public class ExportExcelCell {
     /**
      * 列索引
      */
@@ -17,31 +19,23 @@ public class ExcelCell extends BaseExcelEntity{
      * 值
      */
     private String value;
+    
     /**
-     * 图片数组
+     * cellStyle
      */
-    private byte[] imgBytes;
+    private CellStyle cellStyle;
     
     /**
      * 
      * @param index 列索引
      * @param value 值
      */
-    public ExcelCell(Short index, String value) {
+    public ExportExcelCell(Short index, String value,CellStyle cellStyle) {
         this.index = index;
         this.value = value;
+        this.cellStyle = cellStyle;
     }
 
-    /**
-     * 
-     * @param index 列索引
-     * @param value 值
-     */
-    public ExcelCell(Short index, byte[] value) {
-        this.index = index;
-        this.imgBytes = value;
-    }
-    
     public Short getIndex() {
         return index;
     }
@@ -61,14 +55,11 @@ public class ExcelCell extends BaseExcelEntity{
         this.value = value;
     }
 
-
-    public byte[] getImgBytes() {
-        return imgBytes;
+    public CellStyle getCellStyle() {
+        return cellStyle;
     }
 
-
-    public void setImgBytes(byte[] imgBytes) {
-        this.imgBytes = imgBytes;
+    public void setCellStyle(CellStyle cellStyle) {
+        this.cellStyle = cellStyle;
     }
-    
 }
