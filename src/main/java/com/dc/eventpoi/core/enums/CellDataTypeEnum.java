@@ -57,8 +57,8 @@ public enum CellDataTypeEnum {
     /**
      * Build data types
      *
-     * @param cellType
-     * @return
+     * @param cellType excel cellType
+     * @return excel internal data type
      */
     public static CellDataTypeEnum buildFromCellType(String cellType) {
     	if (cellType == null || cellType.equals("")) {
