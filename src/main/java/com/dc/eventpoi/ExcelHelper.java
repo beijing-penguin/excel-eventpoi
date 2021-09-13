@@ -3,6 +3,38 @@
  */
 package com.dc.eventpoi;
 
+import com.alibaba.fastjson.JSON;
+import com.dc.eventpoi.core.entity.ExcelCell;
+import com.dc.eventpoi.core.entity.ExcelRow;
+import com.dc.eventpoi.core.entity.ExportExcelCell;
+import com.dc.eventpoi.core.enums.FileType;
+import com.dc.eventpoi.core.inter.CallBackCellStyle;
+import com.dc.eventpoi.core.inter.ExcelEventStream;
+import com.dc.eventpoi.core.inter.RowCallBack;
+import org.apache.commons.lang3.reflect.FieldUtils;
+import org.apache.poi.hssf.usermodel.HSSFClientAnchor;
+import org.apache.poi.hssf.usermodel.HSSFPicture;
+import org.apache.poi.hssf.usermodel.HSSFPictureData;
+import org.apache.poi.hssf.usermodel.HSSFShape;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ooxml.POIXMLDocumentPart;
+import org.apache.poi.poifs.filesystem.FileMagic;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.apache.poi.xssf.usermodel.XSSFClientAnchor;
+import org.apache.poi.xssf.usermodel.XSSFDrawing;
+import org.apache.poi.xssf.usermodel.XSSFPicture;
+import org.apache.poi.xssf.usermodel.XSSFShape;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.openxmlformats.schemas.drawingml.x2006.spreadsheetDrawing.CTMarker;
+
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -24,98 +56,66 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang3.reflect.FieldUtils;
-import org.apache.poi.hssf.usermodel.HSSFClientAnchor;
-import org.apache.poi.hssf.usermodel.HSSFPicture;
-import org.apache.poi.hssf.usermodel.HSSFPictureData;
-import org.apache.poi.hssf.usermodel.HSSFRow;
-import org.apache.poi.hssf.usermodel.HSSFShape;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ooxml.POIXMLDocumentPart;
-import org.apache.poi.poifs.filesystem.FileMagic;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.CellType;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.usermodel.WorkbookFactory;
-import org.apache.poi.xssf.usermodel.XSSFClientAnchor;
-import org.apache.poi.xssf.usermodel.XSSFDrawing;
-import org.apache.poi.xssf.usermodel.XSSFPicture;
-import org.apache.poi.xssf.usermodel.XSSFShape;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.openxmlformats.schemas.drawingml.x2006.spreadsheetDrawing.CTMarker;
-
-import com.alibaba.fastjson.JSON;
-import com.dc.eventpoi.core.entity.ExcelCell;
-import com.dc.eventpoi.core.entity.ExcelRow;
-import com.dc.eventpoi.core.entity.ExportExcelCell;
-import com.dc.eventpoi.core.enums.FileType;
-import com.dc.eventpoi.core.inter.CallBackCellStyle;
-import com.dc.eventpoi.core.inter.ExcelEventStream;
-import com.dc.eventpoi.core.inter.RowCallBack;
-
 /**
- * @Description: excel操作
+ * excel操作
+ *
  * @author beijing-penguin
- * @date: 2019年1月28日
  */
 public class ExcelHelper {
 
+
     /**
-     * 
-     * @param <T>
-     * @param excelDataSourceStream
-     * @param excelTemplateStream
-     * @param clazz
-     * @param imageRead 是否支持图片格式读取（开启此功能，性能降低，内存消耗增加。）
-     * @return
-     * @throws Exception
+     * 解析Excel为对象集合
+     *
+     * @param excelDataSourceStream Excel原数据流
+     * @param excelTemplateStream   模版数据流
+     * @param clazz                 clazz
+     * @param imageRead             是否支持图片格式读取（开启此功能，性能降低，内存消耗增加。）
+     * @param <T>                   对象
+     * @return 对象集合
+     * @throws Exception IOException
      */
-    public static <T> List<T> parseExcelToObject(InputStream excelDataSourceStream,InputStream excelTemplateStream, Class<T> clazz,boolean imageRead) throws Exception{
+    public static <T> List<T> parseExcelToObject(InputStream excelDataSourceStream, InputStream excelTemplateStream, Class<T> clazz, boolean imageRead) throws Exception {
         ByteArrayOutputStream output = new ByteArrayOutputStream();
-        byte[] buffer = new byte[1024*4];
+        byte[] buffer = new byte[1024 * 4];
         int n = 0;
         while (-1 != (n = excelDataSourceStream.read(buffer))) {
             output.write(buffer, 0, n);
         }
 
         // 创建Workbook  
-        Workbook wb = null;  
+        Workbook wb = null;
         // 创建sheet
-        Sheet sheet = null;  
+        Sheet sheet = null;
         FileType fileType = ExcelHelper.judgeFileType(new ByteArrayInputStream(output.toByteArray()));
         switch (fileType) {
-        case XLS:
-            wb = (HSSFWorkbook)WorkbookFactory.create(new ByteArrayInputStream(output.toByteArray()));
-            break;
-        case XLSX:
-            wb = new XSSFWorkbook(new ByteArrayInputStream(output.toByteArray()));
-            break;
-        default:
-            throw new Exception("filetype is unsupport");
+            case XLS:
+                wb = (HSSFWorkbook) WorkbookFactory.create(new ByteArrayInputStream(output.toByteArray()));
+                break;
+            case XLSX:
+                wb = new XSSFWorkbook(new ByteArrayInputStream(output.toByteArray()));
+                break;
+            default:
+                throw new Exception("filetype is unsupport");
         }
         //获取excel sheet总数  
         int sheetNumbers = wb.getNumberOfSheets();
 
         Map<String, byte[]> map = new HashMap<String, byte[]>();
         // 循环sheet  
-        for (int i = 0; i < sheetNumbers; i++) {  
+        for (int i = 0; i < sheetNumbers; i++) {
 
             sheet = wb.getSheetAt(i);
 
             switch (fileType) {
-            case XLS:
-                map.putAll(getXlsPictures(i,(HSSFSheet)sheet));
-                break;
-            case XLSX:
-                map.putAll(getXlsxPictures(i,(XSSFSheet)sheet));
-                break;
-            default:
-                throw new Exception("filetype is unsupport");
+                case XLS:
+                    map.putAll(getXlsPictures(i, (HSSFSheet) sheet));
+                    break;
+                case XLSX:
+                    map.putAll(getXlsxPictures(i, (XSSFSheet) sheet));
+                    break;
+                default:
+                    throw new Exception("filetype is unsupport");
             }
         }
         wb.close();
@@ -124,17 +124,17 @@ public class ExcelHelper {
         List<ExcelRow> templeteList = ExcelHelper.parseExcelRowList(excelTemplateStream);
         checkTemplete(dataList, templeteList);
 
-        if(map.size()>0) {
+        if (map.size() > 0) {
             for (ExcelRow excelRow : dataList) {
                 int rowIndex = excelRow.getRowIndex();
                 int sheetIndex = excelRow.getSheetIndex();
                 List<ExcelCell> cellList = excelRow.getCellList();
-                for (Entry<String, byte[]> entry: map.entrySet()) {
+                for (Entry<String, byte[]> entry : map.entrySet()) {
                     int img_sheetIndex = Integer.parseInt(entry.getKey().split("-")[0]);
                     int img_rowIndex = Integer.parseInt(entry.getKey().split("-")[1]);
                     int img_cellIndex = Integer.parseInt(entry.getKey().split("-")[2]);
-                    if(rowIndex == img_rowIndex && img_sheetIndex == sheetIndex) {
-                        ExcelCell imgCell = new ExcelCell((short)img_sheetIndex,entry.getValue());
+                    if (rowIndex == img_rowIndex && img_sheetIndex == sheetIndex) {
+                        ExcelCell imgCell = new ExcelCell((short) img_sheetIndex, entry.getValue());
                         cellList.add(img_cellIndex, imgCell);
                         break;
                     }
@@ -143,7 +143,8 @@ public class ExcelHelper {
         }
         return ExcelHelper.parseExcelToObject(dataList, templeteList, clazz);
     }
-    private static Map<String, byte[]> getXlsxPictures(int sheetIndex , XSSFSheet sheet) throws Exception {
+
+    private static Map<String, byte[]> getXlsxPictures(int sheetIndex, XSSFSheet sheet) throws Exception {
         Map<String, byte[]> map = new HashMap<String, byte[]>();
         List<POIXMLDocumentPart> list = sheet.getRelations();
         for (POIXMLDocumentPart part : list) {
@@ -154,14 +155,15 @@ public class ExcelHelper {
                     XSSFPicture picture = (XSSFPicture) shape;
                     XSSFClientAnchor anchor = picture.getPreferredSize();
                     CTMarker marker = anchor.getFrom();
-                    String key = sheetIndex+"-"+marker.getRow() + "-" + marker.getCol();
+                    String key = sheetIndex + "-" + marker.getRow() + "-" + marker.getCol();
                     map.put(key, picture.getPictureData().getData());
                 }
             }
         }
         return map;
     }
-    private static Map<String, byte[]> getXlsPictures(int sheetIndex ,HSSFSheet sheet) {
+
+    private static Map<String, byte[]> getXlsPictures(int sheetIndex, HSSFSheet sheet) {
         Map<String, byte[]> map = new HashMap<String, byte[]>();
         List<HSSFShape> list = sheet.getDrawingPatriarch().getChildren();
         for (HSSFShape shape : list) {
@@ -169,59 +171,59 @@ public class ExcelHelper {
                 HSSFPicture picture = (HSSFPicture) shape;
                 HSSFClientAnchor cAnchor = picture.getClientAnchor();
                 HSSFPictureData pdata = picture.getPictureData();
-                String key = sheetIndex+"-"+cAnchor.getRow1() + "-" + cAnchor.getCol1(); // 行号-列号
+                String key = sheetIndex + "-" + cAnchor.getRow1() + "-" + cAnchor.getCol1(); // 行号-列号
                 map.put(key, pdata.getData());
             }
         }
         return map;
     }
-    public static <T> List<T> parseExcelToObject(InputStream excelDataSourceStream,InputStream excelTemplateStream, Class<T> clazz) throws Exception{
+
+    public static <T> List<T> parseExcelToObject(InputStream excelDataSourceStream, InputStream excelTemplateStream, Class<T> clazz) throws Exception {
         List<ExcelRow> dataList = ExcelHelper.parseExcelRowList(excelDataSourceStream);
         List<ExcelRow> templeteList = ExcelHelper.parseExcelRowList(excelTemplateStream);
         checkTemplete(dataList, templeteList);
         return ExcelHelper.parseExcelToObject(dataList, templeteList, clazz);
     }
+
     /**
-     * 
-     * @param fileList 数据文件
+     * @param fileList     数据文件
      * @param templeteList 模板文件
-     * @param clazz 类对象
+     * @param clazz        类对象
+     * @param <T>          T
      * @return 集合
-     * @throws Exception
-     * @param  <T> T
+     * @throws Exception IOException
      * @author beijing-penguin
-     * @date 2019-01-28 14:25:20
      */
-    public static <T> List<T> parseExcelToObject(List<ExcelRow> fileList,List<ExcelRow> templeteList, Class<T> clazz) throws Exception{
+    public static <T> List<T> parseExcelToObject(List<ExcelRow> fileList, List<ExcelRow> templeteList, Class<T> clazz) throws Exception {
         List<T> rtn = new ArrayList<T>();
         List<ExcelCell> tempFieldList = new ArrayList<ExcelCell>();
         int size = fileList.size();
         int x = 0;
         int startRow = 0;
         for (int i = 0; i < templeteList.size(); i++) {
-            if(templeteList.get(i).getCellList().get(0).getValue().startsWith("$")) {
+            if (templeteList.get(i).getCellList().get(0).getValue().startsWith("$")) {
                 startRow = templeteList.get(i).getRowIndex();
-                short  sheetIndex = templeteList.get(i).getSheetIndex();
+                short sheetIndex = templeteList.get(i).getSheetIndex();
                 tempFieldList = templeteList.get(i).getCellList();
 
-                for (int j = (x+startRow); j < size; j++) {
+                for (int j = (x + startRow); j < size; j++) {
                     ExcelRow row = fileList.get(j);
                     int rowIndex = row.getRowIndex();
-                    if(rowIndex>=startRow && row.getSheetIndex() == sheetIndex) {
+                    if (rowIndex >= startRow && row.getSheetIndex() == sheetIndex) {
                         x++;
                         T obj = clazz.getDeclaredConstructor().newInstance();
                         List<ExcelCell> fieldList = row.getCellList();
                         for (ExcelCell fieldCell : fieldList) {
                             for (ExcelCell tempCell : tempFieldList) {
-                                if(fieldCell.getIndex()==tempCell.getIndex()) {
+                                if (fieldCell.getIndex() == tempCell.getIndex()) {
                                     for (Field field : FieldUtils.getAllFields(clazz)) {
                                         if (!Modifier.isStatic(field.getModifiers())) {
                                             if (tempCell.getValue().contains(field.getName())) {
                                                 field.setAccessible(true);
-                                                if(fieldCell.getImgBytes()!=null) {
+                                                if (fieldCell.getImgBytes() != null) {
                                                     //Object vall = getValueByFieldType(fieldCell.getImgBytes(), field.getType());
                                                     field.set(obj, fieldCell.getImgBytes());
-                                                }else {
+                                                } else {
                                                     Object vall = getValueByFieldType(fieldCell.getValue(), field.getType());
                                                     field.set(obj, vall);
                                                 }
@@ -240,58 +242,68 @@ public class ExcelHelper {
 
         return rtn;
     }
+
     /**
      * 读取所有sheet数据
-     * @param baytes    文件
+     *
+     * @param baytes 文件
      * @return List
-     * @throws Exception
+     * @throws Exception IOException
      * @author dc
      */
-    public static List<ExcelRow> parseExcelRowList(byte[] baytes) throws Exception{
+    public static List<ExcelRow> parseExcelRowList(byte[] baytes) throws Exception {
         return parseExcelRowList(new ByteArrayInputStream(baytes));
     }
+
     /**
      * 读取excel指定sheet数据
-     * @param baytes    文件数据
-     * @param sheetIndex  sheet工作簿索引号
+     *
+     * @param baytes     文件数据
+     * @param sheetIndex sheet工作簿索引号
      * @return List
-     * @throws Exception
+     * @throws Exception IOException
      * @author dc
      */
-    public static List<ExcelRow> parseExcelRowList(byte[] baytes,Integer sheetIndex) throws Exception{
-        return parseExcelRowList(new ByteArrayInputStream(baytes),sheetIndex);
+    public static List<ExcelRow> parseExcelRowList(byte[] baytes, Integer sheetIndex) throws Exception {
+        return parseExcelRowList(new ByteArrayInputStream(baytes), sheetIndex);
     }
+
     /**
      * 读取excel指定sheet数据
-     * @param file    文件
-     * @param sheetIndex  sheet工作簿索引号
+     *
+     * @param file       文件
+     * @param sheetIndex sheet工作簿索引号
      * @return List
-     * @throws Exception
+     * @throws Exception IOException
      * @author dc
      */
-    public static List<ExcelRow> parseExcelRowList(File file,Integer sheetIndex) throws Exception{
-        return parseExcelRowList(new FileInputStream(file),sheetIndex);
+    public static List<ExcelRow> parseExcelRowList(File file, Integer sheetIndex) throws Exception {
+        return parseExcelRowList(new FileInputStream(file), sheetIndex);
     }
+
     /**
      * 读取所有sheet数据
-     * @param file    文件
+     *
+     * @param file 文件
      * @return List
-     * @throws Exception
+     * @throws Exception IOException
      * @author dc
      */
-    public static List<ExcelRow> parseExcelRowList(File file) throws Exception{
-        return parseExcelRowList(new FileInputStream(file),null);
+    public static List<ExcelRow> parseExcelRowList(File file) throws Exception {
+        return parseExcelRowList(new FileInputStream(file), null);
     }
+
     /**
      * 读取指定sheet数据
-     * @param inputSrc    excel源文件input输入流
-     * @param sheetIndex  sheet工作簿索引号
+     *
+     * @param inputSrc   excel源文件input输入流
+     * @param sheetIndex sheet工作簿索引号
      * @return List
-     * @throws Exception
+     * @throws Exception IOException
      * @author dc
      */
-    public static List<ExcelRow> parseExcelRowList(InputStream inputSrc,Integer sheetIndex) throws Exception{
-        List<ExcelRow> fileList  =new ArrayList<ExcelRow>();
+    public static List<ExcelRow> parseExcelRowList(InputStream inputSrc, Integer sheetIndex) throws Exception {
+        List<ExcelRow> fileList = new ArrayList<ExcelRow>();
         ExcelEventStream fileStream = null;
         try {
             fileStream = ExcelEventStream.readExcel(inputSrc);
@@ -301,41 +313,43 @@ public class ExcelHelper {
                     fileList.add(row);
                 }
             });
-        }catch (Exception e) {
+        } catch (Exception e) {
             throw e;
-        }finally {
-            if(fileStream!=null) {
+        } finally {
+            if (fileStream != null) {
                 fileStream.close();
             }
         }
         return fileList;
     }
+
     /**
-     * @param inputSrc    excel源文件input输入流
+     * @param inputSrc excel源文件input输入流
      * @return List
-     * @throws Exception
+     * @throws Exception IOException
      * @author dc
      */
-    public static List<ExcelRow> parseExcelRowList(InputStream inputSrc) throws Exception{
-        return parseExcelRowList(inputSrc,null);
+    public static List<ExcelRow> parseExcelRowList(InputStream inputSrc) throws Exception {
+        return parseExcelRowList(inputSrc, null);
     }
+
     /**
      * 模板与数据文件检查
-     * @param fileList 原始上传文件
+     *
+     * @param fileList     原始上传文件
      * @param templeteList 模板文件
-     * @throws Exception
+     * @throws Exception IOException
      * @author beijing-penguin
-     * @date 2019-01-28 14:24:09
      */
-    public static void checkTemplete(List<ExcelRow> fileList,List<ExcelRow> templeteList) throws Exception{
+    public static void checkTemplete(List<ExcelRow> fileList, List<ExcelRow> templeteList) throws Exception {
         for (int i = 0; i < templeteList.size(); i++) {
             ExcelRow row = templeteList.get(i);
             List<ExcelCell> excelCell = row.getCellList();
-            if(!excelCell.get(0).getValue().startsWith("${")) {
-                if(!JSON.toJSONString(templeteList.get(i)).equals(JSON.toJSONString(fileList.get(i)))) {
+            if (!excelCell.get(0).getValue().startsWith("${")) {
+                if (!JSON.toJSONString(templeteList.get(i)).equals(JSON.toJSONString(fileList.get(i)))) {
                     throw new Exception("fileList is not the same as templeteList[读取文件的excel头信息和模板头信息不匹配，文件格式不一致]");
                 }
-            }else {
+            } else {
                 break;
             }
         }
@@ -345,7 +359,7 @@ public class ExcelHelper {
      * @param value     任意数据类型对象
      * @param fieldType 转化后的类型
      * @return Object
-     * @throws Exception
+     * @throws Exception IOException
      * @author dc
      */
     public static Object getValueByFieldType(Object value, Class<?> fieldType) throws Exception {
@@ -356,7 +370,7 @@ public class ExcelHelper {
         String type = fieldType.getSimpleName();
         if (type.equals("String")) {
             return v;
-        }else if(v.trim().length()==0) {
+        } else if (v.trim().length() == 0) {
             return null;
         } else if (type.equals("Integer") || type.equals("int")) {
             return Integer.parseInt(v);
@@ -391,7 +405,7 @@ public class ExcelHelper {
 
     /**
      * 常规自动日期格式识别
-     * 
+     *
      * @param str 时间字符串
      * @return Date
      * @author dc
@@ -446,27 +460,27 @@ public class ExcelHelper {
 
     /**
      * 删除模板中的固定格式
-     * @param inputSrc 源模板文件
+     *
+     * @param inputSrc   源模板文件
      * @param sheetIndex 工作簿索引下标
      * @return ByteArrayOutputStream
-     * @throws Exception
-     * @date 2019-01-30 16:59:13
+     * @throws Exception IOException
      */
-    public static ByteArrayOutputStream deleteTempleteFormat(InputStream inputSrc,int sheetIndex) throws Exception {
+    public static ByteArrayOutputStream deleteTempleteFormat(InputStream inputSrc, int sheetIndex) throws Exception {
         Workbook workbook = WorkbookFactory.create(inputSrc);
         Sheet sheet = workbook.getSheetAt(sheetIndex);
         int totalRow = sheet.getPhysicalNumberOfRows();
         for (int i = sheet.getFirstRowNum(); i < totalRow; i++) {
-            Row row = sheet.getRow(i); 
-            if(row!=null) {
-                for (int j = row.getFirstCellNum(),totalCell=row.getPhysicalNumberOfCells(); j < totalCell; j++) {
+            Row row = sheet.getRow(i);
+            if (row != null) {
+                for (int j = row.getFirstCellNum(), totalCell = row.getPhysicalNumberOfCells(); j < totalCell; j++) {
                     Cell cell = row.getCell(j);
-                    if(cell!=null) {
+                    if (cell != null) {
                         //cell.setCellType(CellType.STRING);
                         String value = cell.getStringCellValue();
-                        if(value!=null && value.startsWith("${")) {
+                        if (value != null && value.startsWith("${")) {
                             sheet.removeRow(row);
-                            sheet.shiftRows(i+1, i+1+1, -1);
+                            sheet.shiftRows(i + 1, i + 1 + 1, -1);
                             break;
                         }
                     }
@@ -478,37 +492,48 @@ public class ExcelHelper {
         os.flush();
         return os;
     }
+
     /**
      * 导出zip文件,或者导出xlxs文件
-     * @param templeteFileName 模板文件名
-     * @param templete 模板文件数据
-     * @param dataList 对象数据集合
-     * @param sheetIndex 工作簿
-     * @param isZip 是否压缩成zip文件
+     *
+     * @param template          模板文件数据
+     * @param dataList          对象数据集合
+     * @param sheetIndex        工作簿
+     * @param callBackCellStyle 单元格样式
      * @return byte[]
-     * @throws Exception
-     * @date 2019-02-22 14:29:52
+     * @throws Exception IOException
      */
-    public static byte[] exportExcel(byte[] templete,List<?> dataList,int sheetIndex,CallBackCellStyle callBackCellStyle,boolean isZip) throws Exception {
-        FileType fileType = judgeFileType(new ByteArrayInputStream(templete));
+    /**
+     * 导出zip文件,或者导出xlxs文件
+     *
+     * @param template          模板文件数据
+     * @param dataList          对象数据集合
+     * @param sheetIndex        工作簿
+     * @param callBackCellStyle 单元格样式
+     * @param isZip             是否压缩zip
+     * @return byte[]
+     * @throws Exception IOException
+     */
+    public static byte[] exportExcel(byte[] template, List<?> dataList, int sheetIndex, CallBackCellStyle callBackCellStyle, boolean isZip) throws Exception {
+        FileType fileType = judgeFileType(new ByteArrayInputStream(template));
         String templeteFileName = null;
         Workbook tempWb = null;
-        if(fileType==FileType.XLSX) {
+        if (fileType == FileType.XLSX) {
             templeteFileName = "file.xlxs";
-            tempWb = new XSSFWorkbook(new ByteArrayInputStream(templete));
-        }else {
-            tempWb = (HSSFWorkbook)WorkbookFactory.create(new ByteArrayInputStream(templete));
+            tempWb = new XSSFWorkbook(new ByteArrayInputStream(template));
+        } else {
+            tempWb = (HSSFWorkbook) WorkbookFactory.create(new ByteArrayInputStream(template));
             templeteFileName = "file.xls";
         }
-        
+
         int dataTotal = 45000;
-        if(isZip) {
-            if(fileType==FileType.XLSX) {
+        if (isZip) {
+            if (fileType == FileType.XLSX) {
                 dataTotal = 30000;//3w
-            }else {
+            } else {
                 dataTotal = 30000;//3w
             }
-        }else {
+        } else {
             dataTotal = Integer.MAX_VALUE;
         }
         int sheetNumbers = tempWb.getNumberOfSheets();
@@ -522,10 +547,10 @@ public class ExcelHelper {
             for (int k = 0; k < cellIndex; k++) {
                 Cell cell = tempsheet.getRow(j).getCell(k);
                 String vv = cell.getStringCellValue();
-                if(vv != null && vv.startsWith("${")) {
+                if (vv != null && vv.startsWith("${")) {
                     startRow = j;
                     rowheight = tempsheet.getRow(j).getHeight();
-                    ExportExcelCell cc = new ExportExcelCell((short)k,vv,cell.getCellStyle());
+                    ExportExcelCell cc = new ExportExcelCell((short) k, vv, cell.getCellStyle());
                     keyCellList.add(cc);
                 }
             }
@@ -533,10 +558,10 @@ public class ExcelHelper {
         tempWb.close();
 
         int len = dataList.size();
-        int l = len/dataTotal+(len%dataTotal!=0?1:0);
+        int l = len / dataTotal + (len % dataTotal != 0 ? 1 : 0);
         Map<String, byte[]> fileDataMap = new LinkedHashMap<String, byte[]>();
         for (int i = 0; i < l; i++) {
-            Workbook workbook = WorkbookFactory.create(new ByteArrayInputStream(templete));
+            Workbook workbook = WorkbookFactory.create(new ByteArrayInputStream(template));
             Sheet sheet = workbook.getSheetAt(sheetIndex);
             XSSFDrawing patriarch = (XSSFDrawing) sheet.createDrawingPatriarch();
             CellStyle cellStyle = workbook.createCellStyle();
@@ -547,11 +572,11 @@ public class ExcelHelper {
             //            cellStyle.setBorderLeft(BorderStyle.THIN);
             //            cellStyle.setBorderRight(BorderStyle.THIN);
 
-            for (int j = i*dataTotal; j < (i+1)*dataTotal; j++) {
-                if(j>=len) {
+            for (int j = i * dataTotal; j < (i + 1) * dataTotal; j++) {
+                if (j >= len) {
                     break;
                 }
-                Row row = sheet.createRow(j+startRow-i*dataTotal);
+                Row row = sheet.createRow(j + startRow - i * dataTotal);
                 row.setHeight(rowheight);
                 Object obj = dataList.get(j);
                 for (int k = 0; k < keyCellList.size(); k++) {
@@ -565,18 +590,18 @@ public class ExcelHelper {
                             Object value = field.get(obj);
                             if (value != null && value.toString().trim().length() > 0) {
 
-                                if(value instanceof byte[]) {
-                                    if(getImageType((byte[]) value) != null) {
-                                        XSSFClientAnchor anchor = new XSSFClientAnchor(0, 0, 0, 0, k, j+startRow, k+1, j+1+startRow);   
+                                if (value instanceof byte[]) {
+                                    if (getImageType((byte[]) value) != null) {
+                                        XSSFClientAnchor anchor = new XSSFClientAnchor(0, 0, 0, 0, k, j + startRow, k + 1, j + 1 + startRow);
                                         int picIndex = workbook.addPicture((byte[]) value, HSSFWorkbook.PICTURE_TYPE_JPEG);
                                         patriarch.createPicture(anchor, picIndex);
-                                    }else {
-                                        cell.setCellValue(new String((byte[])value));
+                                    } else {
+                                        cell.setCellValue(new String((byte[]) value));
                                     }
-                                }else {
+                                } else {
                                     cell.setCellValue(String.valueOf(value));
                                 }
-                                if(callBackCellStyle!=null) {
+                                if (callBackCellStyle != null) {
                                     callBackCellStyle.callBack(cellStyle);
                                     cell.setCellStyle(cellStyle);
                                 }
@@ -585,49 +610,49 @@ public class ExcelHelper {
                     }
                 }
             }
-            ByteArrayOutputStream byteStream =new ByteArrayOutputStream();
+            ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
             workbook.write(byteStream);
             byteStream.flush();
             byteStream.close();
             String newName = "";
-            if(templeteFileName.lastIndexOf(".")!=-1) {
-                newName = templeteFileName.substring(0, templeteFileName.lastIndexOf("."))+"_"+i+templeteFileName.substring(templeteFileName.lastIndexOf("."));
-            }else {
-                newName = templeteFileName+"_"+i;
+            if (templeteFileName.lastIndexOf(".") != -1) {
+                newName = templeteFileName.substring(0, templeteFileName.lastIndexOf(".")) + "_" + i + templeteFileName.substring(templeteFileName.lastIndexOf("."));
+            } else {
+                newName = templeteFileName + "_" + i;
             }
             fileDataMap.put(newName, byteStream.toByteArray());
         }
-        if(isZip) {
+        if (isZip) {
             throw new Exception("zip is unsupport");
             //return ZipUtils.batchCompress(fileDataMap);
-        }else {
+        } else {
             return fileDataMap.values().iterator().next();
         }
     }
+
     /**
      * 导出zip文件,或者导出xlxs文件
+     *
      * @param templete 模板文件数据
-     * @param dataList 对象数据集合
+     * @param data     对象数据
      * @return byte[]
-     * @throws Exception
-     * @date 2019-02-22 14:29:52
+     * @throws Exception IOException
      */
-    public static byte[] exportTableExcel(byte[] templete,Object data) throws Exception {
+    public static byte[] exportTableExcel(byte[] templete, Object data) throws Exception {
         return exportTableExcel(templete, data, 0);
     }
+
     /**
      * 导出zip文件,或者导出xlxs文件
-     * @param templeteFileName 模板文件名
-     * @param templete 模板文件数据
-     * @param dataList 对象数据集合
+     *
+     * @param templete   模板文件数据
+     * @param data       对象数据
      * @param sheetIndex 工作簿
-     * @param isZip 是否压缩成zip文件
      * @return byte[]
-     * @throws Exception
-     * @date 2019-02-22 14:29:52
+     * @throws Exception IOException
      */
-    public static byte[] exportTableExcel(byte[] templete,Object data,int sheetIndex) throws Exception {
-        List<ExcelRow> rowList  = new ArrayList<ExcelRow>();
+    public static byte[] exportTableExcel(byte[] templete, Object data, int sheetIndex) throws Exception {
+        List<ExcelRow> rowList = new ArrayList<ExcelRow>();
         List<ExcelCell> keyCellList = new ArrayList<ExcelCell>();
         ExcelEventStream fileStream = ExcelEventStream.readExcel(templete);
         fileStream.sheetAt(sheetIndex).rowStream(new RowCallBack() {
@@ -641,7 +666,7 @@ public class ExcelHelper {
             List<ExcelCell> cellList = row.getCellList();
             for (int j = 0; j < cellList.size(); j++) {
                 ExcelCell cell = cellList.get(j);
-                if(cell.getValue().startsWith("${")) {
+                if (cell.getValue().startsWith("${")) {
                     keyCellList.addAll(cellList);
                     break;
                 }
@@ -651,20 +676,20 @@ public class ExcelHelper {
         Workbook workbook = WorkbookFactory.create(new ByteArrayInputStream(templete));
         Sheet sheet = workbook.getSheetAt(sheetIndex);
 
-        for (int j = 0; j <=sheet.getLastRowNum(); j++) {
+        for (int j = 0; j <= sheet.getLastRowNum(); j++) {
             Row row = sheet.getRow(j);
-            for (int cellnum=0;cellnum<=row.getLastCellNum();cellnum++){
+            for (int cellnum = 0; cellnum <= row.getLastCellNum(); cellnum++) {
                 Cell cell = row.getCell(cellnum);
-                if (cell != null ) {
+                if (cell != null) {
                     String cellValue = cell.getStringCellValue();
-                    if(cellValue!=null && cellValue.startsWith("${")) {
+                    if (cellValue != null && cellValue.startsWith("${")) {
                         String excelField = cellValue.substring(cellValue.indexOf("${") + 2, cellValue.lastIndexOf("}"));
                         Field[] fieldArr = FieldUtils.getAllFields(data.getClass());
                         for (Field field : fieldArr) {
                             if (!Modifier.isStatic(field.getModifiers()) && field.getName().equals(excelField)) {
                                 field.setAccessible(true);
                                 Object value = field.get(data);
-                                if (value==null) {
+                                if (value == null) {
                                     value = "";
                                 }
                                 cell.setCellValue(String.valueOf(value));
@@ -674,7 +699,7 @@ public class ExcelHelper {
                 }
             }
         }
-        ByteArrayOutputStream byteStream =new ByteArrayOutputStream();
+        ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
         workbook.write(byteStream);
         byteStream.flush();
         byteStream.close();
@@ -703,54 +728,59 @@ public class ExcelHelper {
         }
     }
 
+
     /**
      * 导出zip数据
-     * @param templete 模板数据
-     * @param dataList 对象数据集合
+     *
+     * @param templete          模板数据
+     * @param dataList          对象数据集合
+     * @param callBackCellStyle 单元格样式
      * @return byte[]
-     * @throws Exception
-     * @date 2019-02-22 14:33:33
+     * @throws Exception IOException
      */
-    public static byte[] exportExcel(byte[] templete,List<?> dataList,CallBackCellStyle callBackCellStyle) throws Exception {
-        return exportExcel(templete, dataList,0,callBackCellStyle,false);
+    public static byte[] exportExcel(byte[] templete, List<?> dataList, CallBackCellStyle callBackCellStyle) throws Exception {
+        return exportExcel(templete, dataList, 0, callBackCellStyle, false);
     }
+
     /**
      * 导出zip数据
+     *
      * @param templeteFileName 模板文件名
-     * @param templete templete
-     * @param dataList dataList
+     * @param templete         templete
+     * @param dataList         dataList
      * @return byte[]
-     * @throws Exception
-     * @date 2019-02-22 14:33:33
+     * @throws Exception IOException
      */
-    public static byte[] exportExcel(String templeteFileName , byte[] templete,List<?> dataList) throws Exception {
-        return exportExcel(templete, dataList,0,null,true);
+    public static byte[] exportExcel(String templeteFileName, byte[] templete, List<?> dataList) throws Exception {
+        return exportExcel(templete, dataList, 0, null, true);
     }
+
     /**
      * 导出zip数据
+     *
      * @param templete 模板文件流
      * @param dataList 对象数据集合
-     * @param isZip 是否压缩
+     * @param isZip    是否压缩
      * @return byte[]
-     * @throws Exception
-     * @date 2019-02-22 14:33:33
+     * @throws Exception IOException
      */
-    public static byte[] exportExcel(byte[] templete,List<?> dataList,boolean isZip) throws Exception {
-        return exportExcel(templete, dataList,0,null,isZip);
+    public static byte[] exportExcel(byte[] templete, List<?> dataList, boolean isZip) throws Exception {
+        return exportExcel(templete, dataList, 0, null, isZip);
     }
+
     /**
      * 流转byte[]
+     *
      * @param is is
      * @return byte[]
-     * @throws Exception
-     * @date 2019-02-22 15:16:47
+     * @throws Exception IOException
      */
-    public static byte[] inputStreamToByte(InputStream is) throws Exception{
+    public static byte[] inputStreamToByte(InputStream is) throws Exception {
         BufferedInputStream bis = new BufferedInputStream(is);
-        byte [] a = new byte[1000];
+        byte[] a = new byte[1000];
         int len = 0;
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        while((len = bis.read(a))!=-1){
+        while ((len = bis.read(a)) != -1) {
             bos.write(a, 0, len);
         }
         bis.close();
@@ -760,79 +790,82 @@ public class ExcelHelper {
 
     /**
      * 判断文件类型
+     *
      * @param inp 数据流
      * @return FileType
-     * @throws Exception
+     * @throws Exception IOException
      * @author beijing-penguin
-     * @date 2019-02-25 11:27:10
      */
     public static FileType judgeFileType(InputStream inp) throws Exception {
         InputStream is = FileMagic.prepareToCheckMagic(inp);
         FileMagic fm = FileMagic.valueOf(is);
 
         switch (fm) {
-        case OLE2:
-            return FileType.XLS;
-        case OOXML:
-            return FileType.XLSX;
-        default:
-            throw new IOException("Your InputStream was neither an OLE2 stream, nor an OOXML stream");
+            case OLE2:
+                return FileType.XLS;
+            case OOXML:
+                return FileType.XLSX;
+            default:
+                throw new IOException("Your InputStream was neither an OLE2 stream, nor an OOXML stream");
         }
     }
+
     /**
      * 获取cell值
-     * @param cellList cell集合
-     * @param cellIndex 索引号
+     *
+     * @param cellList    cell集合
+     * @param cellIndex   索引号
      * @param returnClass 返回类型
-     * @param <T> 返回类型
+     * @param <T>         返回类型
      * @return T
-     * @throws Exception
-     * @date 2019-02-26 18:36:22
+     * @throws Exception IOException
      */
     @SuppressWarnings("unchecked")
-    public static <T> T getValueBy(List<ExcelCell> cellList ,int cellIndex,Class<? extends T> returnClass) throws Exception {
+    public static <T> T getValueBy(List<ExcelCell> cellList, int cellIndex, Class<? extends T> returnClass) throws Exception {
         for (int i = 0; i < cellList.size(); i++) {
             ExcelCell cell = cellList.get(i);
-            if(cell.getIndex()==cellIndex) {
+            if (cell.getIndex() == cellIndex) {
                 return (T) getValueByFieldType(cell.getValue(), returnClass);
             }
         }
         return null;
     }
+
     /**
      * 获取cell值
-     * @param cellList cell集合
+     *
+     * @param cellList  cell集合
      * @param cellIndex 索引号
      * @return String
-     * @throws Exception
-     * @date 2019-02-26 18:46:16
+     * @throws Exception IOException
      */
-    public static String getValueBy(List<ExcelCell> cellList ,int cellIndex) throws Exception {
-        return getValueBy(cellList, cellIndex,String.class);
+    public static String getValueBy(List<ExcelCell> cellList, int cellIndex) throws Exception {
+        return getValueBy(cellList, cellIndex, String.class);
     }
+
     /**
      * 获取值
-     * @param rowList 行集合
-     * @param rowIndex 行下标
-     * @param cellIndex 列下标
+     *
+     * @param rowList     行集合
+     * @param rowIndex    行下标
+     * @param cellIndex   列下标
      * @param returnClass 返回值类型
-     * @param <T> 返回类型
+     * @param <T>         返回类型
      * @return T
-     * @throws Exception
-     * @date 2019-02-26 19:19:49
+     * @throws Exception IOException
      */
     @SuppressWarnings("unchecked")
-    public static <T> T getValueBy(List<ExcelRow> rowList ,int rowIndex,int cellIndex,Class<? extends T> returnClass) throws Exception {
+    public static <T> T getValueBy(List<ExcelRow> rowList, int rowIndex, int cellIndex, Class<? extends T> returnClass) throws Exception {
         for (int i = 0; i < rowList.size(); i++) {
             ExcelRow row = rowList.get(i);
-            if(row.getRowIndex()>rowIndex) {
+            if (row.getRowIndex() > rowIndex) {
                 break;
             }
-            if(row.getRowIndex()==rowIndex) {
+            if (row.getRowIndex() == rowIndex) {
                 List<ExcelCell> cellList = row.getCellList();
                 for (int j = 0; j < cellList.size(); j++) {
                     ExcelCell cell = cellList.get(j);
-                    if(cell.getIndex()==cellIndex) {
+                    if (cell.getIndex() == cellIndex) {
                         return (T) getValueByFieldType(cell.getValue(), returnClass);
                     }
                 }
@@ -840,17 +873,18 @@ public class ExcelHelper {
         }
         return null;
     }
+
     /**
      * 获取值
-     * @param rowList 行集合
-     * @param rowIndex 行下标
+     *
+     * @param rowList   行集合
+     * @param rowIndex  行下标
      * @param cellIndex 列下标
      * @return String
-     * @throws Exception
-     * @date 2019-02-26 19:19:49
+     * @throws Exception IOException
      */
-    public static String getValueBy(List<ExcelRow> rowList ,int rowIndex,int cellIndex) throws Exception {
-        return getValueBy(rowList, rowIndex,cellIndex,String.class);
+    public static String getValueBy(List<ExcelRow> rowList, int rowIndex, int cellIndex) throws Exception {
+        return getValueBy(rowList, rowIndex, cellIndex, String.class);
     }
 
 
@@ -868,7 +902,7 @@ public class ExcelHelper {
                     cloneCell(cNew, cNext);
                     //Set the column width only on the first row.
                     //Other wise the second row will overwrite the original column width set previously.
-                    if(rId == 0) {
+                    if (rId == 0) {
                         sheet.setColumnWidth(cID, sheet.getColumnWidth(cID + 1));
                     }
                 }
@@ -893,30 +927,31 @@ public class ExcelHelper {
         }
     }
 
-    public static byte[] deleteTemplateColumn(InputStream excelFileInput, String...key) throws Exception {
-        ByteArrayOutputStream output = new ByteArrayOutputStream(); 
-        byte[] buff = new byte[1024*4];
-        int n = 0; 
-        while (-1 != (n=excelFileInput.read(buff))) { 
-            output.write(buff, 0, n); 
+    public static byte[] deleteTemplateColumn(InputStream excelFileInput, String... key) throws Exception {
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        byte[] buff = new byte[1024 * 4];
+        int n = 0;
+        while (-1 != (n = excelFileInput.read(buff))) {
+            output.write(buff, 0, n);
         }
         return deleteTemplateColumn(output.toByteArray(), 0, key);
     }
 
-    public static byte[] deleteTemplateColumn(InputStream excelFileInput,int sheetIndex, String...keys) throws Exception {
-        ByteArrayOutputStream output = new ByteArrayOutputStream(); 
-        byte[] buff = new byte[1024*4];
-        int n = 0; 
-        while (-1 != (n=excelFileInput.read(buff))) { 
-            output.write(buff, 0, n); 
-        } 
+    public static byte[] deleteTemplateColumn(InputStream excelFileInput, int sheetIndex, String... keys) throws Exception {
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        byte[] buff = new byte[1024 * 4];
+        int n = 0;
+        while (-1 != (n = excelFileInput.read(buff))) {
+            output.write(buff, 0, n);
+        }
         return deleteTemplateColumn(output.toByteArray(), sheetIndex, keys);
     }
 
-    public static byte[] deleteTemplateColumn(byte[] templateFile, String...key) throws Exception {
-        return deleteTemplateColumn(templateFile,0 ,key);
+    public static byte[] deleteTemplateColumn(byte[] templateFile, String... key) throws Exception {
+        return deleteTemplateColumn(templateFile, 0, key);
     }
-    public static byte[] deleteTemplateColumn(byte[] templateFile,int sheetIndex, String...keys) throws Exception {
+
+    public static byte[] deleteTemplateColumn(byte[] templateFile, int sheetIndex, String... keys) throws Exception {
         Workbook workbook = WorkbookFactory.create(new ByteArrayInputStream(templateFile));
         Sheet sheet = workbook.getSheetAt(sheetIndex);
 
@@ -925,7 +960,7 @@ public class ExcelHelper {
             for (ExcelRow row : rowList) {
                 List<ExcelCell> cellList = row.getCellList();
                 for (ExcelCell cell : cellList) {
-                    if(cell.getValue().equals(kk) && sheetIndex == row.getSheetIndex()) {
+                    if (cell.getValue().equals(kk) && sheetIndex == row.getSheetIndex()) {
                         ExcelHelper.deleteColumn(sheet, cell.getIndex());
                     }
                 }
@@ -947,17 +982,18 @@ public class ExcelHelper {
         return null;
     }
 
-    public static byte[] exportExcel(InputStream templeteStream, List<?> personList, String...delCellKey) throws Exception {
-        return exportExcel(templeteStream, personList,null,delCellKey);
+    public static byte[] exportExcel(InputStream templeteStream, List<?> personList, String... delCellKey) throws Exception {
+        return exportExcel(templeteStream, personList, null, delCellKey);
     }
-    public static byte[] exportExcel(InputStream templeteStream, List<?> personList, CallBackCellStyle callBackCellStyle, String...delCellKey) throws Exception {
-        ByteArrayOutputStream templeteOutput = new ByteArrayOutputStream(); 
-        byte[] buff = new byte[1024*4];
-        int n = 0; 
-        while (-1 != (n=templeteStream.read(buff))) { 
-            templeteOutput.write(buff, 0, n); 
+
+    public static byte[] exportExcel(InputStream templeteStream, List<?> personList, CallBackCellStyle callBackCellStyle, String... delCellKey) throws Exception {
+        ByteArrayOutputStream templeteOutput = new ByteArrayOutputStream();
+        byte[] buff = new byte[1024 * 4];
+        int n = 0;
+        while (-1 != (n = templeteStream.read(buff))) {
+            templeteOutput.write(buff, 0, n);
         }
-        byte[] newTemPleteExcel = ExcelHelper.deleteTemplateColumn(templeteOutput.toByteArray(),delCellKey);
-        return ExcelHelper.exportExcel(newTemPleteExcel, personList,callBackCellStyle);
+        byte[] newTemPleteExcel = ExcelHelper.deleteTemplateColumn(templeteOutput.toByteArray(), delCellKey);
+        return ExcelHelper.exportExcel(newTemPleteExcel, personList, callBackCellStyle);
     }
 }

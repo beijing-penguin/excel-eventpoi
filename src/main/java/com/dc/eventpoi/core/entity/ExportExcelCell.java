@@ -6,9 +6,9 @@ package com.dc.eventpoi.core.entity;
 import org.apache.poi.ss.usermodel.CellStyle;
 
 /**
- * @Description: 单元格实体对象
+ * 单元格实体对象
+ *
  * @author beijing-penguin
- * @date: 2019年1月14日
  */
 public class ExportExcelCell {
     /**
@@ -19,18 +19,18 @@ public class ExportExcelCell {
      * 值
      */
     private String value;
-    
+
     /**
      * cellStyle
      */
     private CellStyle cellStyle;
-    
+
     /**
-     * 
      * @param index 列索引
      * @param value 值
+     * @param cellStyle 单元格样式
      */
-    public ExportExcelCell(Short index, String value,CellStyle cellStyle) {
+    public ExportExcelCell(Short index, String value, CellStyle cellStyle) {
         this.index = index;
         this.value = value;
         this.cellStyle = cellStyle;
