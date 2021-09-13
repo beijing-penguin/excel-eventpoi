@@ -6,7 +6,7 @@
         <java.version>1.8</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
-
+    <description>eventpoi is a java tool that supports read excel and export excel</description>
 
     <groupId>io.github.beijing-penguin</groupId>
     <artifactId>eventpoi</artifactId>
