@@ -203,18 +203,24 @@ public class ExcelHelper {
 							if (cell != null) {
 								String cellValue = cell.getStringCellValue();
 								if (cellValue != null && cellValue.contains("${")) {
-									
+
 									String excelField = cellValue.substring(cellValue.indexOf("${") + 2, cellValue.lastIndexOf("}"));
 									String excelFieldSrcKeyword = cellValue.substring(cellValue.indexOf("${") , cellValue.lastIndexOf("}")+1);
 									Field field = FieldUtils.getField(obj.getClass(), excelField, true);
-									if (field != null && !Modifier.isStatic(field.getModifiers()) ) {
+									if (field != null && !Modifier.isStatic(field.getModifiers()) &&  field.get(obj) != null) {
 										Object value = field.get(obj);
-										if (value == null) {
-											value = "";
+										if (value instanceof byte[]) {
+											if (getImageType((byte[]) value) != null) {
+												XSSFClientAnchor anchor = new XSSFClientAnchor(0, 0, 0, 0, k, rowNum, k + 1, rowNum+1);
+												int picIndex = tempWb.addPicture((byte[]) value, HSSFWorkbook.PICTURE_TYPE_JPEG);
+												patriarch.createPicture(anchor, picIndex);
+											} else {
+												cell.setCellValue(new String((byte[]) value));
+											}
+										} else {
+											cellValue = cellValue.replace(excelFieldSrcKeyword, String.valueOf(value));
+											cell.setCellValue(cellValue);
 										}
-
-										cellValue = cellValue.replace(excelFieldSrcKeyword, String.valueOf(value));
-										cell.setCellValue(cellValue);
 									}else {
 										cellValue = cellValue.replace(excelFieldSrcKeyword, "");
 										cell.setCellValue(cellValue);

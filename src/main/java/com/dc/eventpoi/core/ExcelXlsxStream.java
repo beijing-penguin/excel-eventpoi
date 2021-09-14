@@ -82,9 +82,9 @@ public class ExcelXlsxStream extends BaseExcelStream implements ExcelEventStream
     private DefaultHandler defaultHandler = new DefaultHandler() {
 
         private String lastContents;
-        private boolean nextIsString;
+        //private boolean nextIsString;
         private CellDataTypeEnum cellDataType;
-        private boolean inlineStr;
+        //private boolean inlineStr;
         private String cellNo;
         private int curRowNum = 0;
         private List<ExcelCell> valueList = new ArrayList<ExcelCell>();
