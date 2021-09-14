@@ -48,6 +48,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -63,6 +64,107 @@ import java.util.regex.Pattern;
  */
 public class ExcelHelper {
 
+    public static byte[] exportTableExcel(InputStream excelTemplateStream, List<Object> listAndTableDataList) throws Exception {
+
+        ByteArrayOutputStream templateByteStream = new ByteArrayOutputStream();
+        byte[] buffer = new byte[1024 * 4];
+        int n = 0;
+        while (-1 != (n = excelTemplateStream.read(buffer))) {
+            templateByteStream.write(buffer, 0, n);
+        }
+
+        FileType fileType = judgeFileType(new ByteArrayInputStream(templateByteStream.toByteArray()));
+        Workbook tempWb = null;
+        if (fileType == FileType.XLSX) {
+            tempWb = new XSSFWorkbook(new ByteArrayInputStream(templateByteStream.toByteArray()));
+        } else {
+            tempWb = (HSSFWorkbook) WorkbookFactory.create(new ByteArrayInputStream(templateByteStream.toByteArray()));
+        }
+
+        Sheet sheet = tempWb.getSheetAt(0);
+        int rowNum = sheet.getPhysicalNumberOfRows();
+        for (int i = 0; i < rowNum; i++) {
+            Row row = sheet.getRow(i);
+            int cellNum = row.getPhysicalNumberOfCells();
+            int insertRowIndex = 0;
+            List<?> dataList = null;
+            for (int j = 0; j < cellNum; j++) {
+                Cell cell = row.getCell(j);
+                if(cell!=null) {
+                    String vv = cell.getStringCellValue();
+                    System.err.println("row="+i+",cell="+j);
+                    System.err.println(vv);
+                    if(vv.contains("${")) {
+                        String keyName = vv.substring(vv.indexOf("${") + 2, vv.lastIndexOf("}"));
+                        Object tableData = null;
+                        for (Object obj : listAndTableDataList) {
+                            if(dataList != null || tableData != null) {
+                                break;
+                            }
+                            if(obj instanceof Collection) {
+                                List<?> ll = (ArrayList<?>)obj;
+                                for (Field field : FieldUtils.getAllFields(ll.get(0).getClass())) {
+                                    if(field.getName().equals(keyName)) {
+                                        dataList = ll;
+                                        break;
+                                    }
+                                }
+                            }else {
+                                for (Field field : FieldUtils.getAllFields(obj.getClass())) {
+                                    if(field.getName().equals(keyName)) {
+                                        tableData = obj;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                        if(dataList != null) {
+                            if(j==0) {
+                                sheet.shiftRows(i,  sheet.getLastRowNum(), 1,true,false);
+                                Row row2 = sheet.createRow(i);
+                                cell = row2.createCell(j);
+                            }
+
+                            Object insertObj = dataList.get(insertRowIndex);
+                            for (Field field : FieldUtils.getAllFields(insertObj.getClass())) {
+                                if (!Modifier.isStatic(field.getModifiers()) && field.getName().equals(keyName)) {
+                                    field.setAccessible(true);
+                                    Object value = field.get(insertObj);
+                                    if (value == null) {
+                                        value = "";
+                                    }
+                                    cell.setCellValue(String.valueOf(value));
+                                }
+                            }
+                        }
+
+                        if(tableData!=null) {
+                            for (Field field : FieldUtils.getAllFields(tableData.getClass())) {
+                                if (!Modifier.isStatic(field.getModifiers()) && field.getName().equals(keyName)) {
+                                    field.setAccessible(true);
+                                    Object value = field.get(tableData);
+                                    if (value == null) {
+                                        value = "";
+                                    }
+                                    cell.setCellValue(String.valueOf(value));
+                                }
+                            }
+                        }
+
+                    }
+                }
+            }
+        }
+
+
+
+        ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
+        tempWb.write(byteStream);
+        byteStream.flush();
+        byteStream.close();
+        tempWb.close();
+        return byteStream.toByteArray();
+    }
 
     /**
      * 解析Excel为对象集合
@@ -89,14 +191,14 @@ public class ExcelHelper {
         Sheet sheet = null;
         FileType fileType = ExcelHelper.judgeFileType(new ByteArrayInputStream(output.toByteArray()));
         switch (fileType) {
-            case XLS:
-                wb = (HSSFWorkbook) WorkbookFactory.create(new ByteArrayInputStream(output.toByteArray()));
-                break;
-            case XLSX:
-                wb = new XSSFWorkbook(new ByteArrayInputStream(output.toByteArray()));
-                break;
-            default:
-                throw new Exception("filetype is unsupport");
+        case XLS:
+            wb = (HSSFWorkbook) WorkbookFactory.create(new ByteArrayInputStream(output.toByteArray()));
+            break;
+        case XLSX:
+            wb = new XSSFWorkbook(new ByteArrayInputStream(output.toByteArray()));
+            break;
+        default:
+            throw new Exception("filetype is unsupport");
         }
         //获取excel sheet总数  
         int sheetNumbers = wb.getNumberOfSheets();
@@ -108,14 +210,14 @@ public class ExcelHelper {
             sheet = wb.getSheetAt(i);
 
             switch (fileType) {
-                case XLS:
-                    map.putAll(getXlsPictures(i, (HSSFSheet) sheet));
-                    break;
-                case XLSX:
-                    map.putAll(getXlsxPictures(i, (XSSFSheet) sheet));
-                    break;
-                default:
-                    throw new Exception("filetype is unsupport");
+            case XLS:
+                map.putAll(getXlsPictures(i, (HSSFSheet) sheet));
+                break;
+            case XLSX:
+                map.putAll(getXlsxPictures(i, (XSSFSheet) sheet));
+                break;
+            default:
+                throw new Exception("filetype is unsupport");
             }
         }
         wb.close();
@@ -536,7 +638,7 @@ public class ExcelHelper {
         } else {
             dataTotal = Integer.MAX_VALUE;
         }
-        int sheetNumbers = tempWb.getNumberOfSheets();
+        //int sheetNumbers = tempWb.getNumberOfSheets();
         List<ExportExcelCell> keyCellList = new ArrayList<ExportExcelCell>();
         Integer startRow = null;
         Short rowheight = null;
@@ -801,12 +903,12 @@ public class ExcelHelper {
         FileMagic fm = FileMagic.valueOf(is);
 
         switch (fm) {
-            case OLE2:
-                return FileType.XLS;
-            case OOXML:
-                return FileType.XLSX;
-            default:
-                throw new IOException("Your InputStream was neither an OLE2 stream, nor an OOXML stream");
+        case OLE2:
+            return FileType.XLS;
+        case OOXML:
+            return FileType.XLSX;
+        default:
+            throw new IOException("Your InputStream was neither an OLE2 stream, nor an OOXML stream");
         }
     }
 
