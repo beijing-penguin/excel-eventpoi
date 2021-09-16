@@ -4,7 +4,8 @@
 - 支持 【功能】 【读取excel/导入】excel文件高性能读取 并自动转java对象，只需一行代码
 - 支持 【功能】 支持导出表格形式的excel文件，和列表excel文件
 - 支持 【功能】 【图片导入】支持图片列和文本混合列形式的excel导入
-- 支持 【功能】 【行回调异步处理】边读边处理，无须等待excel全部解析。示例文件查看ExcelEventStreamTest.java文件
+- 支持 【功能】 【行回调异步处理】边读边处理，无须等待excel全部解析。
+   - 示例文件查看ExcelEventStreamTest.java文件
 - 支持 【功能】 自动识别xls文件和xlsx文件格式
 - 支持 【功能】 自动识别date列时间格式，无需像别的工具那样，时间字段上设置yyyyMMdd格式
    - 自动识别程序详细源码查看``` com.dc.eventpoi.ExcelHelper.getDateFormat(String str) ```
