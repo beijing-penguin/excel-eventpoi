@@ -5,9 +5,16 @@ public class ProductInfo {
     private String name;
     private String xinghao;
     private String desc;
+    private byte[] headImage;
     
     
-    public String getNo() {
+	public byte[] getHeadImage() {
+		return headImage;
+	}
+	public void setHeadImage(byte[] headImage) {
+		this.headImage = headImage;
+	}
+	public String getNo() {
         return no;
     }
     public void setNo(String no) {

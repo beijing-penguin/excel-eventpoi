@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.dc.eventpoi.ExcelHelper;
+import com.dc.eventpoi.core.PoiUtils;
 
 public class 使用一行代码导出excel {
     public static void main(String[] args) throws Exception {
@@ -39,8 +40,9 @@ public class 使用一行代码导出excel {
         personList.add(p2);
         personList.add(p3);
 
+        byte[] newTempFile = PoiUtils.deleteCol(Test1.class.getResourceAsStream("demo1Templete.xlsx"), "${salary}");
         //第三个参数表示，导出时，删除那些列（按模板文件中的key删除，可不传）
-        byte[] exportByteData = ExcelHelper.exportExcel(Test1.class.getResourceAsStream("demo1Templete.xlsx"), personList, "${salary}");
+        byte[] exportByteData = ExcelHelper.exportExcel(newTempFile, personList,0);
         //支持设置单元格样式噢！！！^_^
         //        byte[] exportByteData = ExcelHelper.exportExcel(Test1.class.getResourceAsStream("demo1Templete.xlsx"), personList,new CallBackCellStyle() {
         //            @Override

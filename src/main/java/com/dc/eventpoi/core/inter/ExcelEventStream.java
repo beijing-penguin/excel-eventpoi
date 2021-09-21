@@ -3,16 +3,16 @@
  */
 package com.dc.eventpoi.core.inter;
 
-import com.dc.eventpoi.ExcelHelper;
-import com.dc.eventpoi.core.ExcelXlsStream;
-import com.dc.eventpoi.core.ExcelXlsxStream;
-import com.dc.eventpoi.core.enums.FileType;
-
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.List;
+
+import com.dc.eventpoi.core.ExcelXlsStream;
+import com.dc.eventpoi.core.ExcelXlsxStream;
+import com.dc.eventpoi.core.PoiUtils;
+import com.dc.eventpoi.core.enums.FileType;
 
 /**
  * excel大数据处理机遇事件流，行事件处理接口
@@ -95,7 +95,7 @@ public interface ExcelEventStream {
      * @throws Exception IOException
      */
     static ExcelEventStream readExcel(InputStream fileStream) throws Exception {
-        FileType fileType = ExcelHelper.judgeFileType(fileStream);
+        FileType fileType = PoiUtils.judgeFileType(fileStream);
         switch (fileType) {
             case XLS:
                 return new ExcelXlsStream(fileStream);

@@ -7,7 +7,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 
-import com.dc.eventpoi.ExcelHelper;
+import com.dc.eventpoi.core.PoiUtils;
 
 public class 使用列索引删除列测试 {
     public static void main(String[] args) throws Exception {
@@ -15,7 +15,7 @@ public class 使用列索引删除列测试 {
         Workbook workbook = WorkbookFactory.create(excelInput);
         Sheet sheet = workbook.getSheetAt(0);
         
-        ExcelHelper.deleteColumn(sheet, 1);
+        PoiUtils.deleteColumn(sheet, 1);
         
         FileOutputStream fileOut = new FileOutputStream("./my_test_temp/删除列.xlsx");
         workbook.write(fileOut);

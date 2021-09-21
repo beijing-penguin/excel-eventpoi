@@ -1,5 +1,6 @@
 package com.dc.eventpoi.test;
 
+import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -23,6 +24,8 @@ public class 测试包含表格和列表数据的复杂导出 {
         ProductInfo p1 = new ProductInfo();
         p1.setNo("NO_1");
         p1.setName("ssssss111");
+        String img_file_path = new File(Test1.class.getResource("unnamed.jpg").getPath()).getAbsolutePath();
+        p1.setHeadImage(Files.readAllBytes(Paths.get(img_file_path)));
         
         ProductInfo p2 = new ProductInfo();
         p2.setNo("NO_2");
@@ -40,7 +43,7 @@ public class 测试包含表格和列表数据的复杂导出 {
         excelDataList.add(orderInfo);
 
         //第三个参数表示，导出时，删除那些列（按模板文件中的key删除，可不传）
-        byte[] exportByteData = ExcelHelper.exportTableExcel(Test1.class.getResourceAsStream("订单_templete.xlsx"), excelDataList);
+        byte[] exportByteData = ExcelHelper.exportExcel(Test1.class.getResourceAsStream("订单_templete.xlsx"), excelDataList,0);
         Files.write(Paths.get("./my_test_temp/测试包含表格和列表数据的复杂导出.xlsx"), exportByteData);
     }
 }
