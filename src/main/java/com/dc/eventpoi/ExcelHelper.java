@@ -3,7 +3,6 @@
  */
 package com.dc.eventpoi;
 
-import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -11,33 +10,19 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.sql.Blob;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.reflect.FieldUtils;
-import org.apache.poi.hssf.usermodel.HSSFClientAnchor;
-import org.apache.poi.hssf.usermodel.HSSFPicture;
-import org.apache.poi.hssf.usermodel.HSSFPictureData;
-import org.apache.poi.hssf.usermodel.HSSFShape;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ooxml.POIXMLDocumentPart;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.CellType;
-import org.apache.poi.ss.usermodel.Drawing;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -48,21 +33,14 @@ import org.apache.poi.xssf.streaming.SXSSFDrawing;
 import org.apache.poi.xssf.streaming.SXSSFRow;
 import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
-import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFClientAnchor;
-import org.apache.poi.xssf.usermodel.XSSFDrawing;
-import org.apache.poi.xssf.usermodel.XSSFPicture;
-import org.apache.poi.xssf.usermodel.XSSFRow;
-import org.apache.poi.xssf.usermodel.XSSFShape;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.openxmlformats.schemas.drawingml.x2006.spreadsheetDrawing.CTMarker;
 
 import com.alibaba.fastjson.JSON;
 import com.dc.eventpoi.core.PoiUtils;
 import com.dc.eventpoi.core.entity.ExcelCell;
 import com.dc.eventpoi.core.entity.ExcelRow;
-import com.dc.eventpoi.core.entity.ExportExcelCell;
 import com.dc.eventpoi.core.enums.FileType;
 import com.dc.eventpoi.core.inter.CallBackCellStyle;
 import com.dc.eventpoi.core.inter.ExcelEventStream;
@@ -78,18 +56,20 @@ public class ExcelHelper {
 	/**
 	 * 导出表格 以及 列表数据
 	 * 
-	 * @param excelTemplateStream  模板文件流
+	 * @param tempExcelBtye        模板文件流
 	 * @param listAndTableDataList 包含列表数据集合 和 表格数据对象
+	 * @param sheetIndex           sheetIndex
+	 * @param callBackCellStyle    callBackCellStyle
 	 * @return byte[]
-	 * @throws Exception
+	 * @throws Exception Exception
 	 */
 	public static byte[] exportExcel(byte[] tempExcelBtye, List<?> listAndTableDataList, Integer sheetIndex, CallBackCellStyle callBackCellStyle) throws Exception {
 		// ByteArrayOutputStream templateByteStream = new ByteArrayOutputStream();
-		//		byte[] buffer = new byte[1024 * 4];
-		//		int n = 0;
-		//		while (-1 != (n = excelTemplateStream.read(buffer))) {
-		//			templateByteStream.write(buffer, 0, n);
-		//		}
+		// byte[] buffer = new byte[1024 * 4];
+		// int n = 0;
+		// while (-1 != (n = excelTemplateStream.read(buffer))) {
+		// templateByteStream.write(buffer, 0, n);
+		// }
 		Workbook workbook = null;
 		FileType fileType = PoiUtils.judgeFileType(new ByteArrayInputStream(tempExcelBtye));
 		if (fileType == FileType.XLSX) {
@@ -572,25 +552,23 @@ public class ExcelHelper {
 	/**
 	 * 导出列表或表格excel文件
 	 *
-	 * @param templeteFileName 模板文件名
-	 * @param templete         templete
-	 * @param listData         listData
-	 * @param sheetIndex         sheetIndex
+	 * @param templete   templete
+	 * @param listData   listData
+	 * @param sheetIndex sheetIndex
 	 * @return byte[]
-	 * @throws Exception IOException
+	 * @throws Exception Exception
 	 */
-	public static byte[] exportExcel(byte[] templete, List<?> listData,Integer sheetIndex) throws Exception {
-		return exportExcel(templete, Arrays.asList(listData),sheetIndex, null);
+	public static byte[] exportExcel(byte[] templete, List<?> listData, Integer sheetIndex) throws Exception {
+		return exportExcel(templete, Arrays.asList(listData), sheetIndex, null);
 	}
-	
+
 	/**
 	 * 导出列表或表格excel文件
 	 *
-	 * @param templeteFileName 模板文件名
-	 * @param templete         templete
-	 * @param dataList         dataList
+	 * @param templete             templete
+	 * @param listAndTableDataList listAndTableDataList
 	 * @return byte[]
-	 * @throws Exception IOException
+	 * @throws Exception Exception
 	 */
 	public static byte[] exportExcel(byte[] templete, List<?> listAndTableDataList) throws Exception {
 		return exportExcel(templete, Arrays.asList(listAndTableDataList), 0, null);
@@ -600,10 +578,9 @@ public class ExcelHelper {
 	 * 导出表格excel文件
 	 *
 	 * @param templeteStream 模板数据流
-	 * @param templete       templete
 	 * @param tableData      表格数据
 	 * @return byte[]
-	 * @throws Exception IOException
+	 * @throws Exception Exception
 	 */
 	public static byte[] exportExcel(InputStream templeteStream, Object tableData) throws Exception {
 		return exportExcel(PoiUtils.inputStreamToByte(templeteStream), Arrays.asList(tableData), 0, null);
@@ -626,8 +603,9 @@ public class ExcelHelper {
 	 *
 	 * @param templeteStream       模板数据流
 	 * @param listAndTableDataList dataList
+	 * @param sheetIndex           sheetIndex
 	 * @return byte[]
-	 * @throws Exception IOException
+	 * @throws Exception Exception
 	 */
 	public static byte[] exportExcel(InputStream templeteStream, List<Object> listAndTableDataList, Integer sheetIndex) throws Exception {
 		return exportExcel(PoiUtils.inputStreamToByte(templeteStream), listAndTableDataList, sheetIndex, null);
