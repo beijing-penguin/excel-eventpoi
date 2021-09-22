@@ -79,6 +79,7 @@ public class ExcelHelper {
 		}
 
 		SXSSFWorkbook sxssfWorkbook = new SXSSFWorkbook(1000);
+		CellStyle sxssStyle = sxssfWorkbook.createCellStyle();
 		int sheetStart = 0;
 		int sheetEnd = workbook.getNumberOfSheets();
 		if (sheetIndex != null) {
@@ -165,14 +166,13 @@ public class ExcelHelper {
 												String _keyName = vv.substring(vv.indexOf("${") + 2, vv.lastIndexOf("}"));
 												Field field = FieldUtils.getField(srcData.getClass(), _keyName, true);
 												if (field != null && field.get(srcData) != null) {
-													CellStyle _sxssStyle = sxssfWorkbook.createCellStyle();
 													SXSSFCell _sxssCell = sxssrow_y.createCell(x, curCell.getCellType());
 													if (callBackCellStyle != null) {
-														callBackCellStyle.callBack(_sxssStyle);
-														_sxssCell.setCellStyle(_sxssStyle);
+														callBackCellStyle.callBack(sxssStyle);
+														_sxssCell.setCellStyle(sxssStyle);
 													} else {
-														_sxssStyle.cloneStyleFrom(curCell.getCellStyle());
-														_sxssCell.setCellStyle(_sxssStyle);
+													    sxssStyle.cloneStyleFrom(curCell.getCellStyle());
+														_sxssCell.setCellStyle(sxssStyle);
 													}
 
 													Object value = field.get(srcData);
@@ -188,14 +188,13 @@ public class ExcelHelper {
 														_sxssCell.setCellValue(String.valueOf(value));
 													}
 												} else {
-													CellStyle _sxssStyle = sxssfWorkbook.createCellStyle();
 													SXSSFCell _sxssCell = sxssrow_y.createCell(x, curCell.getCellType());
 													if (callBackCellStyle != null) {
-														callBackCellStyle.callBack(_sxssStyle);
-														_sxssCell.setCellStyle(_sxssStyle);
+														callBackCellStyle.callBack(sxssStyle);
+														_sxssCell.setCellStyle(sxssStyle);
 													} else {
-														_sxssStyle.cloneStyleFrom(curCell.getCellStyle());
-														_sxssCell.setCellStyle(_sxssStyle);
+													    sxssStyle.cloneStyleFrom(curCell.getCellStyle());
+														_sxssCell.setCellStyle(sxssStyle);
 													}
 													_sxssCell.setCellValue("");
 												}
@@ -207,7 +206,6 @@ public class ExcelHelper {
 									Field field = FieldUtils.getField(dataObj.getClass(), keyName, true);
 									if (field != null) {
 										matchFlag = true;
-										CellStyle sxssStyle = sxssfWorkbook.createCellStyle();
 										SXSSFCell sxssCell = sxssrow.createCell(k, xssCell.getCellType());
 										if (callBackCellStyle != null) {
 											callBackCellStyle.callBack(sxssStyle);
@@ -234,7 +232,6 @@ public class ExcelHelper {
 								}
 							}
 							if (matchFlag == false) {
-								CellStyle sxssStyle = sxssfWorkbook.createCellStyle();
 								SXSSFCell sxssCell = sxssrow.createCell(k, xssCell.getCellType());
 								String cellValue = xssCellValue.replace(excelFieldSrcKeyword, "");
 								if (callBackCellStyle != null) {
@@ -247,7 +244,6 @@ public class ExcelHelper {
 								sxssCell.setCellValue(cellValue);
 							}
 						} else {
-							CellStyle sxssStyle = sxssfWorkbook.createCellStyle();
 							SXSSFCell sxssCell = sxssrow.createCell(k, xssCell.getCellType());
 							String value = xssCell.getStringCellValue();
 							if (value != null && value.contains("${")) {
