@@ -92,6 +92,9 @@
                 <includes>
                     <include>**/*.*</include>
                 </includes>
+                <excludes>
+                    <exclude>**/*.java</exclude>
+                </excludes>
             </testResource>
         </testResources>
         <plugins>
