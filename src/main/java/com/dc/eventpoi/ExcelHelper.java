@@ -66,12 +66,6 @@ public class ExcelHelper {
      * @throws Exception Exception
      */
     public static byte[] exportExcel(byte[] tempExcelBtye, List<?> listAndTableDataList, Integer sheetIndex, CallBackCellStyle callBackCellStyle) throws Exception {
-        // ByteArrayOutputStream templateByteStream = new ByteArrayOutputStream();
-        // byte[] buffer = new byte[1024 * 4];
-        // int n = 0;
-        // while (-1 != (n = excelTemplateStream.read(buffer))) {
-        // templateByteStream.write(buffer, 0, n);
-        // }
         Workbook workbook = null;
         FileType fileType = PoiUtils.judgeFileType(new ByteArrayInputStream(tempExcelBtye));
         if (fileType == FileType.XLSX) {
@@ -81,7 +75,6 @@ public class ExcelHelper {
         }
 
         SXSSFWorkbook sxssfWorkbook = new SXSSFWorkbook(1000);
-        //CellStyle sxssStyle = sxssfWorkbook.createCellStyle();
         int sheetStart = 0;
         int sheetEnd = workbook.getNumberOfSheets();
         if (sheetIndex != null) {
@@ -98,10 +91,8 @@ public class ExcelHelper {
             int offset = 0;
             int listCount = 0;
             for (int j = 0; j < rowNum; j++) {
-                final int temp_j = j;
                 for (int ii = 0; ii < sheetMergerCount; ii++) {
                     CellRangeAddress mergedRegionAt = xsssheet.getMergedRegion(ii);
-                    // System.err.println(JSON.toJSONString(mergedRegionAt));
                     if (mergedRegionAt.getFirstRow() == j) {
                         mergedRegionAt.setFirstRow(mergedRegionAt.getFirstRow() + offset - listCount);
                         mergedRegionAt.setLastRow(mergedRegionAt.getLastRow() + offset - listCount);
@@ -126,7 +117,6 @@ public class ExcelHelper {
                     if (xssCell == null) {
                     } else {
                         boolean matchFlag = false;
-                        // XSSFCellStyle curStyle = xssCell.getCellStyle();
                         String xssCellValue = xssCell.getStringCellValue();
                         if (xssCellValue != null && xssCellValue.contains("${")) {
                             String keyName = xssCellValue.substring(xssCellValue.indexOf("${") + 2, xssCellValue.lastIndexOf("}"));
@@ -159,13 +149,12 @@ public class ExcelHelper {
                                         matchFlag = true;
                                         listCount++;
                                         for (int y = 0; y < dataList.size(); y++) {
-                                            final int create_row_num = temp_j + offset;
+                                            final int create_row_num = j + offset;
                                             offset++;
 
                                             Object srcData = dataList.get(y);
                                             SXSSFRow sxssrow_y = sxssSheet.createRow(create_row_num);
 
-                                            // XSSFRow xssrow_y = xsssheet.getRow(y);
                                             sxssrow_y.setHeight(xssrow.getHeight());
                                             for (int x = temp_k; x < xssCellNum; x++) {
 
@@ -184,10 +173,9 @@ public class ExcelHelper {
                                                 if (field != null && field.get(srcData) != null) {
                                                     SXSSFCell _sxssCell = sxssrow_y.createCell(x, curCell.getCellType());
                                                     if (callBackCellStyle != null) {
-                                                        //                                                        callBackCellStyle.callBack(sxssStyle);
-                                                        //                                                        _sxssCell.setCellStyle(sxssStyle);
+                                                        callBackCellStyle.callBack(curCell.getCellStyle());
+                                                        _sxssCell.setCellStyle(curCell.getCellStyle());
                                                     } else {
-                                                        //sxssStyle.cloneStyleFrom(curCell.getCellStyle());
                                                         _sxssCell.setCellStyle(curCell.getCellStyle());
                                                     }
 
@@ -206,8 +194,8 @@ public class ExcelHelper {
                                                 } else {
                                                     SXSSFCell _sxssCell = sxssrow_y.createCell(x, curCell.getCellType());
                                                     if (callBackCellStyle != null) {
-                                                        //                                                        callBackCellStyle.callBack(sxssStyle);
-                                                        //                                                        _sxssCell.setCellStyle(sxssStyle);
+                                                        callBackCellStyle.callBack(curCell.getCellStyle());
+                                                        _sxssCell.setCellStyle(curCell.getCellStyle());
                                                     } else {
                                                         _sxssCell.setCellStyle(curCell.getCellStyle());
                                                     }
@@ -222,8 +210,9 @@ public class ExcelHelper {
                                         matchFlag = true;
                                         SXSSFCell sxssCell = sxssrow.createCell(k, xssCell.getCellType());
                                         if (callBackCellStyle != null) {
-                                            //                                            callBackCellStyle.callBack(sxssStyle);
-                                            //                                            sxssCell.setCellStyle(sxssStyle);
+                                            CellStyle _sxssStyle = sxssfWorkbook.createCellStyle();
+                                            callBackCellStyle.callBack(_sxssStyle);
+                                            sxssCell.setCellStyle(_sxssStyle);
                                         } else {
                                             CellStyle _sxssStyle = sxssfWorkbook.createCellStyle();
                                             _sxssStyle.cloneStyleFrom(xssCell.getCellStyle());
@@ -244,18 +233,8 @@ public class ExcelHelper {
                                             sxssCell.setCellValue(cellValue);
                                         }
                                     }
-
-                                    //                                    workbook.close();
-                                    //                                    ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
-                                    //                                    sxssfWorkbook.write(byteStream);
-                                    //                                    byteStream.flush();
-                                    //                                    byteStream.close();
-                                    //                                    sxssfWorkbook.close();
-                                    //                                    sxssfWorkbook.dispose();
-                                    //                                    return byteStream.toByteArray();
                                 }
                             }
-
                         }
 
                         if (matchFlag == false) {
@@ -266,8 +245,9 @@ public class ExcelHelper {
                                 value = value.replace(excelFieldSrcKeyword, "");
                             }
                             if (callBackCellStyle != null) {
-                                //                                callBackCellStyle.callBack(sxssStyle);
-                                //                                sxssCell.setCellStyle(sxssStyle);
+                                CellStyle _sxssStyle = sxssfWorkbook.createCellStyle();
+                                callBackCellStyle.callBack(_sxssStyle);
+                                sxssCell.setCellStyle(_sxssStyle);
                             } else {
                                 CellStyle _sxssStyle = sxssfWorkbook.createCellStyle();
                                 _sxssStyle.cloneStyleFrom(xssCell.getCellStyle());
