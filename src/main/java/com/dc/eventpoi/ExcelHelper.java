@@ -81,7 +81,7 @@ public class ExcelHelper {
         }
 
         SXSSFWorkbook sxssfWorkbook = new SXSSFWorkbook(1000);
-        CellStyle sxssStyle = sxssfWorkbook.createCellStyle();
+        //CellStyle sxssStyle = sxssfWorkbook.createCellStyle();
         int sheetStart = 0;
         int sheetEnd = workbook.getNumberOfSheets();
         if (sheetIndex != null) {
