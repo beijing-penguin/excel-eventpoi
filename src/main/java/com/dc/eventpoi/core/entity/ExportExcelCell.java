@@ -4,6 +4,7 @@
 package com.dc.eventpoi.core.entity;
 
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.CellType;
 
 /**
  * 单元格实体对象
@@ -24,6 +25,10 @@ public class ExportExcelCell {
      * cellStyle
      */
     private CellStyle cellStyle;
+    /**
+     * cellType
+     */
+    private CellType cellType;
 
     /**
      * @param index 列索引
@@ -62,4 +67,13 @@ public class ExportExcelCell {
     public void setCellStyle(CellStyle cellStyle) {
         this.cellStyle = cellStyle;
     }
+
+    public CellType getCellType() {
+        return cellType;
+    }
+
+    public void setCellType(CellType cellType) {
+        this.cellType = cellType;
+    }
+    
 }

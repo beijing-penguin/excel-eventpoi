@@ -12,8 +12,8 @@ import com.dc.eventpoi.core.PoiUtils;
 public class 使用一行代码导出excel {
     public static void main(String[] args) throws Exception {
         List<Person> personList = new ArrayList<Person>();
-        //构造导出时的数据（带图片的数据）
-        for (int i = 0; i < 500; i++) {
+        //构造导出时的数据
+        for (int i = 0; i < 2000; i++) {
             
             Person p1 = new Person();
             p1.setNo("NO_"+i);
@@ -25,7 +25,9 @@ public class 使用一行代码导出excel {
 
         byte[] newTempFile = PoiUtils.deleteCol(Test1.class.getResourceAsStream("demo1Templete.xlsx"), "${salary}");
         //第三个参数表示，导出时，删除那些列（按模板文件中的key删除，可不传）
+        long t1 = System.currentTimeMillis();
         byte[] exportByteData = ExcelHelper.exportExcel(newTempFile, personList,0);
+        System.out.println("cost="+(System.currentTimeMillis()-t1));
         //支持设置单元格样式噢！！！^_^
         //        byte[] exportByteData = ExcelHelper.exportExcel(Test1.class.getResourceAsStream("demo1Templete.xlsx"), personList,new CallBackCellStyle() {
         //            @Override
