@@ -21,9 +21,9 @@ public class 使用一行代码导出excel {
             p1.setRemark("测试测试啊remar_"+i);
             personList.add(p1);
         }
-
+        
+        //删除某些列
         byte[] newTempFile = PoiUtils.deleteCol(Test1.class.getResourceAsStream("demo1Templete.xlsx"), "${salary}");
-        //第三个参数表示，导出时，删除那些列（按模板文件中的key删除，可不传）
         long t1 = System.currentTimeMillis();
         byte[] exportByteData = ExcelHelper.exportExcel(newTempFile, personList,0);
         System.out.println("cost="+(System.currentTimeMillis()-t1));
