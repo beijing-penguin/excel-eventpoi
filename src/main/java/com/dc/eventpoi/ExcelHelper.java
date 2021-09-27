@@ -74,7 +74,7 @@ public class ExcelHelper {
             workbook = (HSSFWorkbook) WorkbookFactory.create(new ByteArrayInputStream(tempExcelBtye));
         }
 
-        SXSSFWorkbook sxssfWorkbook = new SXSSFWorkbook(1000);
+        SXSSFWorkbook sxssfWorkbook = new SXSSFWorkbook();
         int sheetStart = 0;
         int sheetEnd = workbook.getNumberOfSheets();
         if (sheetIndex != null) {
