@@ -24,6 +24,8 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -171,14 +173,15 @@ public class ExcelHelper {
                                                         break;
                                                     }
                                                 }
-
+                                                //curCell.getCellStyle().setFillForegroundColor(IndexedColors.AQUA.getIndex());
+                                                //curCell.getCellStyle().setFillPattern(FillPatternType.SOLID_FOREGROUND);
                                                 String _keyName = vv.substring(vv.indexOf("${") + 2, vv.lastIndexOf("}"));
                                                 Field field = FieldUtils.getField(srcData.getClass(), _keyName, true);
                                                 if (field != null && field.get(srcData) != null) {
                                                     SXSSFCell _sxssCell = sxssrow_y.createCell(x, curCell.getCellType());
                                                     if (callBackCellStyle != null) {
-                                                        _sxssCell.setCellStyle(curCell.getCellStyle());
                                                         callBackCellStyle.callBack(sxssSheet, _sxssCell, curCell.getCellStyle());
+                                                        _sxssCell.setCellStyle(curCell.getCellStyle());
                                                     } else {
                                                         _sxssCell.setCellStyle(curCell.getCellStyle());
                                                     }
@@ -198,9 +201,8 @@ public class ExcelHelper {
                                                 } else {
                                                     SXSSFCell _sxssCell = sxssrow_y.createCell(x, curCell.getCellType());
                                                     if (callBackCellStyle != null) {
-                                                        _sxssCell.setCellStyle(curCell.getCellStyle());
                                                         callBackCellStyle.callBack(sxssSheet, _sxssCell, curCell.getCellStyle());
-                                                        // _sxssCell.setCellStyle(curCell.getCellStyle());
+                                                        _sxssCell.setCellStyle(curCell.getCellStyle());
                                                     } else {
                                                         _sxssCell.setCellStyle(curCell.getCellStyle());
                                                     }
@@ -595,6 +597,20 @@ public class ExcelHelper {
         return exportExcel(templete, Arrays.asList(tableData), 0, null, null);
     }
 
+    /**
+     * 导出列表或表格excel文件
+     *
+     * @param templeteStream       模板数据流
+     * @param listAndTableDataList dataList
+     * @param sheetIndex           sheetIndex
+     * @param sheetCallBack        sheet回调
+     * @return byte[]
+     * @throws Exception Exception
+     */
+    public static byte[] exportExcel(InputStream templeteStream, List<Object> listAndTableDataList, SheetCallBack sheetCallBack) throws Exception {
+        return exportExcel(PoiUtils.inputStreamToByte(templeteStream), listAndTableDataList, null, sheetCallBack, null);
+    }
+    
     /**
      * 导出列表或表格excel文件
      *
