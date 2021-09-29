@@ -64,6 +64,7 @@ public class ExcelHelper {
      * @param tempExcelBtye        模板文件流
      * @param listAndTableDataList 包含列表数据集合 和 表格数据对象
      * @param sheetIndex           sheetIndex
+     * @param sheetCallBack        sheetCallBack
      * @param callBackCellStyle    callBackCellStyle
      * @return byte[]
      * @throws Exception Exception
@@ -173,8 +174,8 @@ public class ExcelHelper {
                                                         break;
                                                     }
                                                 }
-                                                //curCell.getCellStyle().setFillForegroundColor(IndexedColors.AQUA.getIndex());
-                                                //curCell.getCellStyle().setFillPattern(FillPatternType.SOLID_FOREGROUND);
+                                                // curCell.getCellStyle().setFillForegroundColor(IndexedColors.AQUA.getIndex());
+                                                // curCell.getCellStyle().setFillPattern(FillPatternType.SOLID_FOREGROUND);
                                                 String _keyName = vv.substring(vv.indexOf("${") + 2, vv.lastIndexOf("}"));
                                                 Field field = FieldUtils.getField(srcData.getClass(), _keyName, true);
                                                 if (field != null && field.get(srcData) != null) {
@@ -602,7 +603,6 @@ public class ExcelHelper {
      *
      * @param templeteStream       模板数据流
      * @param listAndTableDataList dataList
-     * @param sheetIndex           sheetIndex
      * @param sheetCallBack        sheet回调
      * @return byte[]
      * @throws Exception Exception
@@ -610,13 +610,12 @@ public class ExcelHelper {
     public static byte[] exportExcel(InputStream templeteStream, List<Object> listAndTableDataList, SheetCallBack sheetCallBack) throws Exception {
         return exportExcel(PoiUtils.inputStreamToByte(templeteStream), listAndTableDataList, null, sheetCallBack, null);
     }
-    
+
     /**
      * 导出列表或表格excel文件
      *
      * @param templeteStream       模板数据流
      * @param listAndTableDataList dataList
-     * @param sheetIndex           sheetIndex
      * @param sheetCallBack        sheet回调
      * @param callBackCellStyle    样式回调
      * @return byte[]
@@ -631,7 +630,7 @@ public class ExcelHelper {
      *
      * @param templeteStream       模板数据流
      * @param listAndTableDataList dataList
-     * @param sheetIndex           sheetIndex
+     * @param callBackCellStyle    样式回调
      * @return byte[]
      * @throws Exception Exception
      */

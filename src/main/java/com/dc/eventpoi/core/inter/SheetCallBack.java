@@ -10,9 +10,8 @@ import org.apache.poi.xssf.streaming.SXSSFSheet;
 public interface SheetCallBack extends BaseCallBack {
 
     /**
-     * 行回调方法
-     *
-     * @param excelSheet 行对象
+     * Sheet回调
+     * @param sxssSheet sxssSheet
      */
     void callBack(SXSSFSheet sxssSheet);
 }
