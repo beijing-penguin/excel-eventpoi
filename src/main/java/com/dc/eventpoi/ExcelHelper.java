@@ -172,7 +172,7 @@ public class ExcelHelper {
                                                 if (field != null && field.get(srcData) != null) {
                                                     SXSSFCell _sxssCell = sxssrow_y.createCell(x, curCell.getCellType());
                                                     if (callBackCellStyle != null) {
-                                                        callBackCellStyle.callBack(_sxssCell, curCell.getCellStyle());
+                                                        callBackCellStyle.callBack(sxssSheet,_sxssCell, curCell.getCellStyle());
                                                         _sxssCell.setCellStyle(curCell.getCellStyle());
                                                     } else {
                                                         _sxssCell.setCellStyle(curCell.getCellStyle());
@@ -193,7 +193,7 @@ public class ExcelHelper {
                                                 } else {
                                                     SXSSFCell _sxssCell = sxssrow_y.createCell(x, curCell.getCellType());
                                                     if (callBackCellStyle != null) {
-                                                        callBackCellStyle.callBack(_sxssCell, curCell.getCellStyle());
+                                                        callBackCellStyle.callBack(sxssSheet,_sxssCell, curCell.getCellStyle());
                                                         _sxssCell.setCellStyle(curCell.getCellStyle());
                                                     } else {
                                                         _sxssCell.setCellStyle(curCell.getCellStyle());
@@ -208,12 +208,12 @@ public class ExcelHelper {
                                     if (field != null) {
                                         matchFlag = true;
                                         SXSSFCell sxssCell = sxssrow.createCell(k, xssCell.getCellType());
+                                        CellStyle _sxssStyle = sxssfWorkbook.createCellStyle();
+                                        _sxssStyle.cloneStyleFrom(xssCell.getCellStyle());
                                         if (callBackCellStyle != null) {
-                                            CellStyle _sxssStyle = sxssfWorkbook.createCellStyle();
-                                            callBackCellStyle.callBack(sxssCell, _sxssStyle);
+                                            callBackCellStyle.callBack(sxssSheet,sxssCell, _sxssStyle);
                                             sxssCell.setCellStyle(_sxssStyle);
                                         } else {
-                                            CellStyle _sxssStyle = sxssfWorkbook.createCellStyle();
                                             _sxssStyle.cloneStyleFrom(xssCell.getCellStyle());
                                             sxssCell.setCellStyle(_sxssStyle);
                                         }
@@ -243,13 +243,12 @@ public class ExcelHelper {
                                 String excelFieldSrcKeyword = value.substring(value.indexOf("${"), value.lastIndexOf("}") + 1);
                                 value = value.replace(excelFieldSrcKeyword, "");
                             }
+                            CellStyle _sxssStyle = sxssfWorkbook.createCellStyle();
+                            _sxssStyle.cloneStyleFrom(xssCell.getCellStyle());
                             if (callBackCellStyle != null) {
-                                CellStyle _sxssStyle = sxssfWorkbook.createCellStyle();
-                                callBackCellStyle.callBack(sxssCell, _sxssStyle);
+                                callBackCellStyle.callBack(sxssSheet,sxssCell, _sxssStyle);
                                 sxssCell.setCellStyle(_sxssStyle);
                             } else {
-                                CellStyle _sxssStyle = sxssfWorkbook.createCellStyle();
-                                _sxssStyle.cloneStyleFrom(xssCell.getCellStyle());
                                 sxssCell.setCellStyle(_sxssStyle);
                             }
                             sxssCell.setCellValue(value);
@@ -589,6 +588,19 @@ public class ExcelHelper {
         return exportExcel(templete, Arrays.asList(tableData), 0, null);
     }
 
+    /**
+     * 导出列表或表格excel文件
+     *
+     * @param templeteStream       模板数据流
+     * @param listAndTableDataList dataList
+     * @param sheetIndex           sheetIndex
+     * @return byte[]
+     * @throws Exception Exception
+     */
+    public static byte[] exportExcel(InputStream templeteStream, List<Object> listAndTableDataList, CallBackCellStyle callBackCellStyle) throws Exception {
+        return exportExcel(PoiUtils.inputStreamToByte(templeteStream), listAndTableDataList, null,callBackCellStyle);
+    }
+    
     /**
      * 导出列表或表格excel文件
      *
