@@ -10,7 +10,7 @@
 
     <groupId>io.github.beijing-penguin</groupId>
     <artifactId>eventpoi</artifactId>
-    <version>0.0.6</version>
+    <version>0.0.7</version>
     <packaging>jar</packaging>
 
     <name>eventpoi</name>
