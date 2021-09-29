@@ -1,6 +1,6 @@
 package com.dc.eventpoi.core.inter;
 
-import com.dc.eventpoi.core.entity.ExcelSheet;
+import org.apache.poi.xssf.streaming.SXSSFSheet;
 
 /**
  * 行回调接口
@@ -14,5 +14,5 @@ public interface SheetCallBack extends BaseCallBack {
      *
      * @param excelSheet 行对象
      */
-    void getSheet(ExcelSheet excelSheet);
+    void callBack(SXSSFSheet sxssSheet);
 }

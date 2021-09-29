@@ -44,9 +44,10 @@ import com.dc.eventpoi.core.entity.ExcelCell;
 import com.dc.eventpoi.core.entity.ExcelRow;
 import com.dc.eventpoi.core.entity.ExportExcelCell;
 import com.dc.eventpoi.core.enums.FileType;
-import com.dc.eventpoi.core.inter.CallBackCellStyle;
+import com.dc.eventpoi.core.inter.CellStyleCallBack;
 import com.dc.eventpoi.core.inter.ExcelEventStream;
 import com.dc.eventpoi.core.inter.RowCallBack;
+import com.dc.eventpoi.core.inter.SheetCallBack;
 
 /**
  * excel操作
@@ -65,7 +66,7 @@ public class ExcelHelper {
      * @return byte[]
      * @throws Exception Exception
      */
-    public static byte[] exportExcel(byte[] tempExcelBtye, List<?> listAndTableDataList, Integer sheetIndex, CallBackCellStyle callBackCellStyle) throws Exception {
+    public static byte[] exportExcel(byte[] tempExcelBtye, List<?> listAndTableDataList, Integer sheetIndex, SheetCallBack sheetCallBack, CellStyleCallBack callBackCellStyle) throws Exception {
         Workbook workbook = null;
         FileType fileType = PoiUtils.judgeFileType(new ByteArrayInputStream(tempExcelBtye));
         if (fileType == FileType.XLSX) {
@@ -83,6 +84,10 @@ public class ExcelHelper {
         }
         for (int i = sheetStart; i < sheetEnd; i++) {
             SXSSFSheet sxssSheet = sxssfWorkbook.createSheet(workbook.getSheetName(i));
+            if (sheetCallBack != null) {
+                sheetCallBack.callBack(sxssSheet);
+            }
+
             SXSSFDrawing patriarch = (SXSSFDrawing) sxssSheet.createDrawingPatriarch();
             Sheet xsssheet = workbook.getSheetAt(i);
             int sheetMergerCount = xsssheet.getNumMergedRegions();
@@ -172,8 +177,8 @@ public class ExcelHelper {
                                                 if (field != null && field.get(srcData) != null) {
                                                     SXSSFCell _sxssCell = sxssrow_y.createCell(x, curCell.getCellType());
                                                     if (callBackCellStyle != null) {
-                                                        callBackCellStyle.callBack(sxssSheet,_sxssCell, curCell.getCellStyle());
                                                         _sxssCell.setCellStyle(curCell.getCellStyle());
+                                                        callBackCellStyle.callBack(sxssSheet, _sxssCell, curCell.getCellStyle());
                                                     } else {
                                                         _sxssCell.setCellStyle(curCell.getCellStyle());
                                                     }
@@ -193,8 +198,9 @@ public class ExcelHelper {
                                                 } else {
                                                     SXSSFCell _sxssCell = sxssrow_y.createCell(x, curCell.getCellType());
                                                     if (callBackCellStyle != null) {
-                                                        callBackCellStyle.callBack(sxssSheet,_sxssCell, curCell.getCellStyle());
                                                         _sxssCell.setCellStyle(curCell.getCellStyle());
+                                                        callBackCellStyle.callBack(sxssSheet, _sxssCell, curCell.getCellStyle());
+                                                        // _sxssCell.setCellStyle(curCell.getCellStyle());
                                                     } else {
                                                         _sxssCell.setCellStyle(curCell.getCellStyle());
                                                     }
@@ -209,10 +215,10 @@ public class ExcelHelper {
                                         matchFlag = true;
                                         SXSSFCell sxssCell = sxssrow.createCell(k, xssCell.getCellType());
                                         CellStyle _sxssStyle = sxssfWorkbook.createCellStyle();
-                                        _sxssStyle.cloneStyleFrom(xssCell.getCellStyle());
                                         if (callBackCellStyle != null) {
-                                            callBackCellStyle.callBack(sxssSheet,sxssCell, _sxssStyle);
+                                            _sxssStyle.cloneStyleFrom(xssCell.getCellStyle());
                                             sxssCell.setCellStyle(_sxssStyle);
+                                            callBackCellStyle.callBack(sxssSheet, sxssCell, _sxssStyle);
                                         } else {
                                             _sxssStyle.cloneStyleFrom(xssCell.getCellStyle());
                                             sxssCell.setCellStyle(_sxssStyle);
@@ -244,11 +250,12 @@ public class ExcelHelper {
                                 value = value.replace(excelFieldSrcKeyword, "");
                             }
                             CellStyle _sxssStyle = sxssfWorkbook.createCellStyle();
-                            _sxssStyle.cloneStyleFrom(xssCell.getCellStyle());
                             if (callBackCellStyle != null) {
-                                callBackCellStyle.callBack(sxssSheet,sxssCell, _sxssStyle);
+                                _sxssStyle.cloneStyleFrom(xssCell.getCellStyle());
                                 sxssCell.setCellStyle(_sxssStyle);
+                                callBackCellStyle.callBack(sxssSheet, sxssCell, _sxssStyle);
                             } else {
+                                _sxssStyle.cloneStyleFrom(xssCell.getCellStyle());
                                 sxssCell.setCellStyle(_sxssStyle);
                             }
                             sxssCell.setCellValue(value);
@@ -535,8 +542,8 @@ public class ExcelHelper {
      * @return byte[]
      * @throws Exception Exception
      */
-    public static byte[] exportExcel(byte[] templete, List<?> listData, CallBackCellStyle callBackCellStyle) throws Exception {
-        return exportExcel(templete, listData, 0, callBackCellStyle);
+    public static byte[] exportExcel(byte[] templete, List<?> listData, CellStyleCallBack callBackCellStyle) throws Exception {
+        return exportExcel(templete, listData, 0, null, callBackCellStyle);
     }
 
     /**
@@ -549,7 +556,7 @@ public class ExcelHelper {
      * @throws Exception Exception
      */
     public static byte[] exportExcel(byte[] templete, List<?> listData, Integer sheetIndex) throws Exception {
-        return exportExcel(templete, Arrays.asList(listData), sheetIndex, null);
+        return exportExcel(templete, Arrays.asList(listData), sheetIndex, null, null);
     }
 
     /**
@@ -561,7 +568,7 @@ public class ExcelHelper {
      * @throws Exception Exception
      */
     public static byte[] exportExcel(byte[] templete, List<?> listAndTableDataList) throws Exception {
-        return exportExcel(templete, Arrays.asList(listAndTableDataList), 0, null);
+        return exportExcel(templete, Arrays.asList(listAndTableDataList), 0, null, null);
     }
 
     /**
@@ -573,7 +580,7 @@ public class ExcelHelper {
      * @throws Exception Exception
      */
     public static byte[] exportExcel(InputStream templeteStream, Object tableData) throws Exception {
-        return exportExcel(PoiUtils.inputStreamToByte(templeteStream), Arrays.asList(tableData), 0, null);
+        return exportExcel(PoiUtils.inputStreamToByte(templeteStream), Arrays.asList(tableData), 0, null, null);
     }
 
     /**
@@ -585,7 +592,22 @@ public class ExcelHelper {
      * @throws Exception IOException
      */
     public static byte[] exportExcel(byte[] templete, Object tableData) throws Exception {
-        return exportExcel(templete, Arrays.asList(tableData), 0, null);
+        return exportExcel(templete, Arrays.asList(tableData), 0, null, null);
+    }
+
+    /**
+     * 导出列表或表格excel文件
+     *
+     * @param templeteStream       模板数据流
+     * @param listAndTableDataList dataList
+     * @param sheetIndex           sheetIndex
+     * @param sheetCallBack        sheet回调
+     * @param callBackCellStyle    样式回调
+     * @return byte[]
+     * @throws Exception Exception
+     */
+    public static byte[] exportExcel(InputStream templeteStream, List<Object> listAndTableDataList, SheetCallBack sheetCallBack, CellStyleCallBack callBackCellStyle) throws Exception {
+        return exportExcel(PoiUtils.inputStreamToByte(templeteStream), listAndTableDataList, null, sheetCallBack, callBackCellStyle);
     }
 
     /**
@@ -597,10 +619,10 @@ public class ExcelHelper {
      * @return byte[]
      * @throws Exception Exception
      */
-    public static byte[] exportExcel(InputStream templeteStream, List<Object> listAndTableDataList, CallBackCellStyle callBackCellStyle) throws Exception {
-        return exportExcel(PoiUtils.inputStreamToByte(templeteStream), listAndTableDataList, null,callBackCellStyle);
+    public static byte[] exportExcel(InputStream templeteStream, List<Object> listAndTableDataList, CellStyleCallBack callBackCellStyle) throws Exception {
+        return exportExcel(PoiUtils.inputStreamToByte(templeteStream), listAndTableDataList, null, null, callBackCellStyle);
     }
-    
+
     /**
      * 导出列表或表格excel文件
      *
@@ -611,7 +633,7 @@ public class ExcelHelper {
      * @throws Exception Exception
      */
     public static byte[] exportExcel(InputStream templeteStream, List<Object> listAndTableDataList, Integer sheetIndex) throws Exception {
-        return exportExcel(PoiUtils.inputStreamToByte(templeteStream), listAndTableDataList, sheetIndex, null);
+        return exportExcel(PoiUtils.inputStreamToByte(templeteStream), listAndTableDataList, sheetIndex, null, null);
     }
 
     /**
@@ -623,7 +645,7 @@ public class ExcelHelper {
      * @throws Exception Exception
      */
     public static byte[] exportExcel(InputStream templeteStream, List<Object> listAndTableDataList) throws Exception {
-        return exportExcel(PoiUtils.inputStreamToByte(templeteStream), listAndTableDataList, 0, null);
+        return exportExcel(PoiUtils.inputStreamToByte(templeteStream), listAndTableDataList, 0, null, null);
     }
 
 }

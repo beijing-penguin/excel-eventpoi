@@ -7,13 +7,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.streaming.SXSSFCell;
 import org.apache.poi.xssf.streaming.SXSSFSheet;
 
-import com.alibaba.fastjson.JSON;
 import com.dc.eventpoi.ExcelHelper;
-import com.dc.eventpoi.core.inter.CallBackCellStyle;
+import com.dc.eventpoi.core.inter.CellStyleCallBack;
+import com.dc.eventpoi.core.inter.SheetCallBack;
 
 public class 测试包含表格和列表数据的复杂导出2 {
     public static void main(String[] args) throws Exception {
@@ -50,13 +52,20 @@ public class 测试包含表格和列表数据的复杂导出2 {
         excelDataList.add(orderInfo);
 
         //导出
-        byte[] exportByteData = ExcelHelper.exportExcel(Test1.class.getResourceAsStream("订单_templete.xlsx"), excelDataList,new CallBackCellStyle() {
+        byte[] exportByteData = ExcelHelper.exportExcel(Test1.class.getResourceAsStream("订单_templete.xlsx"), excelDataList,new SheetCallBack() {
+            
+            @Override
+            public void callBack(SXSSFSheet sxssSheet) {
+                CellRangeAddress mergedRegionAt = new CellRangeAddress(7, 8, 0, 0);
+                sxssSheet.addMergedRegionUnsafe(mergedRegionAt);
+            }
+        },new CellStyleCallBack() {
 
             @Override
             public void callBack(SXSSFSheet sxssSheet, SXSSFCell curCell, CellStyle curCellStyle) {
                 if(curCell.getRowIndex()==6) {
-                    CellRangeAddress mergedRegionAt = new CellRangeAddress(7, 8, 0, 0);
-                    sxssSheet.addMergedRegionUnsafe(mergedRegionAt);
+                    curCellStyle.setFillForegroundColor(IndexedColors.RED.getIndex());
+                    curCellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
                 }
             }
             

@@ -4,7 +4,7 @@ import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.xssf.streaming.SXSSFCell;
 import org.apache.poi.xssf.streaming.SXSSFSheet;
 
-public interface CallBackCellStyle {
+public interface CellStyleCallBack {
     /**
      * 单元格样式回调
      * @param curCell 当前单元格对象
