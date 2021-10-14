@@ -155,7 +155,7 @@ public class ExcelHelper {
                                         breakFlag = true;
                                         matchFlag = true;
                                         listCount++;
-                                        for (int y = 0; y < dataList.size(); y++) {
+                                        for (int y = 0,len=dataList.size(); y < len; y++) {
                                             final int create_row_num = j + offset;
                                             offset++;
 
