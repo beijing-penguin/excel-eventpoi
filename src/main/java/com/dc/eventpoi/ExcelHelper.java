@@ -77,6 +77,7 @@ public class ExcelHelper {
         }
 
         SXSSFWorkbook sxssfWorkbook = new SXSSFWorkbook();
+        
         int sheetStart = 0;
         int sheetEnd = workbook.getNumberOfSheets();
         if (sheetIndex != null) {
@@ -188,7 +189,27 @@ public class ExcelHelper {
                                                     Object value = field.get(srcData);
                                                     if (value instanceof byte[]) {
                                                         if (PoiUtils.getImageType((byte[]) value) != null) {
-                                                            XSSFClientAnchor anchor = new XSSFClientAnchor(0, 0, 0, 0, x, sxssrow_y.getRowNum(), x + 1, sxssrow_y.getRowNum() + 1);
+                                                            //XSSFClientAnchor anchor = new XSSFClientAnchor(0, 0, 0, 0, x, sxssrow_y.getRowNum(), x + 1, sxssrow_y.getRowNum() + 1);
+//                                                            int picIndex = sxssSheet.getWorkbook().addPicture((byte[]) value, HSSFWorkbook.PICTURE_TYPE_PNG);
+//                                                            Drawing drawing = sxssSheet.getDrawingPatriarch();
+//                                                            if (drawing == null) {
+//                                                                drawing = sxssSheet.createDrawingPatriarch();
+//                                                            }
+//                                                            
+//                                                            CreationHelper helper = sxssSheet.getWorkbook().getCreationHelper();
+//                                                            ClientAnchor anchor = helper.createClientAnchor();
+//                                                            anchor.setDx1(0);
+//                                                            anchor.setDx2(0);
+//                                                            anchor.setDy1(0);
+//                                                            anchor.setDy2(0);
+//                                                            anchor.setCol1(_sxssCell.getColumnIndex());
+//                                                            anchor.setCol2(_sxssCell.getColumnIndex() + 1);
+//                                                            anchor.setRow1(_sxssCell.getRowIndex());
+//                                                            anchor.setRow2(_sxssCell.getRowIndex() + 1);
+//                                                            anchor.setAnchorType(ClientAnchor.AnchorType.DONT_MOVE_AND_RESIZE);
+//                                                            
+//                                                            drawing.createPicture(anchor, picIndex);
+                                                        	XSSFClientAnchor anchor = new XSSFClientAnchor(0, 0, 0, 0, x, sxssrow_y.getRowNum(), x + 1, sxssrow_y.getRowNum() + 1);
                                                             int picIndex = sxssfWorkbook.addPicture((byte[]) value, HSSFWorkbook.PICTURE_TYPE_JPEG);
                                                             patriarch.createPicture(anchor, picIndex);
                                                         } else {
