@@ -31,8 +31,10 @@ public class 测试包含表格和列表数据的复杂导出 {
         	ProductInfo p1 = new ProductInfo();
             p1.setNo("NO_"+i);
             p1.setName("ssssss_"+i);
-            String img_file_path = new File(Test1.class.getResource("img.jpg").getPath()).getAbsolutePath();
-            p1.setHeadImage(Files.readAllBytes(Paths.get(img_file_path)));
+            if(i==0) {//测试用例，只导出第一行带图片的数据。
+            	String img_file_path = new File(Test1.class.getResource("unnamed.jpg").getPath()).getAbsolutePath();
+            	p1.setHeadImage(Files.readAllBytes(Paths.get(img_file_path)));
+            }
             p1.setCaigouNum(i+10);
             productList.add(p1);
         }

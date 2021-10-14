@@ -25,7 +25,7 @@ public class 图片导出测试 {
 		
 		SXSSFCell _sxssCell = sxssrow.createCell(0);
 		
-		String img_file_path = new File(Test1.class.getResource("img.jpg").getPath()).getAbsolutePath();
+		String img_file_path = new File(Test1.class.getResource("unnamed.jpg").getPath()).getAbsolutePath();
 		byte[] value = Files.readAllBytes(Paths.get(img_file_path));
 		
 		XSSFClientAnchor anchor = new XSSFClientAnchor(0, 0, 0, 0, _sxssCell.getColumnIndex(), sxssrow.getRowNum(), _sxssCell.getColumnIndex() + 1, sxssrow.getRowNum() + 1);

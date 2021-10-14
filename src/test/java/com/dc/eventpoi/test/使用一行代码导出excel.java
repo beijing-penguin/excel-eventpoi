@@ -25,7 +25,9 @@ public class 使用一行代码导出excel {
 			p1.setAge(11);
 			p1.setName("ssssss_"+i);
 			p1.setRemark("测试测试啊remar_"+i);
-			p1.setHeadImage(imageData);
+			if(i==0) {
+				p1.setHeadImage(imageData);
+			}
 			personList.add(p1);
 		}
 
