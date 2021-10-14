@@ -6,8 +6,15 @@ public class ProductInfo {
     private String xinghao;
     private String desc;
     private byte[] headImage;
+    private Integer caigouNum;
     
     
+	public Integer getCaigouNum() {
+		return caigouNum;
+	}
+	public void setCaigouNum(Integer caigouNum) {
+		this.caigouNum = caigouNum;
+	}
 	public byte[] getHeadImage() {
 		return headImage;
 	}

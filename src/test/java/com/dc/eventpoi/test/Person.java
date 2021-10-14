@@ -10,9 +10,15 @@ public class Person {
 	private BigDecimal salary;
 	private BigDecimal oldSalary;
 	private String remark;
+	private Integer caigouNum;
 	
-	
-    public byte[] getHeadImage() {
+    public Integer getCaigouNum() {
+		return caigouNum;
+	}
+	public void setCaigouNum(Integer caigouNum) {
+		this.caigouNum = caigouNum;
+	}
+	public byte[] getHeadImage() {
         return headImage;
     }
     public void setHeadImage(byte[] headImage) {
