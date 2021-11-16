@@ -5,8 +5,6 @@ import com.dc.eventpoi.core.entity.ExcelRow;
 import com.dc.eventpoi.core.enums.CellDataTypeEnum;
 import com.dc.eventpoi.core.inter.BaseCallBack;
 import com.dc.eventpoi.core.inter.ExcelEventStream;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.xssf.eventusermodel.XSSFReader;
 import org.apache.poi.xssf.eventusermodel.XSSFReader.SheetIterator;
@@ -32,10 +30,6 @@ import java.util.List;
  * @author beijing-penguin
  */
 public class ExcelXlsxStream extends BaseExcelStream implements ExcelEventStream {
-    /**
-     *
-     */
-    private static Log LOG = LogFactory.getLog(ExcelXlsxStream.class);
     /**
      *
      */
@@ -248,7 +242,6 @@ public class ExcelXlsxStream extends BaseExcelStream implements ExcelEventStream
                 is = null;
             }
         } catch (Exception e) {
-            LOG.error("", e);
             throw e;
         } finally {
             try {
@@ -257,7 +250,6 @@ public class ExcelXlsxStream extends BaseExcelStream implements ExcelEventStream
                     sst = null;
                 }
             } catch (Exception e) {
-                LOG.error("", e);
                 throw e;
             } finally {
                 try {
@@ -266,7 +258,6 @@ public class ExcelXlsxStream extends BaseExcelStream implements ExcelEventStream
                         pkg = null;
                     }
                 } catch (Exception e) {
-                    LOG.error("", e);
                     throw e;
                 } finally {
                     try {
@@ -275,7 +266,6 @@ public class ExcelXlsxStream extends BaseExcelStream implements ExcelEventStream
                             fileStream = null;
                         }
                     } catch (IOException e) {
-                        LOG.error("", e);
                         throw e;
                     } finally {
                         defaultHandler = null;

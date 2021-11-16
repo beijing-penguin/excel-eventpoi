@@ -4,8 +4,6 @@ import com.dc.eventpoi.core.entity.ExcelCell;
 import com.dc.eventpoi.core.entity.ExcelRow;
 import com.dc.eventpoi.core.inter.BaseCallBack;
 import com.dc.eventpoi.core.inter.ExcelEventStream;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.poi.hssf.eventusermodel.HSSFEventFactory;
 import org.apache.poi.hssf.eventusermodel.HSSFListener;
 import org.apache.poi.hssf.eventusermodel.HSSFRequest;
@@ -39,7 +37,6 @@ import java.util.List;
  */
 public class ExcelXlsStream extends BaseExcelStream implements ExcelEventStream {
 
-    private static Log LOG = LogFactory.getLog(ExcelXlsStream.class);
 
     /**
      *
@@ -229,7 +226,6 @@ public class ExcelXlsStream extends BaseExcelStream implements ExcelEventStream 
                 fileStream = null;
             }
         } catch (Exception e) {
-            LOG.error("", e);
             throw e;
         } finally {
             try {
@@ -238,14 +234,12 @@ public class ExcelXlsStream extends BaseExcelStream implements ExcelEventStream 
                     poifs = null;
                 }
             } catch (Exception e) {
-                LOG.error("", e);
                 throw e;
             } finally {
                 if (din != null) {
                     try {
                         din.close();
                     } catch (Exception e) {
-                        LOG.error("", e);
                         throw e;
                     }
                 }

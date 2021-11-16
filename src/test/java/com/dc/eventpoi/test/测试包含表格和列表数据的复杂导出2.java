@@ -63,7 +63,6 @@ public class 测试包含表格和列表数据的复杂导出2 {
 
             @Override
             public void callBack(SXSSFSheet sxssSheet, SXSSFCell curCell, CellStyle curCellStyle) {
-                System.err.println(curCell.getRowIndex());
                 if(curCell.getRowIndex()%2==0) {
                     curCellStyle.setFillForegroundColor(IndexedColors.AQUA.getIndex());
                     curCellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);

@@ -26,7 +26,7 @@ public class 测试包含表格和列表数据的复杂导出 {
     	
         List<ProductInfo> productList = new ArrayList<ProductInfo>();
         //构造导出时的数据
-        for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < 10; i++) {
             
         	ProductInfo p1 = new ProductInfo();
             p1.setNo("NO_"+i);
@@ -42,7 +42,9 @@ public class 测试包含表格和列表数据的复杂导出 {
         excelDataList.add(productList);
 
         //第三个参数表示，导出时，删除那些列（按模板文件中的key删除，可不传）
+        long t1 = System.currentTimeMillis();
         byte[] exportByteData = ExcelHelper.exportExcel(Test1.class.getResourceAsStream("订单_templete.xlsx"), excelDataList,0);
+        System.out.println("导出成功，耗时="+(System.currentTimeMillis()-t1)+"毫秒");
         Files.write(Paths.get("./my_test_temp/测试包含表格和列表数据的复杂导出.xlsx"), exportByteData);
     }
 }
