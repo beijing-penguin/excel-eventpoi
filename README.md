@@ -13,12 +13,15 @@
 - 支持 【案例】 查看src/test/java目录
 
 #### 使用注意事项
-- 导出复杂结构的excel时，模板内容除了${xxxx}占位符之外，禁止${符号的内容再出现，原因是程序目前只按${解析模板
+- 导出复杂结构的excel时，**模板内容** 除了${xxxx}占位符之外，禁止${符号的内容再出现，原因是程序目前只按${解析模板
    - 后期可优化为用户指定占位符
 - 所有占位符不可重复
 - 导入图片，或者 导出图片 时，java对象中的属性要是byte[]类型，如``` private byte[] headIamge; ```
 
 #### 使用案例见/eventpoi/src/test/java目录
+#### 新建模板excel文件
+![image](https://user-images.githubusercontent.com/10703753/142003702-2c8b09a5-84e4-4025-bfc9-96d7d8b34d79.png)
+
 #### 使用一行代码读取excel
 ```java
 public class 使用一行代码读取excel {
@@ -53,7 +56,9 @@ public class 使用一行代码导出excel {
 }
 
 ```
-#### 复杂结构的excel导出(都在src/test/java中 ` 测试包含表格和列表数据的复杂导出.java `)
+#### 复杂结构的excel导出(都在src/test/java中 ` 测试包含表格和列表数据的复杂导出.java `)，如图
+![image](https://user-images.githubusercontent.com/10703753/142004207-2e863b7a-a4e1-49cc-8295-89de6028b89c.png)
+
 ### excel模板 ` ./my_test_temp/测试包含表格和列表数据的复杂导出.xlsx `
 ```java
 public class 测试包含表格和列表数据的复杂导出 {
