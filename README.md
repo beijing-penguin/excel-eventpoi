@@ -18,6 +18,8 @@
 - 所有占位符不可重复
 - 导入图片，或者 导出图片 时，java对象中的属性要是byte[]类型，如``` private byte[] headIamge; ```
 
+#### 有使用问题，请提交issues，或者加QQ群591170125反馈
+
 #### 使用案例见/eventpoi/src/test/java目录
 #### 新建模板excel文件
 ![image](https://user-images.githubusercontent.com/10703753/142003702-2c8b09a5-84e4-4025-bfc9-96d7d8b34d79.png)
