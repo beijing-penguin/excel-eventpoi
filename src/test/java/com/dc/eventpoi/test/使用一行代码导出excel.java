@@ -11,7 +11,7 @@ import com.dc.eventpoi.core.PoiUtils;
 
 public class 使用一行代码导出excel {
 	public static void main(String[] args) throws Exception {
-		String img_file_path = new File(Test1.class.getResource("unnamed.jpg").getPath()).getAbsolutePath();
+		String img_file_path = new File(Me.class.getResource("unnamed.jpg").getPath()).getAbsolutePath();
 		byte[] imageData = Files.readAllBytes(Paths.get(img_file_path));
 		//写到本地，并查看图片
 		Files.write(Paths.get("./my_test_temp/unnamed_temp.jpg"), imageData);
@@ -32,7 +32,7 @@ public class 使用一行代码导出excel {
 		}
 
 		//模拟一些需要删除某些列 的业务场景
-		byte[] newTempFile = PoiUtils.deleteCol(Test1.class.getResourceAsStream("demo1Templete.xlsx"), "${salary}");
+		byte[] newTempFile = PoiUtils.deleteCol(Me.class.getResourceAsStream("demo1Templete.xlsx"), "${salary}");
 		long t1 = System.currentTimeMillis();
 		byte[] exportByteData = ExcelHelper.exportExcel(newTempFile, personList,0);
 		System.out.println("cost="+(System.currentTimeMillis()-t1));

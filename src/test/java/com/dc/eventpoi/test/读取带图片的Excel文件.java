@@ -9,7 +9,7 @@ import com.dc.eventpoi.ExcelHelper;
 
 public class 读取带图片的Excel文件 {
     public static void main(String[] args) throws Exception {
-        List<Person> objList = ExcelHelper.parseExcelToObject(Test1.class.getResourceAsStream("demo1.xlsx"), Test1.class.getResourceAsStream("demo1Templete.xlsx"), Person.class,true);
+        List<Person> objList = ExcelHelper.parseExcelToObject( Me.class.getResourceAsStream("demo1Templete.xlsx"),Me.class.getResourceAsStream("demo1.xlsx"), Person.class,true);
         System.out.println(JSON.toJSONString(objList,true));
         
         System.err.println(new String(objList.get(2).getHeadImage()));

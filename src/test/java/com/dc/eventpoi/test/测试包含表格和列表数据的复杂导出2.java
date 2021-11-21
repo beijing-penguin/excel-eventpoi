@@ -33,7 +33,7 @@ public class 测试包含表格和列表数据的复杂导出2 {
         ProductInfo p1 = new ProductInfo();
         p1.setNo("NO_1");
         p1.setName("ssssss111");
-        String img_file_path = new File(Test1.class.getResource("unnamed.jpg").getPath()).getAbsolutePath();
+        String img_file_path = new File(Me.class.getResource("unnamed.jpg").getPath()).getAbsolutePath();
         p1.setHeadImage(Files.readAllBytes(Paths.get(img_file_path)));
         
         ProductInfo p2 = new ProductInfo();
@@ -52,7 +52,7 @@ public class 测试包含表格和列表数据的复杂导出2 {
         excelDataList.add(orderInfo);
 
         //导出
-        byte[] exportByteData = ExcelHelper.exportExcel(Test1.class.getResourceAsStream("订单_templete.xlsx"), excelDataList,new SheetCallBack() {
+        byte[] exportByteData = ExcelHelper.exportExcel(Me.class.getResourceAsStream("订单_templete.xlsx"), excelDataList,new SheetCallBack() {
             
             @Override
             public void callBack(SXSSFSheet sxssSheet) {

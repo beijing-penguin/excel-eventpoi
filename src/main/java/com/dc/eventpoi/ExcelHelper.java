@@ -299,16 +299,16 @@ public class ExcelHelper {
 
     /**
      * 解析Excel为对象集合
-     *
-     * @param excelDataSourceStream Excel原数据流
+     * 
      * @param excelTemplateStream   模版数据流
+     * @param excelDataSourceStream Excel原数据流
      * @param clazz                 clazz
      * @param imageRead             是否支持图片格式读取（开启此功能，性能降低，内存消耗增加。）
-     * @param <T>                   对象
+     * @param <T>                   返回对象
      * @return 对象集合
      * @throws Exception IOException
      */
-    public static <T> List<T> parseExcelToObject(InputStream excelDataSourceStream, InputStream excelTemplateStream, Class<T> clazz, boolean imageRead) throws Exception {
+    public static <T> List<T> parseExcelToObject(InputStream excelTemplateStream,InputStream excelDataSourceStream,  Class<T> clazz, boolean imageRead) throws Exception {
         ByteArrayOutputStream output = new ByteArrayOutputStream();
         byte[] buffer = new byte[1024 * 4];
         int n = 0;
@@ -355,7 +355,7 @@ public class ExcelHelper {
 
         List<ExcelRow> dataList = ExcelHelper.parseExcelRowList(new ByteArrayInputStream(output.toByteArray()));
         List<ExcelRow> templeteList = ExcelHelper.parseExcelRowList(excelTemplateStream);
-        checkTemplete(dataList, templeteList);
+        checkTemplete(templeteList,dataList);
 
         if (map.size() > 0) {
             for (ExcelRow excelRow : dataList) {
@@ -374,14 +374,14 @@ public class ExcelHelper {
                 }
             }
         }
-        return ExcelHelper.parseExcelToObject(dataList, templeteList, clazz);
+        return ExcelHelper.parseExcelToObject(templeteList,dataList, clazz);
     }
 
-    public static <T> List<T> parseExcelToObject(InputStream excelDataSourceStream, InputStream excelTemplateStream, Class<T> clazz) throws Exception {
+    public static <T> List<T> parseExcelToObject(InputStream excelTemplateStream,InputStream excelDataSourceStream,  Class<T> clazz) throws Exception {
         List<ExcelRow> dataList = ExcelHelper.parseExcelRowList(excelDataSourceStream);
         List<ExcelRow> templeteList = ExcelHelper.parseExcelRowList(excelTemplateStream);
-        checkTemplete(dataList, templeteList);
-        return ExcelHelper.parseExcelToObject(dataList, templeteList, clazz);
+        checkTemplete(templeteList,dataList);
+        return ExcelHelper.parseExcelToObject(templeteList,dataList, clazz);
     }
 
     /**
@@ -393,7 +393,7 @@ public class ExcelHelper {
      * @throws Exception IOException
      * @author beijing-penguin
      */
-    public static <T> List<T> parseExcelToObject(List<ExcelRow> fileList, List<ExcelRow> templeteList, Class<T> clazz) throws Exception {
+    public static <T> List<T> parseExcelToObject( List<ExcelRow> templeteList,List<ExcelRow> fileList, Class<T> clazz) throws Exception {
         List<T> rtn = new ArrayList<T>();
         List<ExcelCell> tempFieldList = new ArrayList<ExcelCell>();
         int size = fileList.size();
@@ -536,12 +536,12 @@ public class ExcelHelper {
     /**
      * 模板与数据文件检查
      *
-     * @param fileList     原始上传文件
      * @param templeteList 模板文件
+     * @param fileList     原始上传文件
      * @throws Exception IOException
      * @author beijing-penguin
      */
-    public static void checkTemplete(List<ExcelRow> fileList, List<ExcelRow> templeteList) throws Exception {
+    public static void checkTemplete(List<ExcelRow> templeteList, List<ExcelRow> fileList) throws Exception {
         for (int i = 0; i < templeteList.size(); i++) {
             ExcelRow row = templeteList.get(i);
             List<ExcelCell> excelCell = row.getCellList();

@@ -16,7 +16,7 @@ public class ExcelEventStreamTest {
 	public static void main(String[] args) {
 		try {
 			//行回调
-			InputStream excelInput = Test1.class.getResourceAsStream("demo1.xlsx");
+			InputStream excelInput = ExcelEventStreamTest.class.getResourceAsStream("demo1.xlsx");
 			ExcelEventStream stream = ExcelEventStream.readExcel(excelInput);
 			stream.rowStream(new RowCallBack() {
 				@Override

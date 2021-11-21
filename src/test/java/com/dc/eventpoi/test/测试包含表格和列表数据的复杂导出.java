@@ -32,7 +32,7 @@ public class 测试包含表格和列表数据的复杂导出 {
             p1.setNo("NO_"+i);
             p1.setName("ssssss_"+i);
             if(i==0) {//测试用例，只导出第一行带图片的数据。
-            	String img_file_path = new File(Test1.class.getResource("unnamed.jpg").getPath()).getAbsolutePath();
+            	String img_file_path = new File(Me.class.getResource("unnamed.jpg").getPath()).getAbsolutePath();
             	p1.setHeadImage(Files.readAllBytes(Paths.get(img_file_path)));
             }
             p1.setCaigouNum(i+10);
@@ -43,7 +43,7 @@ public class 测试包含表格和列表数据的复杂导出 {
 
         //第三个参数表示，导出时，删除那些列（按模板文件中的key删除，可不传）
         long t1 = System.currentTimeMillis();
-        byte[] exportByteData = ExcelHelper.exportExcel(Test1.class.getResourceAsStream("订单_templete.xlsx"), excelDataList,0);
+        byte[] exportByteData = ExcelHelper.exportExcel(Me.class.getResourceAsStream("订单_templete.xlsx"), excelDataList,0);
         System.out.println("导出成功，耗时="+(System.currentTimeMillis()-t1)+"毫秒");
         Files.write(Paths.get("./my_test_temp/测试包含表格和列表数据的复杂导出.xlsx"), exportByteData);
     }
