@@ -24,6 +24,7 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.Color;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -35,6 +36,7 @@ import org.apache.poi.xssf.streaming.SXSSFRow;
 import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFClientAnchor;
+import org.apache.poi.xssf.usermodel.XSSFColor;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
@@ -68,7 +70,19 @@ public class ExcelHelper {
      * @throws Exception Exception
      */
     public static byte[] exportExcel(byte[] tempExcelBtye, List<?> listAndTableDataList, Integer sheetIndex, SheetCallBack sheetCallBack, CellStyleCallBack callBackCellStyle) throws Exception {
-        Workbook workbook = null;
+        boolean is_data_list = true;
+        for (int i = 0,len = listAndTableDataList.size(); i < len; i++) {
+			if(i == 5000) {
+				break;
+			}
+			Object dataObj = listAndTableDataList.get(i);
+			if(dataObj instanceof Collection) {
+				is_data_list = false;
+				break;
+			}
+		}
+    	
+    	Workbook workbook = null;
         FileType fileType = PoiUtils.judgeFileType(new ByteArrayInputStream(tempExcelBtye));
         if (fileType == FileType.XLSX) {
             workbook = new XSSFWorkbook(new ByteArrayInputStream(tempExcelBtye));
@@ -133,8 +147,13 @@ public class ExcelHelper {
                                 if (matchFlag) {
                                     break;
                                 }
-                                if (dataObj instanceof Collection) {
-                                    List<?> dataList = (List<?>) dataObj;
+                                if ((dataObj instanceof Collection) || is_data_list == true) {
+                                    List<?> dataList = null;
+                                    if(is_data_list == true) {
+                                    	dataList = listAndTableDataList;
+                                    }else {
+                                    	dataList = (List<?>) dataObj;
+                                    }
                                     if (dataList.size() > 0) {
                                         Object tempData = dataList.get(0);
                                         if (FieldUtils.getField(tempData.getClass(), keyName, true) == null) {
@@ -145,6 +164,14 @@ public class ExcelHelper {
                                         for (int kk = k; kk < xssCellNum; kk++) {
                                             Cell xssCell_kk = xssrow.getCell(kk);
                                             CellType type = xssCell_kk.getCellType();
+                                            
+                                            Color color = xssCell_kk.getCellStyle().getFillBackgroundColorColor();
+                                            if(color != null) {
+                                            	System.err.println(((XSSFColor)color).getARGB());
+                                            	System.err.println(((XSSFColor)color).getRGB());
+                                            }
+                                            //System.err.println(color);	
+                                            
                                             CellStyle _sxssStyle = sxssfWorkbook.createCellStyle();
                                             _sxssStyle.cloneStyleFrom(xssCell_kk.getCellStyle());
                                             ExportExcelCell ee = new ExportExcelCell((short) xssCell_kk.getColumnIndex(), xssCell_kk.getStringCellValue(), _sxssStyle);
@@ -666,10 +693,9 @@ public class ExcelHelper {
      * @return byte[]
      * @throws Exception Exception
      */
-    public static byte[] exportExcel(InputStream templeteStream, List<Object> listAndTableDataList, Integer sheetIndex) throws Exception {
-        return exportExcel(PoiUtils.inputStreamToByte(templeteStream), listAndTableDataList, sheetIndex, null, null);
+    public static byte[] exportExcel(InputStream templeteStream, List<?> listAndTableDataList, Integer sheetIndex) throws Exception {
+    	return exportExcel(PoiUtils.inputStreamToByte(templeteStream), listAndTableDataList, sheetIndex, null, null);
     }
-
     /**
      * 导出列表或表格excel文件
      *

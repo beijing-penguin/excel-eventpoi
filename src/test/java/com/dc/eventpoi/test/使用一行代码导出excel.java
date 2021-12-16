@@ -32,9 +32,9 @@ public class 使用一行代码导出excel {
 		}
 
 		//模拟一些需要删除某些列 的业务场景
-		byte[] newTempFile = PoiUtils.deleteCol(Me.class.getResourceAsStream("demo1Templete.xlsx"), "${salary}");
+		//byte[] newTempFile = PoiUtils.deleteCol(Me.class.getResourceAsStream("demo1Templete.xlsx"), "${salary}");
 		long t1 = System.currentTimeMillis();
-		byte[] exportByteData = ExcelHelper.exportExcel(newTempFile, personList,0);
+		byte[] exportByteData = ExcelHelper.exportExcel(Me.class.getResourceAsStream("demo1Templete.xlsx"), personList,0);
 		System.out.println("cost="+(System.currentTimeMillis()-t1));
 		//支持设置单元格样式噢！！！^_^
 		//        byte[] exportByteData = ExcelHelper.exportExcel(Test1.class.getResourceAsStream("demo1Templete.xlsx"), personList,new CallBackCellStyle() {
