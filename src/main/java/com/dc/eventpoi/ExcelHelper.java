@@ -24,7 +24,6 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CellType;
-import org.apache.poi.ss.usermodel.Color;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -36,7 +35,6 @@ import org.apache.poi.xssf.streaming.SXSSFRow;
 import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFClientAnchor;
-import org.apache.poi.xssf.usermodel.XSSFColor;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
@@ -165,15 +163,19 @@ public class ExcelHelper {
                                             Cell xssCell_kk = xssrow.getCell(kk);
                                             CellType type = xssCell_kk.getCellType();
                                             
-                                            Color color = xssCell_kk.getCellStyle().getFillBackgroundColorColor();
-                                            if(color != null) {
-                                            	System.err.println(((XSSFColor)color).getARGB());
-                                            	System.err.println(((XSSFColor)color).getRGB());
-                                            }
+                                            /*
+                                             * Color color = xssCell_kk.getCellStyle().getFillBackgroundColorColor();
+                                             * if(color != null) { System.err.println(((XSSFColor)color).getARGB());
+                                             * System.err.println(((XSSFColor)color).getRGB());
+                                             * System.err.println(((XSSFColor)color).getCTColor().xmlText());
+                                             * System.err.println(((XSSFColor)color).getCTColor().getRgb());
+                                             * System.err.println(((XSSFColor)color).getARGBHex()); }
+                                             */
                                             //System.err.println(color);	
                                             
                                             CellStyle _sxssStyle = sxssfWorkbook.createCellStyle();
                                             _sxssStyle.cloneStyleFrom(xssCell_kk.getCellStyle());
+                                            
                                             ExportExcelCell ee = new ExportExcelCell((short) xssCell_kk.getColumnIndex(), xssCell_kk.getStringCellValue(), _sxssStyle);
                                             ee.setCellType(type);
                                             keyCellList.add(ee);

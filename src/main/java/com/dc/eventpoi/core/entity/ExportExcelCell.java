@@ -25,6 +25,7 @@ public class ExportExcelCell {
      * cellStyle
      */
     private CellStyle cellStyle;
+    
     /**
      * cellType
      */
