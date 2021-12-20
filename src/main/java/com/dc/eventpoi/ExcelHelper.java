@@ -136,7 +136,12 @@ public class ExcelHelper {
                     if (xssCell == null) {
                     } else {
                         boolean matchFlag = false;
-                        String xssCellValue = xssCell.getStringCellValue();
+                        String xssCellValue = null;
+                        if(xssCell.getCellType() == CellType.NUMERIC) {
+                        	xssCellValue = String.valueOf(xssCell.getNumericCellValue());
+                        }else {
+                        	xssCellValue = xssCell.getStringCellValue();
+                        }
                         if (xssCellValue != null && xssCellValue.contains("${")) {
                             String keyName = xssCellValue.substring(xssCellValue.indexOf("${") + 2, xssCellValue.lastIndexOf("}"));
                             String excelFieldSrcKeyword = xssCellValue.substring(xssCellValue.indexOf("${"), xssCellValue.lastIndexOf("}") + 1);
@@ -295,7 +300,12 @@ public class ExcelHelper {
 
                         if (matchFlag == false) {
                             SXSSFCell sxssCell = sxssrow.createCell(k, xssCell.getCellType());
-                            String value = xssCell.getStringCellValue();
+                            String value = null;
+                            if(xssCell.getCellType() == CellType.NUMERIC) {
+                            	value = String.valueOf(xssCell.getNumericCellValue());
+                            }else {
+                            	value = xssCell.getStringCellValue();
+                            }
                             if (value != null && value.contains("${")) {
                                 String excelFieldSrcKeyword = value.substring(value.indexOf("${"), value.lastIndexOf("}") + 1);
                                 value = value.replace(excelFieldSrcKeyword, "");
