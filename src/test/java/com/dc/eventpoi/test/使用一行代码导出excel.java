@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.dc.eventpoi.ExcelHelper;
-import com.dc.eventpoi.core.PoiUtils;
 
 public class 使用一行代码导出excel {
 	public static void main(String[] args) throws Exception {
