@@ -1,1 +1,1 @@
-F:\apache-maven-3.8.3-mvncenter\bin\mvn clean deploy -P releases
+F:\apache-maven-3.8.3-mvncenter\bin\mvn clean deploy -P release
