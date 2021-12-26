@@ -67,6 +67,16 @@ public class PoiUtils {
 		}
 	}
 	
+	public static String getCellValue(Cell cell){
+		String xssCellValue = null;
+        if(cell.getCellType() == CellType.NUMERIC) {
+        	xssCellValue = String.valueOf(cell.getNumericCellValue());
+        }else {
+        	xssCellValue = cell.getStringCellValue();
+        }
+        return xssCellValue;
+	}
+	
 	public static Map<String, byte[]> getXlsxPictures(int sheetIndex, XSSFSheet sheet) throws Exception {
 		Map<String, byte[]> map = new HashMap<String, byte[]>();
 		List<POIXMLDocumentPart> list = sheet.getRelations();
@@ -232,13 +242,14 @@ public class PoiUtils {
 	 */
 	public static byte[] inputStreamToByte(InputStream is) throws Exception {
 		BufferedInputStream bis = new BufferedInputStream(is);
-		byte[] a = new byte[1000];
+		byte[] buf = new byte[1024];
 		int len = 0;
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
-		while ((len = bis.read(a)) != -1) {
-			bos.write(a, 0, len);
+		while ((len = bis.read(buf)) != -1) {
+			bos.write(buf, 0, len);
 		}
 		bis.close();
+		bos.flush();
 		bos.close();
 		return bos.toByteArray();
 	}
