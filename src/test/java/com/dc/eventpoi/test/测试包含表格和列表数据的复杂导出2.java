@@ -47,6 +47,8 @@ public class 测试包含表格和列表数据的复杂导出2 {
         productList.add(p1);
         productList.add(p2);
         productList.add(p3);
+        productList.add(p3);
+        productList.add(p3);
         
         excelDataList.add(productList);
         excelDataList.add(orderInfo);

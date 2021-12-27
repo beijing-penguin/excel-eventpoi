@@ -186,20 +186,21 @@ public class ExcelHelper {
                                             SXSSFRow sxssrow_y = sxssSheet.createRow(create_row_num);
                                             sxssrow_y.setHeight(xssrow.getHeight());
                                             //如果模板中，存在当前行，则复制当前行前几列的模样
-                                            for (int l = temp_k-1; l >= 0; l--) {
-                                                Cell beforCell = xssrow.getCell(l);
-                                                if(beforCell!=null) {
-                                                    SXSSFCell _sxssCell = sxssrow_y.createCell(l, beforCell.getCellType());
-                                                    _sxssCell.setCellStyle(beforCell.getCellStyle());
-                                                    
-                                                    String setvv = PoiUtils.getCellValue(beforCell);
-                                                    if(setvv == null) {
-                                                        setvv = "";
-                                                    }
-                                                    _sxssCell.setCellValue(setvv);
-                                                }
+                                            if(y == 0) {
+	                                            for (int l = temp_k-1; l >= 0; l--) {
+	                                                Cell beforCell = xssrow.getCell(l);
+	                                                if(beforCell!=null) {
+	                                                    SXSSFCell _sxssCell = sxssrow_y.createCell(l, beforCell.getCellType());
+	                                                    _sxssCell.setCellStyle(beforCell.getCellStyle());
+	                                                    
+	                                                    String setvv = PoiUtils.getCellValue(beforCell);
+	                                                    if(setvv == null) {
+	                                                        setvv = "";
+	                                                    }
+	                                                    _sxssCell.setCellValue(setvv);
+	                                                }
+	                                            }
                                             }
-                                            
                                             for (int x = temp_k; x < xssCellNum; x++) {
 
                                                 ExportExcelCell curCell = null;
