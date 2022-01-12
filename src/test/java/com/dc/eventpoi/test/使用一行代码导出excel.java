@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.dc.eventpoi.ExcelHelper;
+import com.dc.eventpoi.core.PoiUtils;
+import com.dc.eventpoi.core.entity.ListAndTableEntity;
 
 public class 使用一行代码导出excel {
 	public static void main(String[] args) throws Exception {
@@ -32,8 +34,12 @@ public class 使用一行代码导出excel {
 
 		//模拟一些需要删除某些列 的业务场景
 		//byte[] newTempFile = PoiUtils.deleteCol(Me.class.getResourceAsStream("demo1Templete.xlsx"), "${salary}");
+		
+		byte[] tempData = PoiUtils.inputStreamToByte(Me.class.getResourceAsStream("demo1Templete.xlsx"));
+		ListAndTableEntity dataEntity = ListAndTableEntity.build().setDataList(personList);
+		
 		long t1 = System.currentTimeMillis();
-		byte[] exportByteData = ExcelHelper.exportExcel(Me.class.getResourceAsStream("demo1Templete.xlsx"), personList,0);
+		byte[] exportByteData = ExcelHelper.exportExcel(tempData, dataEntity,null,null,null,null);
 		System.out.println("cost="+(System.currentTimeMillis()-t1));
 		//支持设置单元格样式噢！！！^_^
 		//        byte[] exportByteData = ExcelHelper.exportExcel(Test1.class.getResourceAsStream("demo1Templete.xlsx"), personList,new CallBackCellStyle() {

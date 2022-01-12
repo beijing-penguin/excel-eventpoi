@@ -7,6 +7,8 @@ import java.util.List;
 
 import com.alibaba.fastjson.JSON;
 import com.dc.eventpoi.ExcelHelper;
+import com.dc.eventpoi.core.PoiUtils;
+import com.dc.eventpoi.core.entity.ListAndTableEntity;
 
 public class MainTest {
 	public static void main(String[] args) throws Exception {
@@ -14,7 +16,11 @@ public class MainTest {
 		ShopkeeperBillTotalSummary sumData = JSON.parseObject(data,ShopkeeperBillTotalSummary.class);
 		List<ShopkeeperBillTotalSummary> ll = new ArrayList<ShopkeeperBillTotalSummary>();
 		ll.add(sumData);
-		byte[] exportByteData = ExcelHelper.exportExcel(MainTest.class.getResourceAsStream("exportPcBillStaticList_templete.xlsx"), ll);
-		Files.write(Paths.get("./my_test_temp/测试导出指定对象并删除指定列.xlsx"), exportByteData);
+		
+		ListAndTableEntity dataEntity = ListAndTableEntity.build().setDataList(ll);
+		
+		byte[] tempData = PoiUtils.inputStreamToByte(MainTest.class.getResourceAsStream("exportPcBillStaticList_templete.xlsx"));
+		byte[] exportByteData = ExcelHelper.exportExcel(tempData, dataEntity, null, null, null, null);
+		Files.write(Paths.get("./my_test_temp/exportPcBillStaticList_templete导出.xlsx"), exportByteData);
 	}
 }

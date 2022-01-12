@@ -11,8 +11,6 @@ import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,11 +36,11 @@ import org.apache.poi.xssf.usermodel.XSSFClientAnchor;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-import com.alibaba.fastjson.JSON;
 import com.dc.eventpoi.core.PoiUtils;
 import com.dc.eventpoi.core.entity.ExcelCell;
 import com.dc.eventpoi.core.entity.ExcelRow;
 import com.dc.eventpoi.core.entity.ExportExcelCell;
+import com.dc.eventpoi.core.entity.ListAndTableEntity;
 import com.dc.eventpoi.core.enums.FileType;
 import com.dc.eventpoi.core.inter.CellStyleCallBack;
 import com.dc.eventpoi.core.inter.ExcelEventStream;
@@ -59,28 +57,22 @@ public class ExcelHelper {
     /**
      * 导出表格 以及 列表数据
      * 
-     * @param tempExcelBtye        模板文件流
-     * @param listAndTableDataList 包含列表数据集合 和 表格数据对象
-     * @param sheetIndex           sheetIndex
-     * @param sheetCallBack        sheetCallBack
-     * @param callBackCellStyle    callBackCellStyle
+     * @param tempExcelBtye      模板文件流
+     * @param listAndTableEntity 包含列表数据集合 和 表格数据对象
+     * @param sheetIndex         sheetIndex
+     * @param isClearPlaceholder 是否清楚占位符
+     * @param sheetCallBack      sheetCallBack
+     * @param callBackCellStyle  callBackCellStyle
      * @return byte[]
      * @throws Exception Exception
      */
-    public static byte[] exportExcel(byte[] tempExcelBtye, List<?> listAndTableDataList, Integer sheetIndex, SheetCallBack sheetCallBack, CellStyleCallBack callBackCellStyle) throws Exception {
-        boolean is_data_list = true;
-        for (int i = 0,len = listAndTableDataList.size(); i < len; i++) {
-			if(i == 5000) {
-				break;
-			}
-			Object dataObj = listAndTableDataList.get(i);
-			if(dataObj instanceof Collection) {
-				is_data_list = false;
-				break;
-			}
-		}
-    	
-    	Workbook workbook = null;
+    public static byte[] exportExcel(byte[] tempExcelBtye, ListAndTableEntity listAndTableEntity, Integer sheetIndex, Boolean isClearPlaceholder, SheetCallBack sheetCallBack, CellStyleCallBack callBackCellStyle) throws Exception {
+
+        if(isClearPlaceholder == null) {
+            isClearPlaceholder = true;
+        }
+        
+        Workbook workbook = null;
         FileType fileType = PoiUtils.judgeFileType(new ByteArrayInputStream(tempExcelBtye));
         if (fileType == FileType.XLSX) {
             workbook = new XSSFWorkbook(new ByteArrayInputStream(tempExcelBtye));
@@ -89,7 +81,7 @@ public class ExcelHelper {
         }
 
         SXSSFWorkbook sxssfWorkbook = new SXSSFWorkbook();
-        
+
         int sheetStart = 0;
         int sheetEnd = workbook.getNumberOfSheets();
         if (sheetIndex != null) {
@@ -137,175 +129,171 @@ public class ExcelHelper {
                     } else {
                         boolean matchFlag = false;
                         String xssCellValue = null;
-                        if(xssCell.getCellType() == CellType.NUMERIC) {
-                        	xssCellValue = String.valueOf(xssCell.getNumericCellValue());
-                        }else {
-                        	xssCellValue = xssCell.getStringCellValue();
+                        if (xssCell.getCellType() == CellType.NUMERIC) {
+                            xssCellValue = String.valueOf(xssCell.getNumericCellValue());
+                        } else {
+                            xssCellValue = xssCell.getStringCellValue();
                         }
                         if (xssCellValue != null && xssCellValue.contains("${")) {
                             String keyName = xssCellValue.substring(xssCellValue.indexOf("${") + 2, xssCellValue.lastIndexOf("}"));
                             String excelFieldSrcKeyword = xssCellValue.substring(xssCellValue.indexOf("${"), xssCellValue.lastIndexOf("}") + 1);
 
-                            for (Object dataObj : listAndTableDataList) {
-                                if (matchFlag) {
-                                    break;
-                                }
-                                if ((dataObj instanceof Collection) || is_data_list == true) {
-                                    List<?> dataList = null;
-                                    if(is_data_list == true) {
-                                    	dataList = listAndTableDataList;
-                                    }else {
-                                    	dataList = (List<?>) dataObj;
+                            if (matchFlag) {
+                                break;
+                            }
+                            List<?> dataList = (List<?>) listAndTableEntity.getDataList();
+                            if (dataList!= null && dataList.size() > 0) {
+                                Object tempData = dataList.get(0);
+                                if (FieldUtils.getField(tempData.getClass(), keyName, true) == null) {
+                                }else {
+                                    List<ExportExcelCell> keyCellList = new ArrayList<ExportExcelCell>();
+                                    for (int kk = k; kk < xssCellNum; kk++) {
+                                        Cell xssCell_kk = xssrow.getCell(kk);
+                                        CellType type = xssCell_kk.getCellType();
+                                        CellStyle _sxssStyle = sxssfWorkbook.createCellStyle();
+                                        _sxssStyle.cloneStyleFrom(xssCell_kk.getCellStyle());
+
+                                        ExportExcelCell ee = new ExportExcelCell((short) xssCell_kk.getColumnIndex(), xssCell_kk.getStringCellValue(), _sxssStyle);
+                                        ee.setCellType(type);
+                                        keyCellList.add(ee);
                                     }
-                                    if (dataList.size() > 0) {
-                                        Object tempData = dataList.get(0);
-                                        if (FieldUtils.getField(tempData.getClass(), keyName, true) == null) {
-                                            continue;
-                                        }
+                                    breakFlag = true;
+                                    matchFlag = true;
+                                    listCount++;
+                                    for (int y = 0, len = dataList.size(); y < len; y++) {
+                                        final int create_row_num = j + offset;
+                                        offset++;
 
-                                        List<ExportExcelCell> keyCellList = new ArrayList<ExportExcelCell>();
-                                        for (int kk = k; kk < xssCellNum; kk++) {
-                                            Cell xssCell_kk = xssrow.getCell(kk);
-                                            CellType type = xssCell_kk.getCellType();
-                                            CellStyle _sxssStyle = sxssfWorkbook.createCellStyle();
-                                            _sxssStyle.cloneStyleFrom(xssCell_kk.getCellStyle());
-                                            
-                                            ExportExcelCell ee = new ExportExcelCell((short) xssCell_kk.getColumnIndex(), xssCell_kk.getStringCellValue(), _sxssStyle);
-                                            ee.setCellType(type);
-                                            keyCellList.add(ee);
-                                        }
-                                        breakFlag = true;
-                                        matchFlag = true;
-                                        listCount++;
-                                        for (int y = 0,len=dataList.size(); y < len; y++) {
-                                            final int create_row_num = j + offset;
-                                            offset++;
+                                        Object srcData = dataList.get(y);
+                                        // 创建row行之前，判断是否存在当前行
+                                        SXSSFRow sxssrow_y = sxssSheet.createRow(create_row_num);
+                                        sxssrow_y.setHeight(xssrow.getHeight());
+                                        // 如果模板中，存在当前行，则复制当前行前几列的模样
+                                        if (y == 0) {
+                                            for (int l = temp_k - 1; l >= 0; l--) {
+                                                Cell beforCell = xssrow.getCell(l);
+                                                if (beforCell != null) {
+                                                    SXSSFCell _sxssCell = sxssrow_y.createCell(l, beforCell.getCellType());
+                                                    _sxssCell.setCellStyle(beforCell.getCellStyle());
 
-                                            Object srcData = dataList.get(y);
-                                            //创建row行之前，判断是否存在当前行
-                                            SXSSFRow sxssrow_y = sxssSheet.createRow(create_row_num);
-                                            sxssrow_y.setHeight(xssrow.getHeight());
-                                            //如果模板中，存在当前行，则复制当前行前几列的模样
-                                            if(y == 0) {
-	                                            for (int l = temp_k-1; l >= 0; l--) {
-	                                                Cell beforCell = xssrow.getCell(l);
-	                                                if(beforCell!=null) {
-	                                                    SXSSFCell _sxssCell = sxssrow_y.createCell(l, beforCell.getCellType());
-	                                                    _sxssCell.setCellStyle(beforCell.getCellStyle());
-	                                                    
-	                                                    String setvv = PoiUtils.getCellValue(beforCell);
-	                                                    if(setvv == null) {
-	                                                        setvv = "";
-	                                                    }
-	                                                    _sxssCell.setCellValue(setvv);
-	                                                }
-	                                            }
+                                                    String setvv = PoiUtils.getCellValue(beforCell);
+                                                    if (setvv == null) {
+                                                        setvv = "";
+                                                    }
+                                                    _sxssCell.setCellValue(setvv);
+                                                }
                                             }
-                                            for (int x = temp_k; x < xssCellNum; x++) {
+                                        }
+                                        for (int x = temp_k; x < xssCellNum; x++) {
 
-                                                ExportExcelCell curCell = null;
-                                                String vv = null;
-                                                for (ExportExcelCell exportCell : keyCellList) {
-                                                    if (exportCell.getIndex() == x) {
-                                                        curCell = exportCell;
-                                                        vv = exportCell.getValue();
-                                                        break;
-                                                    }
+                                            ExportExcelCell curCell = null;
+                                            String vv = null;
+                                            for (ExportExcelCell exportCell : keyCellList) {
+                                                if (exportCell.getIndex() == x) {
+                                                    curCell = exportCell;
+                                                    vv = exportCell.getValue();
+                                                    break;
                                                 }
-                                                // curCell.getCellStyle().setFillForegroundColor(IndexedColors.AQUA.getIndex());
-                                                // curCell.getCellStyle().setFillPattern(FillPatternType.SOLID_FOREGROUND);
-                                                String _keyName = null;
-                                                Field field = null;
-                                                String excelFieldSrcKeyword2 = null;
-                                                if(vv!=null && vv.contains("${")) {
-                                                    _keyName = vv.substring(vv.indexOf("${") + 2, vv.lastIndexOf("}"));
-                                                    field = FieldUtils.getField(srcData.getClass(), _keyName, true);
-                                                    excelFieldSrcKeyword2 = vv.substring(vv.indexOf("${"), vv.lastIndexOf("}") + 1);
-                                                }
-                                                
-                                                if (field != null && field.get(srcData) != null) {
-                                                    SXSSFCell _sxssCell = sxssrow_y.createCell(x, curCell.getCellType());
-                                                    if (callBackCellStyle != null) {
-                                                        callBackCellStyle.callBack(sxssSheet, _sxssCell, curCell.getCellStyle());
-                                                        _sxssCell.setCellStyle(curCell.getCellStyle());
-                                                    } else {
-                                                        _sxssCell.setCellStyle(curCell.getCellStyle());
-                                                    }
+                                            }
+                                            // curCell.getCellStyle().setFillForegroundColor(IndexedColors.AQUA.getIndex());
+                                            // curCell.getCellStyle().setFillPattern(FillPatternType.SOLID_FOREGROUND);
+                                            String _keyName = null;
+                                            Field field = null;
+                                            String excelFieldSrcKeyword2 = null;
+                                            if (vv != null && vv.contains("${")) {
+                                                _keyName = vv.substring(vv.indexOf("${") + 2, vv.lastIndexOf("}"));
+                                                field = FieldUtils.getField(srcData.getClass(), _keyName, true);
+                                                excelFieldSrcKeyword2 = vv.substring(vv.indexOf("${"), vv.lastIndexOf("}") + 1);
+                                            }
 
-                                                    Object value = field.get(srcData);
-                                                    if (value instanceof byte[]) {
-                                                        if (PoiUtils.getImageType((byte[]) value) != null) {
-                                                        	XSSFClientAnchor anchor = new XSSFClientAnchor(0, 0, 0, 0, x, sxssrow_y.getRowNum(), x + 1, sxssrow_y.getRowNum() + 1);
-                                                            int picIndex = sxssfWorkbook.addPicture((byte[]) value, HSSFWorkbook.PICTURE_TYPE_JPEG);
-                                                            patriarch.createPicture(anchor, picIndex);
-                                                        } else {
-                                                            _sxssCell.setCellValue(new String((byte[]) value));
-                                                        }
+                                            if (field != null && field.get(srcData) != null) {
+                                                SXSSFCell _sxssCell = sxssrow_y.createCell(x, curCell.getCellType());
+                                                if (callBackCellStyle != null) {
+                                                    callBackCellStyle.callBack(sxssSheet, _sxssCell, curCell.getCellStyle());
+                                                    _sxssCell.setCellStyle(curCell.getCellStyle());
+                                                } else {
+                                                    _sxssCell.setCellStyle(curCell.getCellStyle());
+                                                }
+
+                                                Object value = field.get(srcData);
+                                                if (value instanceof byte[]) {
+                                                    if (PoiUtils.getImageType((byte[]) value) != null) {
+                                                        XSSFClientAnchor anchor = new XSSFClientAnchor(0, 0, 0, 0, x, sxssrow_y.getRowNum(), x + 1, sxssrow_y.getRowNum() + 1);
+                                                        int picIndex = sxssfWorkbook.addPicture((byte[]) value, HSSFWorkbook.PICTURE_TYPE_JPEG);
+                                                        patriarch.createPicture(anchor, picIndex);
                                                     } else {
-                                                        _sxssCell.setCellValue(String.valueOf(value));
+                                                        _sxssCell.setCellValue(new String((byte[]) value));
                                                     }
                                                 } else {
-                                                    SXSSFCell _sxssCell = sxssrow_y.createCell(x, curCell.getCellType());
-                                                    if (callBackCellStyle != null) {
-                                                        callBackCellStyle.callBack(sxssSheet, _sxssCell, curCell.getCellStyle());
-                                                        _sxssCell.setCellStyle(curCell.getCellStyle());
-                                                    } else {
-                                                        _sxssCell.setCellStyle(curCell.getCellStyle());
-                                                    }
-                                                    if(vv == null) {
-                                                        vv = "";
-                                                    }
-                                                    String cellValue = vv;
-                                                    if(excelFieldSrcKeyword2 != null) {
-                                                        cellValue = cellValue.replace( excelFieldSrcKeyword2,"");
-                                                    }
-                                                    _sxssCell.setCellValue(cellValue);
+                                                    _sxssCell.setCellValue(String.valueOf(value));
                                                 }
+                                            } else {
+                                                SXSSFCell _sxssCell = sxssrow_y.createCell(x, curCell.getCellType());
+                                                if (callBackCellStyle != null) {
+                                                    callBackCellStyle.callBack(sxssSheet, _sxssCell, curCell.getCellStyle());
+                                                    _sxssCell.setCellStyle(curCell.getCellStyle());
+                                                } else {
+                                                    _sxssCell.setCellStyle(curCell.getCellStyle());
+                                                }
+                                                if (vv == null) {
+                                                    vv = "";
+                                                }
+                                                String cellValue = vv;
+                                                if (excelFieldSrcKeyword2 != null) {
+                                                    cellValue = cellValue.replace(excelFieldSrcKeyword2, "");
+                                                }
+                                                _sxssCell.setCellValue(cellValue);
                                             }
                                         }
                                     }
-                                } else {
-                                    Field field = FieldUtils.getField(dataObj.getClass(), keyName, true);
-                                    if (field != null) {
-                                        matchFlag = true;
-                                        SXSSFCell sxssCell = sxssrow.createCell(k, xssCell.getCellType());
-                                        CellStyle _sxssStyle = sxssfWorkbook.createCellStyle();
-                                        if (callBackCellStyle != null) {
-                                            _sxssStyle.cloneStyleFrom(xssCell.getCellStyle());
-                                            sxssCell.setCellStyle(_sxssStyle);
-                                            callBackCellStyle.callBack(sxssSheet, sxssCell, _sxssStyle);
-                                        } else {
-                                            _sxssStyle.cloneStyleFrom(xssCell.getCellStyle());
-                                            sxssCell.setCellStyle(_sxssStyle);
-                                        }
-
-                                        Object value = field.get(dataObj);
-                                        if (value instanceof byte[]) {
-                                            if (PoiUtils.getImageType((byte[]) value) != null) {
-                                                XSSFClientAnchor anchor = new XSSFClientAnchor(0, 0, 0, 0, k, sxssrow.getRowNum(), k + 1, sxssrow.getRowNum() + 1);
-                                                int picIndex = sxssfWorkbook.addPicture((byte[]) value, HSSFWorkbook.PICTURE_TYPE_JPEG);
-                                                patriarch.createPicture(anchor, picIndex);
+                                }
+                            }
+                            
+                            if(matchFlag == false) {
+                                if(listAndTableEntity.getTableList()!=null) {
+                                    for (Object tableObject : listAndTableEntity.getTableList()) {
+                                        Field field = FieldUtils.getField(tableObject.getClass(), keyName, true);
+                                        if (field != null) {
+                                            matchFlag = true;
+                                            SXSSFCell sxssCell = sxssrow.createCell(k, xssCell.getCellType());
+                                            CellStyle _sxssStyle = sxssfWorkbook.createCellStyle();
+                                            if (callBackCellStyle != null) {
+                                                _sxssStyle.cloneStyleFrom(xssCell.getCellStyle());
+                                                sxssCell.setCellStyle(_sxssStyle);
+                                                callBackCellStyle.callBack(sxssSheet, sxssCell, _sxssStyle);
                                             } else {
-                                                sxssCell.setCellValue(new String((byte[]) value));
+                                                _sxssStyle.cloneStyleFrom(xssCell.getCellStyle());
+                                                sxssCell.setCellStyle(_sxssStyle);
                                             }
-                                        } else {
-                                            String cellValue = xssCellValue.replace(excelFieldSrcKeyword, String.valueOf(field.get(dataObj)));
-                                            sxssCell.setCellValue(cellValue);
+
+                                            Object value = field.get(tableObject);
+                                            if (value instanceof byte[]) {
+                                                if (PoiUtils.getImageType((byte[]) value) != null) {
+                                                    XSSFClientAnchor anchor = new XSSFClientAnchor(0, 0, 0, 0, k, sxssrow.getRowNum(), k + 1, sxssrow.getRowNum() + 1);
+                                                    int picIndex = sxssfWorkbook.addPicture((byte[]) value, HSSFWorkbook.PICTURE_TYPE_JPEG);
+                                                    patriarch.createPicture(anchor, picIndex);
+                                                } else {
+                                                    sxssCell.setCellValue(new String((byte[]) value));
+                                                }
+                                            } else {
+                                                String cellValue = xssCellValue.replace(excelFieldSrcKeyword, String.valueOf(value));
+                                                sxssCell.setCellValue(cellValue);
+                                            }
                                         }
                                     }
                                 }
                             }
                         }
 
-                        if (matchFlag == false) {
+                        if (matchFlag == false) {// 单元格没匹配到，则清除单元格得占位符
                             SXSSFCell sxssCell = sxssrow.createCell(k, xssCell.getCellType());
                             String value = null;
-                            if(xssCell.getCellType() == CellType.NUMERIC) {
-                            	value = String.valueOf(xssCell.getNumericCellValue());
-                            }else {
-                            	value = xssCell.getStringCellValue();
+                            if (xssCell.getCellType() == CellType.NUMERIC) {
+                                value = String.valueOf(xssCell.getNumericCellValue());
+                            } else {
+                                value = xssCell.getStringCellValue();
                             }
-                            if (value != null && value.contains("${")) {
+                            if (value != null && value.contains("${") && isClearPlaceholder!=null && isClearPlaceholder == true) {
                                 String excelFieldSrcKeyword = value.substring(value.indexOf("${"), value.lastIndexOf("}") + 1);
                                 value = value.replace(excelFieldSrcKeyword, "");
                             }
@@ -346,7 +334,7 @@ public class ExcelHelper {
      * @return 对象集合
      * @throws Exception IOException
      */
-    public static <T> List<T> parseExcelToObject(InputStream excelTemplateStream,InputStream excelDataSourceStream,  Class<T> clazz, boolean imageRead) throws Exception {
+    public static <T> List<T> parseExcelToObject(InputStream excelTemplateStream, InputStream excelDataSourceStream, Class<T> clazz, boolean imageRead) throws Exception {
         ByteArrayOutputStream output = new ByteArrayOutputStream();
         byte[] buffer = new byte[1024 * 4];
         int n = 0;
@@ -393,7 +381,7 @@ public class ExcelHelper {
 
         List<ExcelRow> dataList = ExcelHelper.parseExcelRowList(new ByteArrayInputStream(output.toByteArray()));
         List<ExcelRow> templeteList = ExcelHelper.parseExcelRowList(excelTemplateStream);
-        checkTemplete(templeteList,dataList);
+        checkTemplete(templeteList, dataList);
 
         if (map.size() > 0) {
             for (ExcelRow excelRow : dataList) {
@@ -412,14 +400,14 @@ public class ExcelHelper {
                 }
             }
         }
-        return ExcelHelper.parseExcelToObject(templeteList,dataList, clazz);
+        return ExcelHelper.parseExcelToObject(templeteList, dataList, clazz);
     }
 
-    public static <T> List<T> parseExcelToObject(InputStream excelTemplateStream,InputStream excelDataSourceStream,  Class<T> clazz) throws Exception {
+    public static <T> List<T> parseExcelToObject(InputStream excelTemplateStream, InputStream excelDataSourceStream, Class<T> clazz) throws Exception {
         List<ExcelRow> dataList = ExcelHelper.parseExcelRowList(excelDataSourceStream);
         List<ExcelRow> templeteList = ExcelHelper.parseExcelRowList(excelTemplateStream);
-        checkTemplete(templeteList,dataList);
-        return ExcelHelper.parseExcelToObject(templeteList,dataList, clazz);
+        checkTemplete(templeteList, dataList);
+        return ExcelHelper.parseExcelToObject(templeteList, dataList, clazz);
     }
 
     /**
@@ -431,7 +419,7 @@ public class ExcelHelper {
      * @throws Exception IOException
      * @author beijing-penguin
      */
-    public static <T> List<T> parseExcelToObject( List<ExcelRow> templeteList,List<ExcelRow> fileList, Class<T> clazz) throws Exception {
+    public static <T> List<T> parseExcelToObject(List<ExcelRow> templeteList, List<ExcelRow> fileList, Class<T> clazz) throws Exception {
         List<T> rtn = new ArrayList<T>();
         List<ExcelCell> tempFieldList = new ArrayList<ExcelCell>();
         int size = fileList.size();
@@ -584,139 +572,18 @@ public class ExcelHelper {
             ExcelRow row = templeteList.get(i);
             List<ExcelCell> excelCell = row.getCellList();
             if (!excelCell.get(0).getValue().startsWith("${")) {
-                if (!JSON.toJSONString(templeteList.get(i)).equals(JSON.toJSONString(fileList.get(i)))) {
-                    throw new Exception("fileList is not the same as templeteList[读取文件的excel头信息和模板头信息不匹配，文件格式不一致]");
+                for (int j = 0; j < excelCell.size(); j++) {
+                    String tempValue = excelCell.get(j).getValue();
+                    if (tempValue != null && !tempValue.startsWith("${")) {
+                        String fileValue = fileList.get(i).getCellList().get(j).getValue();
+                        if (!tempValue.equals(fileValue)) {
+                            throw new Exception("fileList is not the same as templeteList[读取文件的excel头信息【" + fileValue + "】和模板头信息【" + tempValue + "】不匹配，文件格式不一致]");
+                        }
+                    }
                 }
             } else {
                 break;
             }
         }
     }
-
-    /**
-     * 导出列表或表格excel文件
-     *
-     * @param templete          模板数据
-     * @param listData          对象数据集合
-     * @param callBackCellStyle 单元格样式
-     * @return byte[]
-     * @throws Exception Exception
-     */
-    public static byte[] exportExcel(byte[] templete, List<?> listData, CellStyleCallBack callBackCellStyle) throws Exception {
-        return exportExcel(templete, listData, 0, null, callBackCellStyle);
-    }
-
-    /**
-     * 导出列表或表格excel文件
-     *
-     * @param templete   templete
-     * @param listData   listData
-     * @param sheetIndex sheetIndex
-     * @return byte[]
-     * @throws Exception Exception
-     */
-    public static byte[] exportExcel(byte[] templete, List<?> listData, Integer sheetIndex) throws Exception {
-        return exportExcel(templete, Arrays.asList(listData), sheetIndex, null, null);
-    }
-
-    /**
-     * 导出列表或表格excel文件
-     *
-     * @param templete             templete
-     * @param listAndTableDataList listAndTableDataList
-     * @return byte[]
-     * @throws Exception Exception
-     */
-    public static byte[] exportExcel(byte[] templete, List<?> listAndTableDataList) throws Exception {
-        return exportExcel(templete, Arrays.asList(listAndTableDataList), 0, null, null);
-    }
-
-    /**
-     * 导出表格excel文件
-     *
-     * @param templeteStream 模板数据流
-     * @param tableData      表格数据
-     * @return byte[]
-     * @throws Exception Exception
-     */
-    public static byte[] exportExcel(InputStream templeteStream, Object tableData) throws Exception {
-        return exportExcel(PoiUtils.inputStreamToByte(templeteStream), Arrays.asList(tableData), 0, null, null);
-    }
-
-    /**
-     * 导出表格excel文件
-     *
-     * @param templete  模板数据
-     * @param tableData dataList
-     * @return byte[]
-     * @throws Exception IOException
-     */
-    public static byte[] exportExcel(byte[] templete, Object tableData) throws Exception {
-        return exportExcel(templete, Arrays.asList(tableData), 0, null, null);
-    }
-
-    /**
-     * 导出列表或表格excel文件
-     *
-     * @param templeteStream       模板数据流
-     * @param listAndTableDataList dataList
-     * @param sheetCallBack        sheet回调
-     * @return byte[]
-     * @throws Exception Exception
-     */
-    public static byte[] exportExcel(InputStream templeteStream, List<Object> listAndTableDataList, SheetCallBack sheetCallBack) throws Exception {
-        return exportExcel(PoiUtils.inputStreamToByte(templeteStream), listAndTableDataList, null, sheetCallBack, null);
-    }
-
-    /**
-     * 导出列表或表格excel文件
-     *
-     * @param templeteStream       模板数据流
-     * @param listAndTableDataList dataList
-     * @param sheetCallBack        sheet回调
-     * @param callBackCellStyle    样式回调
-     * @return byte[]
-     * @throws Exception Exception
-     */
-    public static byte[] exportExcel(InputStream templeteStream, List<Object> listAndTableDataList, SheetCallBack sheetCallBack, CellStyleCallBack callBackCellStyle) throws Exception {
-        return exportExcel(PoiUtils.inputStreamToByte(templeteStream), listAndTableDataList, null, sheetCallBack, callBackCellStyle);
-    }
-
-    /**
-     * 导出列表或表格excel文件
-     *
-     * @param templeteStream       模板数据流
-     * @param listAndTableDataList dataList
-     * @param callBackCellStyle    样式回调
-     * @return byte[]
-     * @throws Exception Exception
-     */
-    public static byte[] exportExcel(InputStream templeteStream, List<Object> listAndTableDataList, CellStyleCallBack callBackCellStyle) throws Exception {
-        return exportExcel(PoiUtils.inputStreamToByte(templeteStream), listAndTableDataList, null, null, callBackCellStyle);
-    }
-
-    /**
-     * 导出列表或表格excel文件
-     *
-     * @param templeteStream       模板数据流
-     * @param listAndTableDataList dataList
-     * @param sheetIndex           sheetIndex
-     * @return byte[]
-     * @throws Exception Exception
-     */
-    public static byte[] exportExcel(InputStream templeteStream, List<?> listAndTableDataList, Integer sheetIndex) throws Exception {
-    	return exportExcel(PoiUtils.inputStreamToByte(templeteStream), listAndTableDataList, sheetIndex, null, null);
-    }
-    /**
-     * 导出列表或表格excel文件
-     *
-     * @param templeteStream       模板文件流
-     * @param listAndTableDataList dataList
-     * @return byte[]
-     * @throws Exception Exception
-     */
-    public static byte[] exportExcel(InputStream templeteStream, List<Object> listAndTableDataList) throws Exception {
-        return exportExcel(PoiUtils.inputStreamToByte(templeteStream), listAndTableDataList, 0, null, null);
-    }
-
 }

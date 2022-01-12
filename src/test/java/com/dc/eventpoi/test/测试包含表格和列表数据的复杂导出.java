@@ -7,12 +7,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.dc.eventpoi.ExcelHelper;
+import com.dc.eventpoi.core.PoiUtils;
+import com.dc.eventpoi.core.entity.ListAndTableEntity;
 
 public class 测试包含表格和列表数据的复杂导出 {
     public static void main(String[] args) throws Exception {
-    	//列表或 表格的数据的集合
-        List<Object>  excelDataList = new ArrayList<Object>();
-        
     	//构造表格形式的数据
     	OrderInfo orderInfo = new OrderInfo();
     	orderInfo.setKehu("ddddcccc");
@@ -20,10 +19,8 @@ public class 测试包含表格和列表数据的复杂导出 {
     	orderInfo.setTotalMoney("15.66");
     	orderInfo.setBuyer("张三");
     	orderInfo.setSaller("李四");
-    	//条件表格数据
-    	excelDataList.add(orderInfo);
     	
-    	
+    	//构造列表形式的数据
         List<ProductInfo> productList = new ArrayList<ProductInfo>();
         //构造导出时的数据
         for (int i = 0; i < 10; i++) {
@@ -38,12 +35,11 @@ public class 测试包含表格和列表数据的复杂导出 {
             p1.setCaigouNum(i+10);
             productList.add(p1);
         }
-        //条件列表数据
-        excelDataList.add(productList);
 
-        //第三个参数表示，导出时，删除那些列（按模板文件中的key删除，可不传）
+        ListAndTableEntity dataEntity = ListAndTableEntity.build().setDataList(productList).setTableList(orderInfo);
+        byte[] tempData = PoiUtils.inputStreamToByte(Me.class.getResourceAsStream("订单_templete.xlsx"));
         long t1 = System.currentTimeMillis();
-        byte[] exportByteData = ExcelHelper.exportExcel(Me.class.getResourceAsStream("订单_templete.xlsx"), excelDataList,0);
+        byte[] exportByteData = ExcelHelper.exportExcel(tempData,dataEntity,null,null,null,null);
         System.out.println("导出成功，耗时="+(System.currentTimeMillis()-t1)+"毫秒");
         Files.write(Paths.get("./my_test_temp/测试包含表格和列表数据的复杂导出.xlsx"), exportByteData);
     }

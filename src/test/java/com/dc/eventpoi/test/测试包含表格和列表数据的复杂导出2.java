@@ -14,6 +14,8 @@ import org.apache.poi.xssf.streaming.SXSSFCell;
 import org.apache.poi.xssf.streaming.SXSSFSheet;
 
 import com.dc.eventpoi.ExcelHelper;
+import com.dc.eventpoi.core.PoiUtils;
+import com.dc.eventpoi.core.entity.ListAndTableEntity;
 import com.dc.eventpoi.core.inter.CellStyleCallBack;
 import com.dc.eventpoi.core.inter.SheetCallBack;
 
@@ -28,7 +30,6 @@ public class 测试包含表格和列表数据的复杂导出2 {
     	orderInfo.setSaller("李四");
     	
     	//构造列表形式的数据
-        List<Object>  excelDataList = new ArrayList<Object>();
         List<ProductInfo> productList = new ArrayList<ProductInfo>();
         ProductInfo p1 = new ProductInfo();
         p1.setNo("NO_1");
@@ -50,11 +51,11 @@ public class 测试包含表格和列表数据的复杂导出2 {
         productList.add(p3);
         productList.add(p3);
         
-        excelDataList.add(productList);
-        excelDataList.add(orderInfo);
 
+        byte[] tempData = PoiUtils.inputStreamToByte(Me.class.getResourceAsStream("订单_templete.xlsx"));
+        ListAndTableEntity dataEntity = ListAndTableEntity.build().setDataList(productList).setTableList(orderInfo);
         //导出
-        byte[] exportByteData = ExcelHelper.exportExcel(Me.class.getResourceAsStream("订单_templete.xlsx"), excelDataList,new SheetCallBack() {
+        byte[] exportByteData = ExcelHelper.exportExcel(tempData, dataEntity,null,null,new SheetCallBack() {
             
             @Override
             public void callBack(SXSSFSheet sxssSheet) {
