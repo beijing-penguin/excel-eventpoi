@@ -1,6 +1,3 @@
-/**
- * EventExcelHelper.java
- */
 package com.dc.eventpoi;
 
 import java.io.ByteArrayInputStream;
