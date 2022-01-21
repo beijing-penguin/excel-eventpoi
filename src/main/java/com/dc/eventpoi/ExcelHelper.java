@@ -57,6 +57,23 @@ public class ExcelHelper {
     /**
      * 导出表格 以及 列表数据
      * 
+     * @param tempStream         模板文件流
+     * @param listAndTableEntity 包含列表数据集合 和 表格数据对象
+     * @param sheetIndex         sheetIndex
+     * @param isClearPlaceholder 是否清除占位符
+     * @param sheetCallBack      sheetCallBack
+     * @param callBackCellStyle  callBackCellStyle
+     * @return byte[]
+     * @throws Exception Exception
+     */
+    public static byte[] exportExcel(InputStream tempStream, ListAndTableEntity listAndTableEntity, Integer sheetIndex, Boolean isClearPlaceholder, SheetCallBack sheetCallBack, CellStyleCallBack callBackCellStyle) throws Exception {
+        byte[] tempExcelBtye = PoiUtils.inputStreamToByte(tempStream);
+        return exportExcel(tempExcelBtye, listAndTableEntity, sheetIndex, isClearPlaceholder, sheetCallBack, callBackCellStyle);
+    }
+
+    /**
+     * 导出表格 以及 列表数据
+     * 
      * @param tempExcelBtye      模板文件流
      * @param listAndTableEntity 包含列表数据集合 和 表格数据对象
      * @param sheetIndex         sheetIndex
@@ -67,93 +84,87 @@ public class ExcelHelper {
      * @throws Exception Exception
      */
     public static byte[] exportExcel(byte[] tempExcelBtye, ListAndTableEntity listAndTableEntity, Integer sheetIndex, Boolean isClearPlaceholder, SheetCallBack sheetCallBack, CellStyleCallBack callBackCellStyle) throws Exception {
-
-        if(isClearPlaceholder == null) {
+        if (isClearPlaceholder == null) {
             isClearPlaceholder = true;
         }
-        
-        Workbook workbook = null;
+
+        Workbook workbook_import = null;
         FileType fileType = PoiUtils.judgeFileType(new ByteArrayInputStream(tempExcelBtye));
         if (fileType == FileType.XLSX) {
-            workbook = new XSSFWorkbook(new ByteArrayInputStream(tempExcelBtye));
+            workbook_import = new XSSFWorkbook(new ByteArrayInputStream(tempExcelBtye));
         } else {
-            workbook = (HSSFWorkbook) WorkbookFactory.create(new ByteArrayInputStream(tempExcelBtye));
+            workbook_import = (HSSFWorkbook) WorkbookFactory.create(new ByteArrayInputStream(tempExcelBtye));
         }
 
-        SXSSFWorkbook sxssfWorkbook = new SXSSFWorkbook();
+        SXSSFWorkbook sxssfWorkbook_export = new SXSSFWorkbook();
 
         int sheetStart = 0;
-        int sheetEnd = workbook.getNumberOfSheets();
+        int sheetEnd = workbook_import.getNumberOfSheets();
         if (sheetIndex != null) {
             sheetStart = sheetIndex;
             sheetEnd = sheetIndex + 1;
         }
         for (int i = sheetStart; i < sheetEnd; i++) {
-            SXSSFSheet sxssSheet = sxssfWorkbook.createSheet(workbook.getSheetName(i));
+            SXSSFSheet sxssSheet_export = sxssfWorkbook_export.createSheet(workbook_import.getSheetName(i));
             if (sheetCallBack != null) {
-                sheetCallBack.callBack(sxssSheet);
+                sheetCallBack.callBack(sxssSheet_export);
             }
 
-            SXSSFDrawing patriarch = (SXSSFDrawing) sxssSheet.createDrawingPatriarch();
-            Sheet xsssheet = workbook.getSheetAt(i);
-            int sheetMergerCount = xsssheet.getNumMergedRegions();
+            SXSSFDrawing patriarch = (SXSSFDrawing) sxssSheet_export.createDrawingPatriarch();
+            Sheet xsssheet_import = workbook_import.getSheetAt(i);
+            int sheetMergerCount = xsssheet_import.getNumMergedRegions();
 
-            int rowNum = xsssheet.getPhysicalNumberOfRows();
+            int rowNum = xsssheet_import.getPhysicalNumberOfRows();
             int offset = 0;
             int listCount = 0;
             for (int j = 0; j < rowNum; j++) {
                 for (int ii = 0; ii < sheetMergerCount; ii++) {
-                    CellRangeAddress mergedRegionAt = xsssheet.getMergedRegion(ii);
+                    CellRangeAddress mergedRegionAt = xsssheet_import.getMergedRegion(ii);
                     if (mergedRegionAt.getFirstRow() == j) {
                         mergedRegionAt.setFirstRow(mergedRegionAt.getFirstRow() + offset - listCount);
                         mergedRegionAt.setLastRow(mergedRegionAt.getLastRow() + offset - listCount);
-                        sxssSheet.addMergedRegion(mergedRegionAt);
+                        sxssSheet_export.addMergedRegion(mergedRegionAt);
                     }
                 }
 
-                Row xssrow = xsssheet.getRow(j);
-                int xssCellNum = xssrow.getPhysicalNumberOfCells();
+                Row xssrow_import = xsssheet_import.getRow(j);
+                int xssCellNum_import = xssrow_import.getPhysicalNumberOfCells();
                 boolean breakFlag = false;
 
-                SXSSFRow sxssrow = sxssSheet.createRow(j + offset - listCount);
-                sxssrow.setHeight(xssrow.getHeight());
+                SXSSFRow sxssrow_export = sxssSheet_export.createRow(j + offset - listCount);
+                sxssrow_export.setHeight(xssrow_import.getHeight());
 
-                for (int k = 0; k < xssCellNum; k++) {
-                    final int temp_k = k;
+                for (int k_import = 0; k_import < xssCellNum_import; k_import++) {
                     if (breakFlag) {
                         break;
                     }
-                    Cell xssCell = xssrow.getCell(k);
-                    sxssSheet.setColumnWidth(k, xsssheet.getColumnWidth(k));
-                    if (xssCell == null) {
+                    Cell xssCell_import = xssrow_import.getCell(k_import);
+                    sxssSheet_export.setColumnWidth(k_import, xsssheet_import.getColumnWidth(k_import));
+                    if (xssCell_import == null) {
                     } else {
                         boolean matchFlag = false;
-                        String xssCellValue = null;
-                        if (xssCell.getCellType() == CellType.NUMERIC) {
-                            xssCellValue = String.valueOf(xssCell.getNumericCellValue());
-                        } else {
-                            xssCellValue = xssCell.getStringCellValue();
-                        }
-                        if (xssCellValue != null && xssCellValue.contains("${")) {
-                            String keyName = xssCellValue.substring(xssCellValue.indexOf("${") + 2, xssCellValue.lastIndexOf("}"));
-                            String excelFieldSrcKeyword = xssCellValue.substring(xssCellValue.indexOf("${"), xssCellValue.lastIndexOf("}") + 1);
+                        String xssCellValue_import = PoiUtils.getCellValue(xssCell_import);
+                        
+                        if (xssCellValue_import != null && xssCellValue_import.contains("${")) {
+                            String keyName_import = xssCellValue_import.substring(xssCellValue_import.indexOf("${") + 2, xssCellValue_import.lastIndexOf("}"));
+                            String excelFieldSrcKeyword_import = xssCellValue_import.substring(xssCellValue_import.indexOf("${"), xssCellValue_import.lastIndexOf("}") + 1);
 
                             if (matchFlag) {
                                 break;
                             }
                             List<?> dataList = (List<?>) listAndTableEntity.getDataList();
-                            if (dataList!= null && dataList.size() > 0) {
+                            if (dataList != null && dataList.size() > 0) {
                                 Object tempData = dataList.get(0);
-                                if (FieldUtils.getField(tempData.getClass(), keyName, true) == null) {
-                                }else {
+                                if (FieldUtils.getField(tempData.getClass(), keyName_import, true) == null) {
+                                } else {
                                     List<ExportExcelCell> keyCellList = new ArrayList<ExportExcelCell>();
-                                    for (int kk = k; kk < xssCellNum; kk++) {
-                                        Cell xssCell_kk = xssrow.getCell(kk);
-                                        CellType type = xssCell_kk.getCellType();
-                                        CellStyle _sxssStyle = sxssfWorkbook.createCellStyle();
-                                        _sxssStyle.cloneStyleFrom(xssCell_kk.getCellStyle());
+                                    for (int kk_import = k_import; kk_import < xssCellNum_import; kk_import++) {
+                                        Cell xssCell_kk_import = xssrow_import.getCell(kk_import);
+                                        CellType type = xssCell_kk_import.getCellType();
+                                        CellStyle _sxssStyle = sxssfWorkbook_export.createCellStyle();
+                                        _sxssStyle.cloneStyleFrom(xssCell_kk_import.getCellStyle());
 
-                                        ExportExcelCell ee = new ExportExcelCell((short) xssCell_kk.getColumnIndex(), xssCell_kk.getStringCellValue(), _sxssStyle);
+                                        ExportExcelCell ee = new ExportExcelCell((short) xssCell_kk_import.getColumnIndex(), xssCell_kk_import.getStringCellValue(), _sxssStyle);
                                         ee.setCellType(type);
                                         keyCellList.add(ee);
                                     }
@@ -165,32 +176,31 @@ public class ExcelHelper {
                                         offset++;
 
                                         Object srcData = dataList.get(y);
-                                        // 创建row行之前，判断是否存在当前行
-                                        SXSSFRow sxssrow_y = sxssSheet.createRow(create_row_num);
-                                        sxssrow_y.setHeight(xssrow.getHeight());
-                                        // 如果模板中，存在当前行，则复制当前行前几列的模样
+                                        SXSSFRow sxssrow_export_2 = sxssSheet_export.createRow(create_row_num);
+                                        sxssrow_export_2.setHeight(xssrow_import.getHeight());
+                                        // 判断是否存在当前行，如果模板中，存在当前行，则复制当前行前几列的模样
                                         if (y == 0) {
-                                            for (int l = temp_k - 1; l >= 0; l--) {
-                                                Cell beforCell = xssrow.getCell(l);
-                                                if (beforCell != null) {
-                                                    SXSSFCell _sxssCell = sxssrow_y.createCell(l, beforCell.getCellType());
-                                                    _sxssCell.setCellStyle(beforCell.getCellStyle());
+                                            for (int cell_index_import = k_import - 1; cell_index_import >= 0; cell_index_import--) {
+                                                Cell beforCell_import = xssrow_import.getCell(cell_index_import);
+                                                if (beforCell_import != null) {
+                                                    SXSSFCell sxssCell_export = sxssrow_export_2.createCell(cell_index_import, beforCell_import.getCellType());
+                                                    sxssCell_export.setCellStyle(beforCell_import.getCellStyle());
 
-                                                    String setvv = PoiUtils.getCellValue(beforCell);
+                                                    String setvv = PoiUtils.getCellValue(beforCell_import);
                                                     if (setvv == null) {
                                                         setvv = "";
                                                     }
-                                                    _sxssCell.setCellValue(setvv);
+                                                    sxssCell_export.setCellValue(setvv);
                                                 }
                                             }
                                         }
-                                        for (int x = temp_k; x < xssCellNum; x++) {
+                                        for (int x = k_import; x < xssCellNum_import; x++) {
 
-                                            ExportExcelCell curCell = null;
+                                            ExportExcelCell curCell_import = null;
                                             String vv = null;
                                             for (ExportExcelCell exportCell : keyCellList) {
                                                 if (exportCell.getIndex() == x) {
-                                                    curCell = exportCell;
+                                                    curCell_import = exportCell;
                                                     vv = exportCell.getValue();
                                                     break;
                                                 }
@@ -207,33 +217,33 @@ public class ExcelHelper {
                                             }
 
                                             if (field != null && field.get(srcData) != null) {
-                                                SXSSFCell _sxssCell = sxssrow_y.createCell(x, curCell.getCellType());
+                                                SXSSFCell sxssCell_export = sxssrow_export_2.createCell(x, curCell_import.getCellType());
                                                 if (callBackCellStyle != null) {
-                                                    callBackCellStyle.callBack(sxssSheet, _sxssCell, curCell.getCellStyle());
-                                                    _sxssCell.setCellStyle(curCell.getCellStyle());
+                                                    callBackCellStyle.callBack(sxssSheet_export, sxssCell_export, curCell_import.getCellStyle());
+                                                    sxssCell_export.setCellStyle(curCell_import.getCellStyle());
                                                 } else {
-                                                    _sxssCell.setCellStyle(curCell.getCellStyle());
+                                                    sxssCell_export.setCellStyle(curCell_import.getCellStyle());
                                                 }
 
                                                 Object value = field.get(srcData);
                                                 if (value instanceof byte[]) {
                                                     if (PoiUtils.getImageType((byte[]) value) != null) {
-                                                        XSSFClientAnchor anchor = new XSSFClientAnchor(0, 0, 0, 0, x, sxssrow_y.getRowNum(), x + 1, sxssrow_y.getRowNum() + 1);
-                                                        int picIndex = sxssfWorkbook.addPicture((byte[]) value, HSSFWorkbook.PICTURE_TYPE_JPEG);
-                                                        patriarch.createPicture(anchor, picIndex);
+                                                        XSSFClientAnchor anchor_export = new XSSFClientAnchor(0, 0, 0, 0, x, sxssrow_export_2.getRowNum(), x + 1, sxssrow_export_2.getRowNum() + 1);
+                                                        int picIndex = sxssfWorkbook_export.addPicture((byte[]) value, HSSFWorkbook.PICTURE_TYPE_JPEG);
+                                                        patriarch.createPicture(anchor_export, picIndex);
                                                     } else {
-                                                        _sxssCell.setCellValue(new String((byte[]) value));
+                                                        sxssCell_export.setCellValue(new String((byte[]) value));
                                                     }
                                                 } else {
-                                                    _sxssCell.setCellValue(String.valueOf(value));
+                                                    sxssCell_export.setCellValue(String.valueOf(value));
                                                 }
                                             } else {
-                                                SXSSFCell _sxssCell = sxssrow_y.createCell(x, curCell.getCellType());
+                                                SXSSFCell sxssCell_export = sxssrow_export_2.createCell(x, curCell_import.getCellType());
                                                 if (callBackCellStyle != null) {
-                                                    callBackCellStyle.callBack(sxssSheet, _sxssCell, curCell.getCellStyle());
-                                                    _sxssCell.setCellStyle(curCell.getCellStyle());
+                                                    callBackCellStyle.callBack(sxssSheet_export, sxssCell_export, curCell_import.getCellStyle());
+                                                    sxssCell_export.setCellStyle(curCell_import.getCellStyle());
                                                 } else {
-                                                    _sxssCell.setCellStyle(curCell.getCellStyle());
+                                                    sxssCell_export.setCellStyle(curCell_import.getCellStyle());
                                                 }
                                                 if (vv == null) {
                                                     vv = "";
@@ -242,42 +252,42 @@ public class ExcelHelper {
                                                 if (excelFieldSrcKeyword2 != null) {
                                                     cellValue = cellValue.replace(excelFieldSrcKeyword2, "");
                                                 }
-                                                _sxssCell.setCellValue(cellValue);
+                                                sxssCell_export.setCellValue(cellValue);
                                             }
                                         }
                                     }
                                 }
                             }
-                            
-                            if(matchFlag == false) {
-                                if(listAndTableEntity.getTableList()!=null) {
+
+                            if (matchFlag == false) {
+                                if (listAndTableEntity.getTableList() != null) {
                                     for (Object tableObject : listAndTableEntity.getTableList()) {
-                                        Field field = FieldUtils.getField(tableObject.getClass(), keyName, true);
+                                        Field field = FieldUtils.getField(tableObject.getClass(), keyName_import, true);
                                         if (field != null) {
                                             matchFlag = true;
-                                            SXSSFCell sxssCell = sxssrow.createCell(k, xssCell.getCellType());
-                                            CellStyle _sxssStyle = sxssfWorkbook.createCellStyle();
+                                            SXSSFCell sxssCell_export = sxssrow_export.createCell(k_import, xssCell_import.getCellType());
+                                            CellStyle sxssStyle_export = sxssfWorkbook_export.createCellStyle();
                                             if (callBackCellStyle != null) {
-                                                _sxssStyle.cloneStyleFrom(xssCell.getCellStyle());
-                                                sxssCell.setCellStyle(_sxssStyle);
-                                                callBackCellStyle.callBack(sxssSheet, sxssCell, _sxssStyle);
+                                                sxssStyle_export.cloneStyleFrom(xssCell_import.getCellStyle());
+                                                sxssCell_export.setCellStyle(sxssStyle_export);
+                                                callBackCellStyle.callBack(sxssSheet_export, sxssCell_export, sxssStyle_export);
                                             } else {
-                                                _sxssStyle.cloneStyleFrom(xssCell.getCellStyle());
-                                                sxssCell.setCellStyle(_sxssStyle);
+                                                sxssStyle_export.cloneStyleFrom(xssCell_import.getCellStyle());
+                                                sxssCell_export.setCellStyle(sxssStyle_export);
                                             }
 
                                             Object value = field.get(tableObject);
                                             if (value instanceof byte[]) {
                                                 if (PoiUtils.getImageType((byte[]) value) != null) {
-                                                    XSSFClientAnchor anchor = new XSSFClientAnchor(0, 0, 0, 0, k, sxssrow.getRowNum(), k + 1, sxssrow.getRowNum() + 1);
-                                                    int picIndex = sxssfWorkbook.addPicture((byte[]) value, HSSFWorkbook.PICTURE_TYPE_JPEG);
+                                                    XSSFClientAnchor anchor = new XSSFClientAnchor(0, 0, 0, 0, k_import, sxssrow_export.getRowNum(), k_import + 1, sxssrow_export.getRowNum() + 1);
+                                                    int picIndex = sxssfWorkbook_export.addPicture((byte[]) value, HSSFWorkbook.PICTURE_TYPE_JPEG);
                                                     patriarch.createPicture(anchor, picIndex);
                                                 } else {
-                                                    sxssCell.setCellValue(new String((byte[]) value));
+                                                    sxssCell_export.setCellValue(new String((byte[]) value));
                                                 }
                                             } else {
-                                                String cellValue = xssCellValue.replace(excelFieldSrcKeyword, String.valueOf(value));
-                                                sxssCell.setCellValue(cellValue);
+                                                String cellValue = xssCellValue_import.replace(excelFieldSrcKeyword_import, String.valueOf(value));
+                                                sxssCell_export.setCellValue(cellValue);
                                             }
                                         }
                                     }
@@ -286,40 +296,40 @@ public class ExcelHelper {
                         }
 
                         if (matchFlag == false) {// 单元格没匹配到，则清除单元格得占位符
-                            SXSSFCell sxssCell = sxssrow.createCell(k, xssCell.getCellType());
+                            SXSSFCell sxssCell_export = sxssrow_export.createCell(k_import, xssCell_import.getCellType());
                             String value = null;
-                            if (xssCell.getCellType() == CellType.NUMERIC) {
-                                value = String.valueOf(xssCell.getNumericCellValue());
+                            if (xssCell_import.getCellType() == CellType.NUMERIC) {
+                                value = String.valueOf(xssCell_import.getNumericCellValue());
                             } else {
-                                value = xssCell.getStringCellValue();
+                                value = xssCell_import.getStringCellValue();
                             }
-                            if (value != null && value.contains("${") && isClearPlaceholder!=null && isClearPlaceholder == true) {
+                            if (value != null && value.contains("${") && isClearPlaceholder != null && isClearPlaceholder == true) {
                                 String excelFieldSrcKeyword = value.substring(value.indexOf("${"), value.lastIndexOf("}") + 1);
                                 value = value.replace(excelFieldSrcKeyword, "");
                             }
-                            CellStyle _sxssStyle = sxssfWorkbook.createCellStyle();
+                            CellStyle sxssStyle_export = sxssfWorkbook_export.createCellStyle();
                             if (callBackCellStyle != null) {
-                                _sxssStyle.cloneStyleFrom(xssCell.getCellStyle());
-                                sxssCell.setCellStyle(_sxssStyle);
-                                callBackCellStyle.callBack(sxssSheet, sxssCell, _sxssStyle);
+                                sxssStyle_export.cloneStyleFrom(xssCell_import.getCellStyle());
+                                sxssCell_export.setCellStyle(sxssStyle_export);
+                                callBackCellStyle.callBack(sxssSheet_export, sxssCell_export, sxssStyle_export);
                             } else {
-                                _sxssStyle.cloneStyleFrom(xssCell.getCellStyle());
-                                sxssCell.setCellStyle(_sxssStyle);
+                                sxssStyle_export.cloneStyleFrom(xssCell_import.getCellStyle());
+                                sxssCell_export.setCellStyle(sxssStyle_export);
                             }
-                            sxssCell.setCellValue(value);
+                            sxssCell_export.setCellValue(value);
                         }
                     }
                 }
             }
         }
 
-        workbook.close();
+        workbook_import.close();
         ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
-        sxssfWorkbook.write(byteStream);
+        sxssfWorkbook_export.write(byteStream);
         byteStream.flush();
         byteStream.close();
-        sxssfWorkbook.close();
-        sxssfWorkbook.dispose();
+        sxssfWorkbook_export.close();
+        sxssfWorkbook_export.dispose();
         return byteStream.toByteArray();
     }
 

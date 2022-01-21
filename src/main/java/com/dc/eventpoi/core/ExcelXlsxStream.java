@@ -8,7 +8,7 @@ import com.dc.eventpoi.core.inter.ExcelEventStream;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.xssf.eventusermodel.XSSFReader;
 import org.apache.poi.xssf.eventusermodel.XSSFReader.SheetIterator;
-import org.apache.poi.xssf.model.SharedStringsTable;
+import org.apache.poi.xssf.model.SharedStrings;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -41,7 +41,7 @@ public class ExcelXlsxStream extends BaseExcelStream implements ExcelEventStream
     /**
      *
      */
-    private SharedStringsTable sst = null;
+    private SharedStrings sst = null;
     /**
      *
      */
@@ -246,7 +246,6 @@ public class ExcelXlsxStream extends BaseExcelStream implements ExcelEventStream
         } finally {
             try {
                 if (sst != null) {//新版本启用此方法
-                    sst.close();
                     sst = null;
                 }
             } catch (Exception e) {
