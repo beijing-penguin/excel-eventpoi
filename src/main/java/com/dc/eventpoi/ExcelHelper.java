@@ -57,7 +57,7 @@ public class ExcelHelper {
      * @param tempStream         模板文件流
      * @param listAndTableEntity 包含列表数据集合 和 表格数据对象
      * @param sheetIndex         sheetIndex
-     * @param isClearPlaceholder 是否清除占位符
+     * @param isClearPlaceholder 导出是否清楚占位符(默认true清除)
      * @param sheetCallBack      sheetCallBack
      * @param callBackCellStyle  callBackCellStyle
      * @return byte[]
@@ -74,7 +74,7 @@ public class ExcelHelper {
      * @param tempExcelBtye      模板文件流
      * @param listAndTableEntity 包含列表数据集合 和 表格数据对象
      * @param sheetIndex         sheetIndex
-     * @param isClearPlaceholder 是否清楚占位符
+     * @param isClearPlaceholder 导出是否清楚占位符(默认true清除)
      * @param sheetCallBack      sheetCallBack
      * @param callBackCellStyle  callBackCellStyle
      * @return byte[]
