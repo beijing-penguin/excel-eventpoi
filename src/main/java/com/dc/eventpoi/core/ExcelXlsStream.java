@@ -84,6 +84,7 @@ public class ExcelXlsStream extends BaseExcelStream implements ExcelEventStream 
                     ExcelRow excelRow = new ExcelRow();
                     excelRow.setRowIndex(excelRow.getRowIndex());
                     excelRow.setSheetIndex(sheetIndex);
+                    excelRow.setCellList(valueList);
                     excuteCallBack(baseCallBack, excelRow);
                 }
                 sheetIndex++;
