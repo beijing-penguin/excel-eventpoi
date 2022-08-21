@@ -156,7 +156,6 @@ public class ExcelHelper {
                 sxssrow_export.setHeight(xssrow_import.getHeight());
 
                 for (int k_import = 0; k_import < xssCellNum_import; k_import++) {
-                    Cell xssCell_import = xssrow_import.getCell(k_import);
                     String img_key = i+"-"+j+"-"+k_import;
                     if(imgMap.get(img_key) != null) {
                         XSSFClientAnchor anchor_export = new XSSFClientAnchor(0, 0, 0, 0, Integer.parseInt(img_key.split("-")[2]), Integer.parseInt(img_key.split("-")[1]), Integer.parseInt(img_key.split("-")[2]) + 1, Integer.parseInt(img_key.split("-")[1]) + 1);
@@ -166,7 +165,7 @@ public class ExcelHelper {
                     if (breakFlag) {
                         break;
                     }
-                    
+                    Cell xssCell_import = xssrow_import.getCell(k_import);
                     sxssSheet_export.setColumnWidth(k_import, xsssheet_import.getColumnWidth(k_import));
                     if (xssCell_import == null) {
                     } else {
