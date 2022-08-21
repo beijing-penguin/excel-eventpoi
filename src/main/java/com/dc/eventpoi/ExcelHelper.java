@@ -16,6 +16,7 @@ import java.util.Map.Entry;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ooxml.POIXMLDocumentPart;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CellType;
@@ -30,8 +31,12 @@ import org.apache.poi.xssf.streaming.SXSSFRow;
 import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFClientAnchor;
+import org.apache.poi.xssf.usermodel.XSSFDrawing;
+import org.apache.poi.xssf.usermodel.XSSFPicture;
+import org.apache.poi.xssf.usermodel.XSSFShape;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.openxmlformats.schemas.drawingml.x2006.spreadsheetDrawing.CTMarker;
 
 import com.dc.eventpoi.core.PoiUtils;
 import com.dc.eventpoi.core.entity.ExcelCell;
@@ -114,6 +119,25 @@ public class ExcelHelper {
             int rowNum = xsssheet_import.getPhysicalNumberOfRows();
             int offset = 0;
             int listCount = 0;
+            
+            //xsssheet_import.getDrawingPatriarch()
+            
+            Map<String, byte[]> imgMap = new HashMap<String, byte[]>();
+            List<POIXMLDocumentPart> list = ((XSSFSheet)xsssheet_import).getRelations();
+            for (POIXMLDocumentPart part : list) {
+                if (part instanceof XSSFDrawing) {
+                    XSSFDrawing drawing = (XSSFDrawing) part;
+                    List<XSSFShape> shapes = drawing.getShapes();
+                    for (XSSFShape shape : shapes) {
+                        XSSFPicture picture = (XSSFPicture) shape;
+                        XSSFClientAnchor anchor = picture.getPreferredSize();
+                        CTMarker marker = anchor.getFrom();
+                        String key = i + "-" + marker.getRow() + "-" + marker.getCol();
+                        imgMap.put(key, picture.getPictureData().getData());
+                    }
+                }
+            }
+            
             for (int j = 0; j < rowNum; j++) {
                 for (int ii = 0; ii < sheetMergerCount; ii++) {
                     CellRangeAddress mergedRegionAt = xsssheet_import.getMergedRegion(ii);
@@ -132,10 +156,17 @@ public class ExcelHelper {
                 sxssrow_export.setHeight(xssrow_import.getHeight());
 
                 for (int k_import = 0; k_import < xssCellNum_import; k_import++) {
+                    Cell xssCell_import = xssrow_import.getCell(k_import);
+                    String img_key = i+"-"+j+"-"+k_import;
+                    if(imgMap.get(img_key) != null) {
+                        XSSFClientAnchor anchor_export = new XSSFClientAnchor(0, 0, 0, 0, Integer.parseInt(img_key.split("-")[2]), Integer.parseInt(img_key.split("-")[1]), Integer.parseInt(img_key.split("-")[2]) + 1, Integer.parseInt(img_key.split("-")[1]) + 1);
+                        int picIndex = sxssfWorkbook_export.addPicture(imgMap.get(img_key), HSSFWorkbook.PICTURE_TYPE_JPEG);
+                        patriarch.createPicture(anchor_export, picIndex);
+                    }
                     if (breakFlag) {
                         break;
                     }
-                    Cell xssCell_import = xssrow_import.getCell(k_import);
+                    
                     sxssSheet_export.setColumnWidth(k_import, xsssheet_import.getColumnWidth(k_import));
                     if (xssCell_import == null) {
                     } else {
@@ -255,7 +286,7 @@ public class ExcelHelper {
                                     }
                                 }
                             }
-
+                            
                             if (matchFlag == false) {
                                 if (listAndTableEntity.getTableList() != null) {
                                     for (Object tableObject : listAndTableEntity.getTableList()) {
@@ -291,8 +322,8 @@ public class ExcelHelper {
                                 }
                             }
                         }
-
                         if (matchFlag == false) {// 单元格没匹配到，则清除单元格得占位符
+                            
                             SXSSFCell sxssCell_export = sxssrow_export.createCell(k_import, xssCell_import.getCellType());
                             String value = null;
                             if (xssCell_import.getCellType() == CellType.NUMERIC) {
