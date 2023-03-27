@@ -41,13 +41,12 @@ public class TestReadXlsx {
 //			}
 //		});
     	
-    	howto.registerCallBack(new RowCallBack() {
+    	howto.doRead(new RowCallBack() {
 			@Override
 			public void callBack(int rowIndex, List<CellReadCallBack> cellList) {
 				System.err.println("rowIndex="+rowIndex+",list="+JSON.toJSONString(cellList));
 			}
 		});
-    	howto.doRead();
         //howto.processFirstSheet(args[0]);
         
     }
