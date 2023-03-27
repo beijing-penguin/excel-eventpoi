@@ -38,7 +38,6 @@ import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
 
-import com.dc.eventpoi.core.inter.SheetCallBack;
 import com.dc.eventpoi.test.temp.RegCallBack;
 import com.dc.eventpoi.test.temp.RowCallBack;
 
