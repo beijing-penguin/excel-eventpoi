@@ -18,6 +18,7 @@ package com.dc.eventpoi.test.temp.read;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,6 +39,7 @@ import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
 
+import com.dc.eventpoi.core.inter.SheetCallBack;
 import com.dc.eventpoi.test.temp.RegCallBack;
 import com.dc.eventpoi.test.temp.RowCallBack;
 
@@ -57,6 +59,10 @@ public class XlsxReadStream {
 
 	private List<CellReadCallBack> tempCellReadCallBackList = new ArrayList<>();
 
+	private List<CellReadCallBack> rtCellList = new ArrayList<>();
+	
+	private LinkedHashMap<SheetReadCallBack,List<CellReadCallBack>> dataMap = new LinkedHashMap<SheetReadCallBack,List<CellReadCallBack>>();
+	
 	public void callBack(StreamReadBaseCallBack baseCallBack) {
 		if(baseCallBack instanceof CellReadCallBack) {
 			CellReadCallBack cellReadCallBack = (CellReadCallBack)baseCallBack;
@@ -68,19 +74,23 @@ public class XlsxReadStream {
 			cellReadCallBack.setCellIndex(cellNum);
 			cellReadCallBack.setRowIndex(rowNum);
 
-			if(regCallBack instanceof RowCallBack) {
-				RowCallBack rowCallBack = (RowCallBack)regCallBack;
-				if(tempCellReadCallBackList.size() == 0) {
-					tempCellReadCallBackList.add(cellReadCallBack);
-				}else {
-					if(tempCellReadCallBackList.get(0).getRowIndex() != cellReadCallBack.getRowIndex()) {
-						rowCallBack.callBack(tempCellReadCallBackList.get(0).getRowIndex(), tempCellReadCallBackList);
-						tempCellReadCallBackList.clear();
+			if(regCallBack != null) {
+				if(regCallBack instanceof RowCallBack) {
+					RowCallBack rowCallBack = (RowCallBack)regCallBack;
+					if(tempCellReadCallBackList.size() == 0) {
 						tempCellReadCallBackList.add(cellReadCallBack);
 					}else {
-						tempCellReadCallBackList.add(cellReadCallBack);
+						if(tempCellReadCallBackList.get(0).getRowIndex() != cellReadCallBack.getRowIndex()) {
+							rowCallBack.callBack(tempCellReadCallBackList.get(0).getRowIndex(), tempCellReadCallBackList);
+							tempCellReadCallBackList.clear();
+							tempCellReadCallBackList.add(cellReadCallBack);
+						}else {
+							tempCellReadCallBackList.add(cellReadCallBack);
+						}
 					}
 				}
+			}else {
+				rtCellList.add(cellReadCallBack);
 			}
 		}
 
@@ -138,31 +148,49 @@ public class XlsxReadStream {
 					if(readSheetIndex != null && sheetIndex != readSheetIndex) {
 						continue;
 					}
-					SheetReadCallBack callBack = new SheetReadCallBack();
-					callBack.setSheetIndex(sheetIndex);
-					callBack.setSheetName(sheets.getSheetName());
-					this.callBack(callBack);
+					SheetReadCallBack sheetCallBack = new SheetReadCallBack();
+					sheetCallBack.setSheetIndex(sheetIndex);
+					sheetCallBack.setSheetName(sheets.getSheetName());
+					this.callBack(sheetCallBack);
 
 					//解析excel
 					InputSource sheetSource = new InputSource(sheet);
 					parser.parse(sheetSource);
 					sheetIndex++;
 
-					if(tempCellReadCallBackList.size() > 0 ) {
+					if(regCallBack != null) {
 						if(regCallBack instanceof RowCallBack) {
-							RowCallBack rowCallBack = (RowCallBack)regCallBack;
-							rowCallBack.callBack(tempCellReadCallBackList.get(0).getRowIndex(), tempCellReadCallBackList);
-							tempCellReadCallBackList.clear();
+							if(tempCellReadCallBackList.size() > 0 ) {
+								RowCallBack rowCallBack = (RowCallBack)regCallBack;
+								rowCallBack.callBack(tempCellReadCallBackList.get(0).getRowIndex(), tempCellReadCallBackList);
+								tempCellReadCallBackList.clear();
+							}
 						}
+					}else {
+						dataMap.put(sheetCallBack, rtCellList);
+						rtCellList = new ArrayList<>();
 					}
 				}
 			}
+			
+			
 		}catch (Throwable e) {
 			throw e;
 		}finally {
-			if(pkg != null) {
-				pkg.close();
+			try {
+				if(pkg != null) {
+					pkg.close();
+				}
+			}catch (Throwable e) {
+				throw e;
+			}finally {
+				if(fileInputStream != null) {
+					fileInputStream.close();
+				}
 			}
+			sheetIndex = 0;
+			readSheetIndex = 0;
+			regCallBack = null;
 		}
 	}
 
@@ -277,8 +305,21 @@ public class XlsxReadStream {
 		this.fileInputStream = fileInputStream;
 	}
 
+	
+	public LinkedHashMap<SheetReadCallBack, List<CellReadCallBack>> getDataMap() {
+		return dataMap;
+	}
+
+	public void setDataMap(LinkedHashMap<SheetReadCallBack, List<CellReadCallBack>> dataMap) {
+		this.dataMap = dataMap;
+	}
+
 	public void doRead(RegCallBack regCallBack) throws Throwable {
 		this.regCallBack = regCallBack;
 		this.processAllSheets();
+	}
+	public LinkedHashMap<SheetReadCallBack,List<CellReadCallBack>> doRead() throws Throwable {
+		this.doRead(null);
+		return dataMap;
 	}
 }

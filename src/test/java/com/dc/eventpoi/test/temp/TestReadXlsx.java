@@ -33,22 +33,13 @@ public class TestReadXlsx {
     	XlsxReadStream howto = new XlsxReadStream();
     	howto.setReadSheetIndex(0);
     	howto.setFileName("E:\\eclipse-workspace-2022-12\\excel-eventpoi\\my_test_temp\\file.xlsx");
-//    	howto.registerCallBack(new ReadCallBack() {
-//			
-//			@Override
-//			public void callBack(StreamReadBaseCallBack baseCallBack) {
-//				System.err.println(JSON.toJSONString(baseCallBack));				
-//			}
-//		});
-    	
     	howto.doRead(new RowCallBack() {
 			@Override
 			public void callBack(int rowIndex, List<CellReadCallBack> cellList) {
 				System.err.println("rowIndex="+rowIndex+",list="+JSON.toJSONString(cellList));
 			}
 		});
-        //howto.processFirstSheet(args[0]);
-        
+    	System.err.println(JSON.toJSONString(howto.doRead()));
     }
 	
 }
