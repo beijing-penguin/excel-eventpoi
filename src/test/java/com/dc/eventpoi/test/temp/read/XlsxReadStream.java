@@ -38,6 +38,7 @@ import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
 
+import com.dc.eventpoi.test.temp.CellCallBack;
 import com.dc.eventpoi.test.temp.RegCallBack;
 import com.dc.eventpoi.test.temp.RowCallBack;
 
@@ -86,6 +87,9 @@ public class XlsxReadStream {
 							tempCellReadCallBackList.add(cellReadCallBack);
 						}
 					}
+				}else if(regCallBack instanceof CellCallBack) {
+					CellCallBack rowCallBack = (CellCallBack)regCallBack;
+					rowCallBack.callBack(cellReadCallBack);
 				}
 			}else {
 				rtCellList.add(cellReadCallBack);
@@ -292,15 +296,17 @@ public class XlsxReadStream {
 		return fileName;
 	}
 
-	public void setFileName(String fileName) {
+	public XlsxReadStream setFileName(String fileName) {
 		this.fileName = fileName;
+		return this;
 	}
 	public InputStream getFileInputStream() {
 		return fileInputStream;
 	}
 
-	public void setFileInputStream(InputStream fileInputStream) {
+	public XlsxReadStream setFileInputStream(InputStream fileInputStream) {
 		this.fileInputStream = fileInputStream;
+		return this;
 	}
 
 	

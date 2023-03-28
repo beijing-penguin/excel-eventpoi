@@ -7,15 +7,12 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 	<description>eventpoi is a java tool that supports read excel and export excel</description>
-
 	<groupId>io.github.beijing-penguin</groupId>
 	<artifactId>eventpoi</artifactId>
 	<version>0.1.4</version>
 	<packaging>jar</packaging>
-
 	<name>eventpoi</name>
 	<url>https://github.com/beijing-penguin/eventpoi.git</url>
-
 	<licenses>
 		<license>
 			<name>The Apache Software License, Version 2.0</name>
@@ -35,8 +32,13 @@
 			<url>https://github.com/beijing-penguin</url>
 		</developer>
 	</developers>
-
 	<dependencies>
+		<!-- https://mvnrepository.com/artifact/com.googlecode.aviator/aviator -->
+		<dependency>
+			<groupId>com.googlecode.aviator</groupId>
+			<artifactId>aviator</artifactId>
+			<version>5.3.3</version>
+		</dependency>
 		<!-- https://mvnrepository.com/artifact/org.apache.poi/poi -->
 		<dependency>
 			<groupId>org.apache.poi</groupId>
@@ -60,11 +62,9 @@
 			<groupId>com.alibaba</groupId>
 			<artifactId>fastjson</artifactId>
 			<version>1.2.83</version>
-            <scope>test</scope>
+			<scope>test</scope>
 		</dependency>
-
 	</dependencies>
-
 	<build>
 		<testResources>
 			<testResource>
@@ -117,14 +117,12 @@
 					</execution>
 				</executions>
 			</plugin>
-
 			<!-- <plugin> <groupId>org.sonatype.plugins</groupId> <artifactId>nexus-staging-maven-plugin</artifactId> 
 				<version>1.6.7</version> <extensions>true</extensions> <configuration> <serverId>releases</serverId> 
 				<nexusUrl>https://s01.oss.sonatype.org/</nexusUrl> <autoReleaseAfterClose>true</autoReleaseAfterClose> 
 				</configuration> </plugin> -->
 		</plugins>
 	</build>
-
 	<profiles>
 		<profile>
 			<id>release</id>
@@ -148,7 +146,6 @@
 			</build>
 		</profile>
 	</profiles>
-
 	<distributionManagement>
 		<snapshotRepository>
 			<id>snapshots</id>
