@@ -16,33 +16,47 @@
 ==================================================================== */
 package com.dc.eventpoi.test.temp.write;
 
+import java.io.ByteArrayInputStream;
+import java.io.FileOutputStream;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 
-import javax.xml.parsers.ParserConfigurationException;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.util.CellReference;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 
-import org.apache.poi.openxml4j.opc.OPCPackage;
-import org.apache.poi.openxml4j.opc.PackageAccess;
-import org.apache.poi.util.StringUtil;
-import org.apache.poi.util.XMLHelper;
-import org.apache.poi.xssf.eventusermodel.XSSFReader;
-import org.apache.poi.xssf.eventusermodel.XSSFReader.SheetIterator;
-import org.apache.poi.xssf.model.SharedStrings;
-import org.xml.sax.Attributes;
-import org.xml.sax.ContentHandler;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-import org.xml.sax.XMLReader;
-import org.xml.sax.helpers.DefaultHandler;
-
-import com.dc.eventpoi.test.temp.CellCallBack;
-import com.dc.eventpoi.test.temp.RegCallBack;
-import com.dc.eventpoi.test.temp.RowCallBack;
+import com.dc.eventpoi.test.Me;
+import com.dc.eventpoi.test.temp.read.CellReadCallBack;
+import com.dc.eventpoi.test.temp.read.XlsxReadStream;
 
 
 public class XlsxWriteStream {
+	
+			
+	public void exportExcel(byte[] tempExcelBtye,Set<Object> listAndTableSet) throws Throwable {
+		XlsxReadStream xlsxRead = new XlsxReadStream();
+		List<CellReadCallBack> tempList = xlsxRead.setFileInputStream(new ByteArrayInputStream(tempExcelBtye)).doRead().values().iterator().next();
+		
+		
+		SXSSFWorkbook wb = new SXSSFWorkbook(100); // keep 100 rows in memory, exceeding rows will be flushed to disk
+		Sheet sh = wb.createSheet();
+		for(int rownum = 0; rownum < 1000; rownum++){
+			Row row = sh.createRow(rownum);
+			for(int cellnum = 0; cellnum < 10; cellnum++){
+				Cell cell = row.createCell(cellnum);
+				String address = new CellReference(cell).formatAsString();
+				cell.setCellValue(address);
+			}
+		}
+		FileOutputStream out = new FileOutputStream("my_test_temp/sxssf.xlsx");
+		wb.write(out);
+		out.close();
+		// dispose of temporary files backing this workbook on disk
+		wb.dispose();
+		wb.close();
+	}
 	
 }
