@@ -19,17 +19,21 @@ package com.dc.eventpoi.test.temp.write;
 import java.io.ByteArrayInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellReference;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import com.dc.eventpoi.test.Me;
 import com.dc.eventpoi.test.temp.read.CellReadCallBack;
+import com.dc.eventpoi.test.temp.read.SheetReadCallBack;
 import com.dc.eventpoi.test.temp.read.XlsxReadStream;
 
 
@@ -37,9 +41,22 @@ public class XlsxWriteStream {
 	
 			
 	public void exportExcel(byte[] tempExcelBtye,Set<Object> listAndTableSet) throws Throwable {
-		XlsxReadStream xlsxRead = new XlsxReadStream();
-		List<CellReadCallBack> tempList = xlsxRead.setFileInputStream(new ByteArrayInputStream(tempExcelBtye)).doRead().values().iterator().next();
+		//XlsxReadStream xlsxRead = new XlsxReadStream();
+		//LinkedHashMap<SheetReadCallBack,List<CellReadCallBack>> tempList = xlsxRead.setFileInputStream(new ByteArrayInputStream(tempExcelBtye)).doRead();
 		
+		XSSFWorkbook tempWorkbook = new XSSFWorkbook(new ByteArrayInputStream(tempExcelBtye));
+		
+		LinkedHashMap<Sheet,List<Cell>> tempList = new LinkedHashMap<>();
+		
+		
+		int sheetEnd = tempWorkbook.getNumberOfSheets();
+		for (int sheetIndex = 0; sheetIndex < sheetEnd; sheetIndex++) {
+			Sheet sheet = tempWorkbook.getSheetAt(sheetIndex);
+			int rowEnd = sheet.getPhysicalNumberOfRows();
+			for (int rowIndex = 0; rowIndex < rowEnd; rowIndex++) {
+				Row row = sheet.getRow(rowIndex);
+			}
+		}
 		
 		SXSSFWorkbook wb = new SXSSFWorkbook(100); // keep 100 rows in memory, exceeding rows will be flushed to disk
 		Sheet sh = wb.createSheet();
@@ -57,6 +74,13 @@ public class XlsxWriteStream {
 		// dispose of temporary files backing this workbook on disk
 		wb.dispose();
 		wb.close();
+	}
+	
+	public int findEndSheetIndex(Workbook workbook) {
+		return workbook.getNumberOfSheets();
+	}
+	public Row findRow(Workbook workbook,int sheetIndex,int rowIndex) {
+		return workbook.getSheetAt(sheetIndex).getRow(rowIndex);
 	}
 	
 }
