@@ -9,10 +9,11 @@ import com.googlecode.aviator.AviatorEvaluator;
 public class Snippet {
 	public static void main(String[] args) {
 		Map<String, Object> dataMap = new HashMap<>();
-	     dataMap.put("x", 1);
+	     dataMap.put("list.x", 1);
 	     dataMap.put("y", 2);
 	     dataMap.put("z", 3);
-	     String expression = "string.substring(str((x + y) * x + (x + z) * y /0.7),0,2)";
+	     dataMap.put("zzzz", 3);
+	     String expression = "string.substring(str((list.x + y) * list.x + (list.x + z) * y /0.7),0,2)";
 	     
 	     
 	     long t2 = System.currentTimeMillis();
@@ -23,9 +24,7 @@ public class Snippet {
 	     
 	     long t1 = System.currentTimeMillis();
 	     for (int i = 0; i < 10; i++) {
-	    	 
 		     System.err.println(expression+"="+ AviatorEvaluator.execute(expression, dataMap));
-		     
 	     }
 	     
 	     System.err.println(System.currentTimeMillis()-t1);

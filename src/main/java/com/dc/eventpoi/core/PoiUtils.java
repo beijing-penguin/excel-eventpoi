@@ -71,7 +71,8 @@ public class PoiUtils {
 	public static String getCellValue(Cell cell){
 		String xssCellValue = null;
         if(cell.getCellType() == CellType.NUMERIC) {
-        	xssCellValue = String.valueOf(cell.getNumericCellValue());
+        	BigDecimal bd = new BigDecimal(String.valueOf(cell.getNumericCellValue()));
+        	xssCellValue = bd.stripTrailingZeros().toPlainString();
         }else {
         	xssCellValue = cell.getStringCellValue();
         }
