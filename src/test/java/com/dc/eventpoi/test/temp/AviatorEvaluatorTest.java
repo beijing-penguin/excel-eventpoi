@@ -6,7 +6,7 @@ import java.util.Map;
 
 import com.googlecode.aviator.AviatorEvaluator;
 
-public class Snippet {
+public class AviatorEvaluatorTest {
 	public static void main(String[] args) {
 		Map<String, Object> dataMap = new HashMap<>();
 	     dataMap.put("list.x", 1);
