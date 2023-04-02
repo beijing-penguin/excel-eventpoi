@@ -6,14 +6,14 @@ import java.util.Map;
 
 import com.googlecode.aviator.AviatorEvaluator;
 
-public class Snippet {
+public class Snippet2 {
 	public static void main(String[] args) {
 		Map<String, Object> dataMap = new HashMap<>();
 	     dataMap.put("list.x", 1);
 	     dataMap.put("y", 2);
-	     dataMap.put("z", 3);
+	     dataMap.put("z", null);
 	     dataMap.put("zzzz", 3);
-	     String expression = "string.substring(str((list.x + y) * list.x + (list.x + z+c) * y /0.7),0,2)";
+	     String expression = "z";
 	     
 	     
 	     long t2 = System.currentTimeMillis();

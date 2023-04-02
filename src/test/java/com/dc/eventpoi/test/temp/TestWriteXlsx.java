@@ -2,10 +2,9 @@ package com.dc.eventpoi.test.temp;
 
 import java.io.InputStream;
 import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
 
 import com.dc.eventpoi.core.PoiUtils;
+import com.dc.eventpoi.core.entity.ListAndTableEntity;
 import com.dc.eventpoi.test.Me;
 import com.dc.eventpoi.test.temp.write.XlsxWriteStream;
 
@@ -17,11 +16,11 @@ public class TestWriteXlsx {
 		Student s1 = new Student();
 		s1.setName("张三");
 		
-		Set<Object> ss = new HashSet<>();
-		ss.add(s1);
+		ListAndTableEntity tt = new ListAndTableEntity();
+		tt.setDataList(Arrays.asList(s1));
 		
 		XlsxWriteStream ww = new XlsxWriteStream();
-		ww.exportExcel(PoiUtils.inputStreamToByte(tempInputStream), Arrays.asList(s1));
+		ww.exportExcel(PoiUtils.inputStreamToByte(tempInputStream), tt);
 	}
 }
 class Student{
