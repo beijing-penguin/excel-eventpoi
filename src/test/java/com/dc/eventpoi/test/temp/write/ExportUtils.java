@@ -1,23 +1,59 @@
 package com.dc.eventpoi.test.temp.write;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.alibaba.fastjson.JSON;
 import com.dc.eventpoi.test.temp.read.CellReadCallBack;
 
 public class ExportUtils {
 	
 	private static String LETTER_DIGIT_REGEX = "^[a-z0-9A-Z]+$";
 	public static void main(String[] args) {
-		System.err.println(" ".matches(LETTER_DIGIT_REGEX));
+		System.err.println(JSON.toJSONString(getExpAllKeys("1-a *2")));
+		System.err.println(JSON.toJSONString(getExpAllKeys("list.headImage/tab.age")));
+	}
+	
+	public static boolean isAZAndDigit(String str) {
+		return str.matches(LETTER_DIGIT_REGEX);
 	}
 	
 	public static boolean isWordKeyPart(String str) {
 		return !str.matches(LETTER_DIGIT_REGEX);
+	}
+	
+	public static List<String> getExpAllKeys(String expStr){
+		List<String> keyList = new ArrayList<>();
+		String tempStr = "";
+		for (int i = 0; i < expStr.length(); i++) {
+			tempStr = tempStr + expStr.charAt(i);
+			String addStr = null;
+			if(tempStr.contains("list.")) {
+				addStr = tempStr.substring(tempStr.indexOf("list."));
+			}
+			if(tempStr.contains("tab.")) {
+				addStr = tempStr.substring(tempStr.indexOf("tab."));
+			}
+			if(addStr != null) {
+				//往后查找不是字母或者数字
+				for (int j = i+1; j < expStr.length(); j++) {
+					i = j-1;
+					if(String.valueOf(expStr.charAt(j)).matches(LETTER_DIGIT_REGEX)) {
+						addStr = addStr + expStr.charAt(j);
+					}else {
+						break;
+					}
+				}
+				keyList.add(addStr);
+				tempStr = "";
+			}
+		}
+		return keyList;
 	}
 	
 	public static void setExpMap(Object tabOrOneListObj,String cell_key,Map<String, Object> expMap) throws Throwable {
@@ -51,17 +87,13 @@ public class ExportUtils {
 		}
 	}
 	
-	public static int findListIndexByKey(Collection<List<CellReadCallBack>> tempContentCollection,String cur_cell_value,int curRowIndex) {
-		Iterator<List<CellReadCallBack>> cellIt = tempContentCollection.iterator();
+	public static int findListIndexByKey(List<CellReadCallBack> tempContentCollection,String cur_cell_value,int curRowIndex) {
 		int keyRowIndex = -1;
-		while(cellIt.hasNext()) {
-			List<CellReadCallBack> cellList = cellIt.next();
-			for (CellReadCallBack cell:cellList) {
-				if(cell.getCellValue().equals(cur_cell_value)) {
-					keyRowIndex = cell.getRowIndex();
-				}
+		for (CellReadCallBack cell:tempContentCollection) {
+			if(cell.getCellValue().equals(cur_cell_value)) {
+				keyRowIndex = cell.getRowIndex();
 			}
 		}
-		return keyRowIndex-curRowIndex;
+		return curRowIndex-keyRowIndex;
 	} 
 }

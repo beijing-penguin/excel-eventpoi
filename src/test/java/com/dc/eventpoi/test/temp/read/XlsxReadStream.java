@@ -126,6 +126,7 @@ public class XlsxReadStream {
 			while (sheets.hasNext()) {
 				try (InputStream sheet = sheets.next()) {
 					if(readSheetIndex != null && sheetIndex != readSheetIndex) {
+						sheetIndex++;
 						continue;
 					}
 					SheetReadCallBack sheetCallBack = new SheetReadCallBack();

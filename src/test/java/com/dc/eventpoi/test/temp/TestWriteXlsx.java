@@ -15,9 +15,15 @@ public class TestWriteXlsx {
 		
 		Student s1 = new Student();
 		s1.setName("张三");
+		s1.setAge(3);
+		
+		Student s2 = new Student();
+		s2.setName("李四");
+		s2.setAge(4);
 		
 		ListAndTableEntity tt = new ListAndTableEntity();
-		tt.setDataList(Arrays.asList(s1));
+		tt.setDataList(Arrays.asList(s1,s2));
+		tt.setTableList(s1);
 		
 		XlsxWriteStream ww = new XlsxWriteStream();
 		ww.exportExcel(PoiUtils.inputStreamToByte(tempInputStream), tt);

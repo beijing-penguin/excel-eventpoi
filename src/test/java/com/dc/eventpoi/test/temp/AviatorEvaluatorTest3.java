@@ -6,13 +6,13 @@ import java.util.Map;
 
 import com.googlecode.aviator.AviatorEvaluator;
 
-public class AviatorEvaluatorTest2 {
+public class AviatorEvaluatorTest3 {
 	public static void main(String[] args) {
 		Map<String, Object> dataMap = new HashMap<>();
 	     dataMap.put("list.x", 1);
-	     dataMap.put("y", 2);
+	     dataMap.put("y", 4);
 	     dataMap.put("zzzz", 3);
-	     String expression = "z+str+c";
+	     String expression = "y/3.0";
 	     
 	     
 	     long t2 = System.currentTimeMillis();
