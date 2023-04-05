@@ -1,7 +1,9 @@
 package com.dc.eventpoi.test.temp;
 
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import com.dc.eventpoi.core.PoiUtils;
 import com.dc.eventpoi.core.entity.ListAndTableEntity;
@@ -14,7 +16,7 @@ public class TestWriteXlsx {
 		InputStream tempInputStream = Me.class.getResourceAsStream("demo1Templete.xlsx");
 		
 		Student s1 = new Student();
-		s1.setName("张三");
+		s1.setName(null);
 		s1.setAge(3);
 		
 		Student s2 = new Student();
@@ -22,11 +24,17 @@ public class TestWriteXlsx {
 		s2.setAge(4);
 		
 		ListAndTableEntity tt = new ListAndTableEntity();
-		tt.setDataList(Arrays.asList(s1,s2));
-		tt.setTableList(s1);
+		List<Student> stuList = new ArrayList<>();
+		for (int i = 0; i < 1000; i++) {
+			stuList.add(s1);
+		}
+		tt.setDataList(stuList);
+		tt.setTable(s1);
 		
+		long t1 = System.currentTimeMillis();
 		XlsxWriteStream ww = new XlsxWriteStream();
 		ww.exportExcel(PoiUtils.inputStreamToByte(tempInputStream), tt);
+		System.err.println("cost="+(System.currentTimeMillis()-t1));
 	}
 }
 class Student{

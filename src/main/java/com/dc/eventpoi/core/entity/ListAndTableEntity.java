@@ -1,18 +1,18 @@
 package com.dc.eventpoi.core.entity;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ListAndTableEntity {
 	/**
 	 * 表单集合
 	 */
-	private List<?> tableList;
+	private List<Object> tableList;
 	
 	/**
 	 * 数据集合
 	 */
-	private List<?> dataList;
+	private List<Object> dataList;
 
 	
 	public static ListAndTableEntity build() {
@@ -23,13 +23,11 @@ public class ListAndTableEntity {
 		return tableList;
 	}
 
-	public ListAndTableEntity setTableList(List<?> tableList) {
-		this.tableList = tableList;
-		return this;
-	}
-
-	public ListAndTableEntity setTableList(Object tableObject) {
-        this.tableList = Arrays.asList(tableObject);
+	public ListAndTableEntity setTable(Object tableObject) {
+		if(tableList == null) {
+			tableList = new ArrayList<>();
+		}
+		tableList.add(tableObject);
         return this;
     }
 	
@@ -39,7 +37,10 @@ public class ListAndTableEntity {
 	}
 
 	public ListAndTableEntity setDataList(List<?> dataList) {
-		this.dataList = Arrays.asList(dataList);
+		if(this.dataList == null) {
+			this.dataList = new ArrayList<>();
+		}
+		this.dataList.add(dataList);
 		return this;
 	}
 	

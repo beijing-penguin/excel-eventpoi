@@ -12,26 +12,27 @@ import com.alibaba.fastjson.JSON;
 import com.dc.eventpoi.test.temp.read.CellReadCallBack;
 
 public class ExportUtils {
-	
+
 	private static String LETTER_DIGIT_REGEX = "^[a-z0-9A-Z]+$";
 	public static void main(String[] args) {
-		System.err.println(JSON.toJSONString(getExpAllKeys("1-a *2")));
-		System.err.println(JSON.toJSONString(getExpAllKeys("list.headImage/tab.age")));
+		System.err.println(JSON.toJSONString(getExpAllKeys("${1-a *2}%${list.headImage/tab.age}")));
 	}
-	
+
 	public static boolean isAZAndDigit(String str) {
 		return str.matches(LETTER_DIGIT_REGEX);
 	}
-	
+
 	public static boolean isWordKeyPart(String str) {
 		return !str.matches(LETTER_DIGIT_REGEX);
 	}
-	
-	public static List<String> getExpAllKeys(String expStr){
+
+	public static List<String> getExpAllKeys(String keyStr){
 		List<String> keyList = new ArrayList<>();
+
+
 		String tempStr = "";
-		for (int i = 0; i < expStr.length(); i++) {
-			tempStr = tempStr + expStr.charAt(i);
+		for (int i = 0; i < keyStr.length(); i++) {
+			tempStr = tempStr + keyStr.charAt(i);
 			String addStr = null;
 			if(tempStr.contains("list.")) {
 				addStr = tempStr.substring(tempStr.indexOf("list."));
@@ -41,10 +42,10 @@ public class ExportUtils {
 			}
 			if(addStr != null) {
 				//往后查找不是字母或者数字
-				for (int j = i+1; j < expStr.length(); j++) {
+				for (int j = i+1; j < keyStr.length(); j++) {
 					i = j-1;
-					if(String.valueOf(expStr.charAt(j)).matches(LETTER_DIGIT_REGEX)) {
-						addStr = addStr + expStr.charAt(j);
+					if(String.valueOf(keyStr.charAt(j)).matches(LETTER_DIGIT_REGEX)) {
+						addStr = addStr + keyStr.charAt(j);
 					}else {
 						break;
 					}
@@ -53,9 +54,10 @@ public class ExportUtils {
 				tempStr = "";
 			}
 		}
+
 		return keyList;
 	}
-	
+
 	public static void setExpMap(Object tabOrOneListObj,String cell_key,Map<String, Object> expMap) throws Throwable {
 		if(tabOrOneListObj instanceof Map) {
 			Map<?,?> v_map = (Map<?,?>)tabOrOneListObj;
@@ -66,27 +68,27 @@ public class ExportUtils {
 					if(cell_key.contains(keyName_word)) {
 						Object value = entry.getValue();
 						if (value != null) {
-    			        	expMap.put(keyName_word, value);
-    			        }
+							expMap.put(keyName_word, value);
+						}
 					}
 				}
 			}
 		}else {
 			Field[] fields = tabOrOneListObj.getClass().getDeclaredFields();
-		    for (Field field : fields) {
-		        field.setAccessible(true);
-		        String keyName = field.getName();
-		        String keyName_word = "list."+keyName;
-		        if(cell_key.contains(keyName_word) ) {
-		        	Object value = field.get(tabOrOneListObj);
-			        if (value != null) {
-			        	expMap.put(keyName_word, value);
-			        }
-		        }
-		    }
+			for (Field field : fields) {
+				field.setAccessible(true);
+				String keyName = field.getName();
+				String keyName_word = "list."+keyName;
+				if(cell_key.contains(keyName_word) ) {
+					Object value = field.get(tabOrOneListObj);
+					if (value != null) {
+						expMap.put(keyName_word, value);
+					}
+				}
+			}
 		}
 	}
-	
+
 	public static int findListIndexByKey(List<CellReadCallBack> tempContentCollection,String cur_cell_value,int curRowIndex) {
 		int keyRowIndex = -1;
 		for (CellReadCallBack cell:tempContentCollection) {

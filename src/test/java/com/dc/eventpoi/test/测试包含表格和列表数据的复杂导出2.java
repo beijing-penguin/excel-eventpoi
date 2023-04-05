@@ -53,7 +53,7 @@ public class 测试包含表格和列表数据的复杂导出2 {
         
 
         byte[] tempData = PoiUtils.inputStreamToByte(Me.class.getResourceAsStream("订单_templete.xlsx"));
-        ListAndTableEntity dataEntity = ListAndTableEntity.build().setDataList(productList).setTableList(orderInfo);
+        ListAndTableEntity dataEntity = ListAndTableEntity.build().setDataList(productList).setTable(orderInfo);
         //导出
         byte[] exportByteData = ExcelHelper.exportExcel(tempData, dataEntity,null,null,new SheetCallBack() {
             
