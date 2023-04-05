@@ -23,18 +23,13 @@ public class TestWriteXlsx {
 		
 		ListAndTableEntity tt = new ListAndTableEntity();
 		List<Student> stuList = new ArrayList<>();
-		for (int i = 0; i < 10; i++) {
+		for (int i = 0; i < 1000000; i++) {
 			
 			Student s1 = new Student();
 			s1.setName("张三"+i);
 			s1.setAge(3);
-			s1.setHeadImage(img_byte);
+			//s1.setHeadImage(img_byte);
 			
-			
-			Field[] v_obj_field_arr = s1.getClass().getDeclaredFields();
-			for (Field field : v_obj_field_arr) {
-				System.err.println(field.getType().getTypeName());
-			}
 			stuList.add(s1);
 		}
 		tt.setDataList(stuList);

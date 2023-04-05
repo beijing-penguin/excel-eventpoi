@@ -65,8 +65,6 @@ public class XlsxWriteStream {
 
 		XSSFWorkbook tempWorkbook = new XSSFWorkbook(new ByteArrayInputStream(tempExcelBtye));
 
-		//this.copyTempWorkbookToSxssfWorkbook(tempWorkbook,export_workbook);
-
 		//开始写入数据
 		int export_sheetEnd = tempWorkbook.getNumberOfSheets();
 		for (int export_sheetIndex = 0; export_sheetIndex < export_sheetEnd; export_sheetIndex++) {
@@ -121,8 +119,8 @@ public class XlsxWriteStream {
 					SXSSFRow export_row = export_sheet.createRow(list_row_index+temp_row_index);
 					export_row.setHeight(temp_row.getHeight());
 
-					if(export_row.getRowNum() % 100 == 0) {
-						export_sheet.flushRows(100);
+					if(export_row.getRowNum() % 1000 == 0) {
+						export_sheet.flushRows(1000);
 					}
 
 					//遍历当前总列数
@@ -237,11 +235,12 @@ public class XlsxWriteStream {
 										}
 									}
 
+									String pl_key_str = this.defaultPlaceholderPrefix+keyStr+this.defaultPlaceholderSuffix;
 									Object newCellValue = null;
 									if(expMap.size() == keyList.size()) {
 										newCellValue = AviatorEvaluator.compile(keyStr).execute(expMap);
 									}
-									String pl_key_str = this.defaultPlaceholderPrefix+keyStr+this.defaultPlaceholderSuffix;
+									
 									if(newCellValue != null) {
 										tp_start_index = tp_start_index + new_temp_cell_value.indexOf(this.defaultPlaceholderPrefix)+newCellValue.toString().length();
 										new_temp_cell_value = new_temp_cell_value.replace(pl_key_str, newCellValue.toString());
