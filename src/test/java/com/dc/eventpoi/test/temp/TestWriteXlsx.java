@@ -2,7 +2,6 @@ package com.dc.eventpoi.test.temp;
 
 import java.io.File;
 import java.io.InputStream;
-import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -23,12 +22,12 @@ public class TestWriteXlsx {
 		
 		ListAndTableEntity tt = new ListAndTableEntity();
 		List<Student> stuList = new ArrayList<>();
-		for (int i = 0; i < 1000000; i++) {
+		for (int i = 0; i < 100; i++) {
 			
 			Student s1 = new Student();
 			s1.setName("张三"+i);
 			s1.setAge(3);
-			//s1.setHeadImage(img_byte);
+			s1.setHeadImage(img_byte);
 			
 			stuList.add(s1);
 		}

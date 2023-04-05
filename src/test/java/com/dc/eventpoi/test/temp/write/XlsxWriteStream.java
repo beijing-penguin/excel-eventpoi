@@ -65,6 +65,9 @@ public class XlsxWriteStream {
 
 		XSSFWorkbook tempWorkbook = new XSSFWorkbook(new ByteArrayInputStream(tempExcelBtye));
 
+		Map<Object,Field[]> cacheObject = new HashMap<>();
+		Map<String,Object> cacheExpMap = new HashMap<>();
+		
 		//开始写入数据
 		int export_sheetEnd = tempWorkbook.getNumberOfSheets();
 		for (int export_sheetIndex = 0; export_sheetIndex < export_sheetEnd; export_sheetIndex++) {
@@ -101,6 +104,17 @@ public class XlsxWriteStream {
 			int temp_row_End = temp_sheet.getPhysicalNumberOfRows();
 			int list_row_index = 0;
 			for (int temp_row_index = 0; temp_row_index < temp_row_End; temp_row_index++) {
+				
+//				List<?> vvv_list = listAndTableEntity.getDataList();
+//				if(vvv_list != null && vvv_list.size() > 0) {
+//					for(Object vvv_obj : vvv_list) {
+//						if(((List<?>)vvv_obj).size() <= list_row_index ) {
+//							continueCreateRowFlag = false;
+//							break;
+//						}
+//					}
+//				}
+				
 				Row temp_row = temp_sheet.getRow(temp_row_index);
 
 				int temp_cellEnd = temp_sheet.getRow(0).getPhysicalNumberOfCells();
@@ -115,7 +129,6 @@ public class XlsxWriteStream {
 
 				Map<Integer,CellStyle> cacheCellStyleMap = new HashMap<>();
 				while(true) {
-					
 					SXSSFRow export_row = export_sheet.createRow(list_row_index+temp_row_index);
 					export_row.setHeight(temp_row.getHeight());
 
@@ -124,6 +137,7 @@ public class XlsxWriteStream {
 					}
 
 					//遍历当前总列数
+					//boolean continueCreateRowFlag = false;
 					for (int export_cell_index = 0; export_cell_index < temp_cellEnd; export_cell_index++) {
 						
 						//添加图片
@@ -172,6 +186,7 @@ public class XlsxWriteStream {
 															for(Entry<?, ?> entry : list_obj_map.entrySet()) {
 																String keyName_word = "list."+entry.getKey();
 																if(keyName_word.equals(key)) {
+																	//continueCreateRowFlag = true;
 																	if(entry.getValue().getClass().getTypeName().equals("byte[]")) {
 																		image_bytes = (byte[])entry.getValue();
 																	}else {
@@ -186,6 +201,7 @@ public class XlsxWriteStream {
 																String keyName = field.getName();
 																String keyName_word = "list."+keyName;
 																if(keyName_word.equals(key)) {
+																	//continueCreateRowFlag = true;
 																	if(field.getType().getTypeName().equals("byte[]")) {
 																		image_bytes = (byte[])field.get(v_obj_list.get(list_row_index));
 																	}else {
@@ -216,7 +232,13 @@ public class XlsxWriteStream {
 															}
 														}
 													}else {
-														Field[] v_obj_field_arr = v_obj.getClass().getDeclaredFields();
+														Field[] v_obj_field_arr = cacheObject.get(v_obj);
+														if(v_obj_field_arr == null) {
+															v_obj_field_arr = v_obj.getClass().getDeclaredFields();
+															cacheObject.put(v_obj, v_obj_field_arr);
+														}
+														
+														//Field[] v_obj_field_arr = v_obj.getClass().getDeclaredFields();
 														for (Field field : v_obj_field_arr) {
 															field.setAccessible(true);
 															String keyName = field.getName();
@@ -238,7 +260,19 @@ public class XlsxWriteStream {
 									String pl_key_str = this.defaultPlaceholderPrefix+keyStr+this.defaultPlaceholderSuffix;
 									Object newCellValue = null;
 									if(expMap.size() == keyList.size()) {
-										newCellValue = AviatorEvaluator.compile(keyStr).execute(expMap);
+										//newCellValue = AviatorEvaluator.compile(keyStr).execute(expMap);
+										if(expMap.size() == 1 && temp_cell_value.contains(this.defaultPlaceholderPrefix+expMap.keySet().iterator().next()+this.defaultPlaceholderSuffix)) {
+											newCellValue = expMap.values().iterator().next();
+										}else {
+											String key = keyStr + expMap;
+											if(cacheExpMap.containsKey(key)) {
+												newCellValue = cacheExpMap.get(key);
+											}else {
+												newCellValue = AviatorEvaluator.compile(keyStr).execute(expMap);
+												cacheExpMap.put(key, newCellValue);
+											}
+											//newCellValue = AviatorEvaluator.compile(keyStr).execute(expMap);
+										}
 									}
 									
 									if(newCellValue != null) {
@@ -318,6 +352,7 @@ public class XlsxWriteStream {
 							}
 						}
 					}
+					
 					if(continueCreateRowFlag == false) {
 						break;
 					}else {
