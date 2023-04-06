@@ -31,7 +31,6 @@ import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.openxmlformats.schemas.drawingml.x2006.spreadsheetDrawing.CTMarker;
 
-import com.dc.eventpoi.core.PoiUtils;
 import com.dc.eventpoi.core.entity.ListAndTableEntity;
 import com.googlecode.aviator.AviatorEvaluator;
 
@@ -41,7 +40,11 @@ import com.googlecode.aviator.AviatorEvaluator;
  *
  */
 public class XlsxWriteStream {
-
+	static {
+		//注册函数
+		AviatorEvaluator.addFunction(new RoundFunction());
+		AviatorEvaluator.addFunction(new TruncateFunction());
+	}
 	/**
 	 * 默认前缀占位符
 	 */

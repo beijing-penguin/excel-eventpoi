@@ -8,9 +8,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.dc.eventpoi.core.PoiUtils;
+import com.dc.eventpoi.core.XlsxWriteStream;
 import com.dc.eventpoi.core.entity.ListAndTableEntity;
 import com.dc.eventpoi.test.Me;
-import com.dc.eventpoi.test.temp.write.XlsxWriteStream;
 
 public class TestWriteXlsx {
 
@@ -26,7 +26,7 @@ public class TestWriteXlsx {
 			
 			Student s1 = new Student();
 			s1.setName("张三"+i);
-			s1.setAge(3);
+			s1.setAge(4);
 			s1.setHeadImage(img_byte);
 			
 			stuList.add(s1);
@@ -35,7 +35,7 @@ public class TestWriteXlsx {
 		
 		Student s2 = new Student();
 		s2.setName("李四");
-		s2.setAge(3);
+		s2.setAge(4);
 		tt.setTable(s2);
 		
 		long t1 = System.currentTimeMillis();
