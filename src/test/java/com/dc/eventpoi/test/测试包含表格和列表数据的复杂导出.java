@@ -11,7 +11,7 @@ import com.dc.eventpoi.core.PoiUtils;
 import com.dc.eventpoi.core.entity.ListAndTableEntity;
 
 public class 测试包含表格和列表数据的复杂导出 {
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws Throwable {
     	//构造表格形式的数据
     	OrderInfo orderInfo = new OrderInfo();
     	orderInfo.setKehu("ddddcccc");

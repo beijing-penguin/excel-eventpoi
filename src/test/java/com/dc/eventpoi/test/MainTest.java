@@ -11,7 +11,7 @@ import com.dc.eventpoi.core.PoiUtils;
 import com.dc.eventpoi.core.entity.ListAndTableEntity;
 
 public class MainTest {
-	public static void main(String[] args) throws Exception {
+	public static void main(String[] args) throws Throwable {
 		String data = "{\"orderRebateTimeSummary\":\"2021-11-29\",\"grossProfitTotalSummary\":\"10259\",\"salesmanCommissionTotalSummary\":\"6642\",\"technicalServiceMoneyTotalSummary\":\"609\",\"transactionServiceMoneyTotalSummary\":\"26\",\"netProfitTotalSummary\":\"2982\"}";
 		ShopkeeperBillTotalSummary sumData = JSON.parseObject(data,ShopkeeperBillTotalSummary.class);
 		List<ShopkeeperBillTotalSummary> ll = new ArrayList<ShopkeeperBillTotalSummary>();

@@ -55,27 +55,27 @@ public class 测试包含表格和列表数据的复杂导出2 {
         byte[] tempData = PoiUtils.inputStreamToByte(Me.class.getResourceAsStream("订单_templete.xlsx"));
         ListAndTableEntity dataEntity = ListAndTableEntity.build().setDataList(productList).setTable(orderInfo);
         //导出
-        byte[] exportByteData = ExcelHelper.exportExcel(tempData, dataEntity,null,null,new SheetCallBack() {
-            
-            @Override
-            public void callBack(SXSSFSheet sxssSheet) {
-                CellRangeAddress mergedRegionAt = new CellRangeAddress(7, 8, 0, 0);
-                sxssSheet.addMergedRegionUnsafe(mergedRegionAt);
-            }
-        },new CellStyleCallBack() {
-
-            @Override
-            public void callBack(SXSSFSheet sxssSheet, SXSSFCell curCell, CellStyle curCellStyle) {
-                if(curCell.getRowIndex()%2==0) {
-                    curCellStyle.setFillForegroundColor(IndexedColors.AQUA.getIndex());
-                    curCellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-                }else {
-                    curCellStyle.setFillForegroundColor(IndexedColors.DARK_YELLOW.getIndex());
-                    curCellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-                }
-            }
-            
-        });
-        Files.write(Paths.get("./my_test_temp/测试包含表格和列表数据的复杂导出2.xlsx"), exportByteData);
+//        byte[] exportByteData = ExcelHelper.exportExcel(tempData, dataEntity,null,null,new SheetCallBack() {
+//            
+//            @Override
+//            public void callBack(SXSSFSheet sxssSheet) {
+//                CellRangeAddress mergedRegionAt = new CellRangeAddress(7, 8, 0, 0);
+//                sxssSheet.addMergedRegionUnsafe(mergedRegionAt);
+//            }
+//        },new CellStyleCallBack() {
+//
+//            @Override
+//            public void callBack(SXSSFSheet sxssSheet, SXSSFCell curCell, CellStyle curCellStyle) {
+//                if(curCell.getRowIndex()%2==0) {
+//                    curCellStyle.setFillForegroundColor(IndexedColors.AQUA.getIndex());
+//                    curCellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+//                }else {
+//                    curCellStyle.setFillForegroundColor(IndexedColors.DARK_YELLOW.getIndex());
+//                    curCellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+//                }
+//            }
+//            
+//        });
+//        Files.write(Paths.get("./my_test_temp/测试包含表格和列表数据的复杂导出2.xlsx"), exportByteData);
     }
 }

@@ -11,7 +11,7 @@ import com.dc.eventpoi.core.PoiUtils;
 import com.dc.eventpoi.core.entity.ListAndTableEntity;
 
 public class 使用一行代码导出excel {
-	public static void main(String[] args) throws Exception {
+	public static void main(String[] args) throws Throwable {
 		String img_file_path = new File(Me.class.getResource("unnamed.jpg").getPath()).getAbsolutePath();
 		byte[] imageData = Files.readAllBytes(Paths.get(img_file_path));
 		//写到本地，并查看图片

@@ -1,7 +1,7 @@
 package com.dc.eventpoi.test.temp.write;
 
 import java.io.ByteArrayInputStream;
-import java.io.FileOutputStream;
+import java.io.ByteArrayOutputStream;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -57,8 +57,9 @@ public class XlsxWriteStream {
 	 */
 	private boolean autoClearPlaceholder = true;
 
+	private Integer sheetIndex;
 
-	public void exportExcel(byte[] tempExcelBtye,ListAndTableEntity listAndTableEntity) throws Throwable {
+	public byte[] exportExcel(byte[] tempExcelBtye,ListAndTableEntity listAndTableEntity) throws Throwable {
 
 		SXSSFWorkbook export_workbook = new SXSSFWorkbook(-1);//关闭自动刷到磁盘，按行数计算
 		export_workbook.setCompressTempFiles(true);//临时文件将被压缩
@@ -68,9 +69,15 @@ public class XlsxWriteStream {
 		Map<Object,Field[]> cacheObject = new HashMap<>();
 		Map<String,Object> cacheExpMap = new HashMap<>();
 		
+		int sheetStart = 0;
+        int sheetEnd = tempWorkbook.getNumberOfSheets();
+        if (sheetIndex != null) {
+            sheetStart = sheetIndex;
+            sheetEnd = sheetIndex + 1;
+        }
+        
 		//开始写入数据
-		int export_sheetEnd = tempWorkbook.getNumberOfSheets();
-		for (int export_sheetIndex = 0; export_sheetIndex < export_sheetEnd; export_sheetIndex++) {
+		for (int export_sheetIndex = sheetStart; export_sheetIndex < sheetEnd; export_sheetIndex++) {
 			
 			Sheet temp_sheet = tempWorkbook.getSheetAt(export_sheetIndex);
 			SXSSFSheet export_sheet = export_workbook.createSheet(temp_sheet.getSheetName());
@@ -363,12 +370,14 @@ public class XlsxWriteStream {
 		}
 
 
-		FileOutputStream out = new FileOutputStream("my_test_temp/sxssf.xlsx");
-		export_workbook.write(out);
-		out.close();
-		// dispose of temporary files backing this workbook on disk
-		export_workbook.dispose();
-		export_workbook.close();
+		tempWorkbook.close();
+        ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
+        export_workbook.write(byteStream);
+        byteStream.flush();
+        byteStream.close();
+        export_workbook.close();
+        export_workbook.dispose();
+        return byteStream.toByteArray();
 	}
 
 
@@ -400,5 +409,14 @@ public class XlsxWriteStream {
 	public void setAutoClearPlaceholder(boolean autoClearPlaceholder) {
 		this.autoClearPlaceholder = autoClearPlaceholder;
 	}
-	
+
+
+	public Integer getSheetIndex() {
+		return sheetIndex;
+	}
+
+
+	public void setSheetIndex(Integer sheetIndex) {
+		this.sheetIndex = sheetIndex;
+	}
 }
