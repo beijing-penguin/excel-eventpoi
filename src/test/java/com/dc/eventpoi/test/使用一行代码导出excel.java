@@ -19,7 +19,7 @@ public class 使用一行代码导出excel {
 
 		List<Person> personList = new ArrayList<Person>();
 		//构造导出时的数据
-		for (int i = 0; i < 20; i++) {
+		for (int i = 0; i < 200000; i++) {
 
 			Person p1 = new Person();
 			p1.setNo("NO_"+i);
