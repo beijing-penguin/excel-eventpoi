@@ -26,7 +26,7 @@ public class TestWriteXlsx {
 			
 			Student s1 = new Student();
 			s1.setName("张三"+i);
-			s1.setAge(4);
+			s1.setAge(i);
 			s1.setHeadImage(img_byte);
 			
 			stuList.add(s1);
