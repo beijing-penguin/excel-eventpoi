@@ -164,7 +164,6 @@ public class XlsxWriteStream {
 							if(cellStyle == null) {
 								cellStyle = export_workbook.createCellStyle();
 								cellStyle.cloneStyleFrom(tempCell.getCellStyle());
-								cellStyle.setFillBackgroundColor(tempCell.getCellStyle().getFillBackgroundColorColor());
 								cacheCellStyleMap.put(export_cell_index, cellStyle);
 							}
 							export_cell.setCellStyle(cellStyle);
