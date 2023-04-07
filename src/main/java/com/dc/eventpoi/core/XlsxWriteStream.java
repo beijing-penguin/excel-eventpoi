@@ -195,7 +195,6 @@ public class XlsxWriteStream {
 															for(Entry<?, ?> entry : list_obj_map.entrySet()) {
 																String keyName_word = "list."+entry.getKey();
 																if(keyName_word.equals(key)) {
-																	//continueCreateRowFlag = true;
 																	if(entry.getValue().getClass().getTypeName().equals("byte[]")) {
 																		image_bytes = (byte[])entry.getValue();
 																	}else {
@@ -204,17 +203,16 @@ public class XlsxWriteStream {
 																}
 															}
 														}else {
-															Field[] v_obj_field_arr = list_obj.getClass().getDeclaredFields();
+															Field[] v_obj_field_arr = PoiUtils.getAllFields(list_obj.getClass());
 															for (Field field : v_obj_field_arr) {
 																field.setAccessible(true);
 																String keyName = field.getName();
 																String keyName_word = "list."+keyName;
 																if(keyName_word.equals(key)) {
-																	//continueCreateRowFlag = true;
 																	if(field.getType().getTypeName().equals("byte[]")) {
-																		image_bytes = (byte[])field.get(v_obj_list.get(list_row_index));
+																		image_bytes = (byte[])field.get(list_obj);
 																	}else {
-																		expMap.put(keyName_word, field.get(v_obj_list.get(list_row_index)));
+																		expMap.put(keyName_word, field.get(list_obj));
 																	}
 																}
 															}
@@ -243,7 +241,7 @@ public class XlsxWriteStream {
 													}else {
 														Field[] v_obj_field_arr = cacheObject.get(v_obj);
 														if(v_obj_field_arr == null) {
-															v_obj_field_arr = v_obj.getClass().getDeclaredFields();
+															v_obj_field_arr = PoiUtils.getAllFields(v_obj.getClass());
 															cacheObject.put(v_obj, v_obj_field_arr);
 														}
 														
@@ -340,7 +338,7 @@ public class XlsxWriteStream {
 													}
 												}
 											}else {
-												Field[] v_obj_field_arr = dataObj.getClass().getDeclaredFields();
+												Field[] v_obj_field_arr = PoiUtils.getAllFields(dataObj.getClass());
 												for (Field field : v_obj_field_arr) {
 													String keyName = field.getName();
 													String keyName_word = "list."+keyName;
