@@ -269,18 +269,12 @@ public class XlsxWriteStream {
 									String pl_key_str = this.defaultPlaceholderPrefix+keyStr+this.defaultPlaceholderSuffix;
 									Object newCellValue = null;
 									if(expMap.size() == keyList.size()) {
-										//newCellValue = AviatorEvaluator.compile(keyStr).execute(expMap);
-										if(expMap.size() == 1 && temp_cell_value.contains(this.defaultPlaceholderPrefix+expMap.keySet().iterator().next()+this.defaultPlaceholderSuffix)) {
-											newCellValue = expMap.values().iterator().next();
+										String key = keyStr + expMap;
+										if(cacheExpMap.containsKey(key)) {
+											newCellValue = cacheExpMap.get(key);
 										}else {
-											String key = keyStr + expMap;
-											if(cacheExpMap.containsKey(key)) {
-												newCellValue = cacheExpMap.get(key);
-											}else {
-												newCellValue = AviatorEvaluator.compile(keyStr).execute(expMap);
-												cacheExpMap.put(key, newCellValue);
-											}
-											//newCellValue = AviatorEvaluator.compile(keyStr).execute(expMap);
+											newCellValue = AviatorEvaluator.compile(keyStr).execute(expMap);
+											cacheExpMap.put(key, newCellValue);
 										}
 									}
 									

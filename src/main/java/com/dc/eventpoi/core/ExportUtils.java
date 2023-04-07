@@ -42,7 +42,9 @@ public class ExportUtils {
 						break;
 					}
 				}
-				keyList.add(addStr);
+				if(!keyList.contains(addStr)) {
+					keyList.add(addStr);
+				}
 				tempStr = "";
 			}
 		}
