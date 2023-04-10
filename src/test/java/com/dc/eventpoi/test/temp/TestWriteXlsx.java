@@ -23,11 +23,12 @@ public class TestWriteXlsx {
 		ListAndTableEntity tt = new ListAndTableEntity();
 		List<Student> stuList = new ArrayList<>();
 		for (int i = 0; i < 100; i++) {
-			
 			Student s1 = new Student();
 			s1.setName("张三"+i);
-			s1.setAge(i);
-			s1.setHeadImage(img_byte);
+			s1.setAge(1);
+			if(i == 0) {
+				s1.setHeadImage(img_byte);
+			}
 			
 			stuList.add(s1);
 		}
