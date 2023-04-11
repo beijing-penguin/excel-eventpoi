@@ -69,10 +69,16 @@ public class XlsxWriteStream {
 
 		XSSFWorkbook tempWorkbook = new XSSFWorkbook(new ByteArrayInputStream(tempExcelBtye));
 
+		//全局对象字段缓存
 		Map<Object,Field[]> cacheObject = new HashMap<>();
+		//全局相同表达式缓存
 		Map<String,Object> cacheExpMap = new HashMap<>();
+		//全局字段名称缓存
 		Map<Object,List<String>> cacheObjectFieldNameKeyWordListMap = new HashMap<>();
-
+		//全局简单表达式缓存
+		Map<String,List<String>> cacheSimpleExpMap = new HashMap<>();
+		
+		
 		int sheetStart = 0;
 		int sheetEnd = tempWorkbook.getNumberOfSheets();
 		if (sheetIndex != null) {
@@ -82,7 +88,6 @@ public class XlsxWriteStream {
 		
 		//开始写入数据
 		for (int export_sheetIndex = sheetStart; export_sheetIndex < sheetEnd; export_sheetIndex++) {
-
 			Sheet temp_sheet = tempWorkbook.getSheetAt(export_sheetIndex);
 			SXSSFSheet export_sheet = export_workbook.createSheet(temp_sheet.getSheetName());
 

@@ -18,6 +18,33 @@ public class ExportUtils {
 		return !str.matches(LETTER_DIGIT_REGEX);
 	}
 
+	public static List<String> expOnlyKeyStr(String str,String...targetArr) {
+		List<String> expKeyList = new ArrayList<>();
+		
+		boolean isSimpleExp = true;
+		for(String target : targetArr) {
+			if(isSimpleExp == false) {
+				break;
+			}
+			int count = 0;
+		    int index = 0;
+		    while ((index = str.indexOf(target, index)) != -1) {
+		        count++;
+		        index += target.length();
+		    }
+		    if(count == 1) {
+		    	expKeyList.add(target);
+		    }else if(count > 1){
+		    	isSimpleExp = false;
+		    }
+		}
+		if(isSimpleExp == true ) {
+			return expKeyList;
+		}else {
+			return null;
+		}
+	}
+	
 	public static List<String> getExpAllKeys(String keyStr){
 		List<String> keyList = new ArrayList<>();
 
