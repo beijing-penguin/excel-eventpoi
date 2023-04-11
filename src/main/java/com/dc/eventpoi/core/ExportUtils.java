@@ -1,6 +1,7 @@
 package com.dc.eventpoi.core;
 
 import java.lang.reflect.Field;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +19,15 @@ public class ExportUtils {
 		return !str.matches(LETTER_DIGIT_REGEX);
 	}
 
+	public static String stripTrailingZeros(String str) {
+		try {
+			BigDecimal ss = new BigDecimal(str);
+			return ss.stripTrailingZeros().toPlainString();
+		}catch (Exception e) {
+			return str;
+		}
+   }
+	
 	public static List<String> expOnlyKeyStr(String str,String...targetArr) {
 		List<String> expKeyList = new ArrayList<>();
 		

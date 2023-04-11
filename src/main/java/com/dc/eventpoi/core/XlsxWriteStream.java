@@ -59,6 +59,11 @@ public class XlsxWriteStream {
 	 * 自动清除未匹配到的占位符
 	 */
 	private boolean autoClearPlaceholder = true;
+	
+	/**
+	 * 是否，自动清除末尾多余的小数0
+	 */
+	private boolean stripTrailingZeros = true;
 
 	private Integer sheetIndex;
 
@@ -276,6 +281,9 @@ public class XlsxWriteStream {
 									}
 
 									if(newCellValue != null) {
+										if(stripTrailingZeros) {
+											newCellValue = ExportUtils.stripTrailingZeros(newCellValue.toString());
+										}
 										tp_start_index = tp_start_index + new_temp_cell_value.indexOf(this.defaultPlaceholderPrefix)+newCellValue.toString().length();
 										new_temp_cell_value = new_temp_cell_value.replace(pl_key_str, newCellValue.toString());
 									}else {
