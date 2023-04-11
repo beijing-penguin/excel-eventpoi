@@ -44,6 +44,8 @@ public class XlsxWriteStream {
 		//注册函数
 		AviatorEvaluator.addFunction(new RoundFunction());
 		AviatorEvaluator.addFunction(new TruncateFunction());
+		AviatorEvaluator.addFunction(new IfnullFunction());
+		AviatorEvaluator.addFunction(new RmZeroFunction());
 	}
 	/**
 	 * 默认前缀占位符
@@ -60,11 +62,6 @@ public class XlsxWriteStream {
 	 */
 	private boolean autoClearPlaceholder = true;
 	
-	/**
-	 * 是否，自动清除末尾多余的小数0
-	 */
-	private boolean stripTrailingZeros = true;
-
 	private Integer sheetIndex;
 
 	public byte[] exportExcel(byte[] tempExcelBtye,ListAndTableEntity listAndTableEntity) throws Throwable {
@@ -281,9 +278,6 @@ public class XlsxWriteStream {
 									}
 
 									if(newCellValue != null) {
-										if(stripTrailingZeros) {
-											newCellValue = ExportUtils.stripTrailingZeros(newCellValue.toString());
-										}
 										tp_start_index = tp_start_index + new_temp_cell_value.indexOf(this.defaultPlaceholderPrefix)+newCellValue.toString().length();
 										new_temp_cell_value = new_temp_cell_value.replace(pl_key_str, newCellValue.toString());
 									}else {
