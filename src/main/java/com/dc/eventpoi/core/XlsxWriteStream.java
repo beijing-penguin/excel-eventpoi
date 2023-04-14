@@ -32,6 +32,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.openxmlformats.schemas.drawingml.x2006.spreadsheetDrawing.CTMarker;
 
 import com.dc.eventpoi.core.entity.ListAndTableEntity;
+import com.dc.eventpoi.core.inter.ExcelFunction;
 import com.googlecode.aviator.AviatorEvaluator;
 
 /**
@@ -40,13 +41,6 @@ import com.googlecode.aviator.AviatorEvaluator;
  *
  */
 public class XlsxWriteStream {
-	static {
-		//注册函数
-		AviatorEvaluator.addFunction(new RoundFunction());
-		AviatorEvaluator.addFunction(new TruncateFunction());
-		AviatorEvaluator.addFunction(new IfnullFunction());
-		AviatorEvaluator.addFunction(new RmZeroFunction());
-	}
 	/**
 	 * 默认前缀占位符
 	 */
@@ -64,7 +58,7 @@ public class XlsxWriteStream {
 	
 	private Integer sheetIndex;
 
-	public byte[] exportExcel(byte[] tempExcelBtye,ListAndTableEntity listAndTableEntity) throws Throwable {
+	public byte[] exportExcel(byte[] tempExcelBtye,ListAndTableEntity listAndTableEntity,List<ExcelFunction> funcList) throws Throwable {
 
 		SXSSFWorkbook export_workbook = new SXSSFWorkbook(-1);//关闭自动刷到磁盘，按行数计算
 		export_workbook.setCompressTempFiles(true);//临时文件将被压缩
@@ -176,43 +170,28 @@ public class XlsxWriteStream {
 								while(new_temp_cell_value.indexOf(defaultPlaceholderPrefix,tp_start_index)!= -1) {
 									//取出第一个${xxxx}表达式，xxxx
 									String keyStr = new_temp_cell_value.substring(new_temp_cell_value.indexOf(defaultPlaceholderPrefix)+defaultPlaceholderPrefix.length(), new_temp_cell_value.indexOf(defaultPlaceholderSuffix));
-									List<String> keyList = ExportUtils.getExpAllKeys(keyStr);
-									Map<String, Object> expMap = new HashMap<>();
+									Map<String, Object> allEntityMap = new HashMap<>();
 
-									for(String key : keyList) {
-										List<?> v_list = listAndTableEntity.getDataList();
-										if(v_list != null && v_list.size() > 0) {
-											for(Object v_obj : v_list) {
-												if(v_obj != null) {
-													List<?> v_obj_list = (List<?>)v_obj;
-													if(v_obj_list.size() > 0 && v_obj_list.size() > list_row_index) {
-														Object list_obj = v_obj_list.get(list_row_index);
-														if(list_obj instanceof Map) {
-															Map<?,?> list_obj_map = (Map<?, ?>) list_obj;
-															for(Entry<?, ?> entry : list_obj_map.entrySet()) {
-																String keyName_word = "list."+entry.getKey();
-																if(keyName_word.equals(key)) {
-																	if(entry.getValue().getClass().getTypeName().equals("byte[]")) {
-																		image_bytes = (byte[])entry.getValue();
-																	}else {
-																		expMap.put(keyName_word, entry.getValue());
-																	}
-																}
-															}
-														}else {
-															Field[] v_obj_field_arr = PoiUtils.getAllFields(list_obj.getClass());
-															for (Field field : v_obj_field_arr) {
-																field.setAccessible(true);
-																String keyName = field.getName();
-																String keyName_word = "list."+keyName;
-																if(keyName_word.equals(key)) {
-																	if(field.getType().getTypeName().equals("byte[]")) {
-																		image_bytes = (byte[])field.get(list_obj);
-																	}else {
-																		expMap.put(keyName_word, field.get(list_obj));
-																	}
-																}
-															}
+									List<?> v_list = listAndTableEntity.getDataList();
+									if(v_list != null && v_list.size() > 0) {
+										for(Object v_obj : v_list) {
+											if(v_obj != null) {
+												List<?> v_obj_list = (List<?>)v_obj;
+												if(v_obj_list.size() > 0 && v_obj_list.size() > list_row_index) {
+													Object list_obj = v_obj_list.get(list_row_index);
+													if(list_obj instanceof Map) {
+														Map<?,?> list_obj_map = (Map<?, ?>) list_obj;
+														for(Entry<?, ?> entry : list_obj_map.entrySet()) {
+															String keyName_word = "list."+entry.getKey();
+															allEntityMap.put(keyName_word, entry.getValue());
+														}
+													}else {
+														Field[] v_obj_field_arr = PoiUtils.getAllFields(list_obj.getClass());
+														for (Field field : v_obj_field_arr) {
+															field.setAccessible(true);
+															String keyName = field.getName();
+															String keyName_word = "list."+keyName;
+															allEntityMap.put(keyName_word, field.get(list_obj));
 														}
 													}
 												}
@@ -227,13 +206,7 @@ public class XlsxWriteStream {
 														Map<?,?> list_obj_map = (Map<?, ?>) v_obj;
 														for(Entry<?, ?> entry : list_obj_map.entrySet()) {
 															String keyName_word = "tab."+entry.getKey();
-															if(keyName_word.equals(key)) {
-																if(entry.getValue().getClass().getTypeName().equals("byte[]")) {
-																	image_bytes = (byte[])entry.getValue();
-																}else {
-																	expMap.put(keyName_word, entry.getValue());
-																}
-															}
+															allEntityMap.put(keyName_word, entry.getValue());
 														}
 													}else {
 														Field[] v_obj_field_arr = cacheObject.get(v_obj);
@@ -247,13 +220,7 @@ public class XlsxWriteStream {
 															field.setAccessible(true);
 															String keyName = field.getName();
 															String keyName_word = "tab."+keyName;
-															if(keyName_word.equals(key)) {
-																if(field.getType().getTypeName().equals("byte[]")) {
-																	image_bytes = (byte[])field.get(v_obj);
-																}else {
-																	expMap.put(keyName_word, field.get(v_obj));
-																}
-															}
+															allEntityMap.put(keyName_word, field.get(v_obj));
 														}
 													}
 												}
@@ -263,23 +230,52 @@ public class XlsxWriteStream {
 
 									String pl_key_str = this.defaultPlaceholderPrefix+keyStr+this.defaultPlaceholderSuffix;
 									Object newCellValue = null;
-									if(expMap.size() == keyList.size()) {
-										String key = keyStr + expMap;
-										if(cacheExpMap.containsKey(key)) {
-											newCellValue = cacheExpMap.get(key);
-										}else {
-											if(expMap.size() == 1 && temp_cell_value.contains(this.defaultPlaceholderPrefix+expMap.keySet().iterator().next()+this.defaultPlaceholderSuffix)) {
-												newCellValue = expMap.get(keyStr);
-											}else {
-												newCellValue = AviatorEvaluator.compile(keyStr).execute(expMap);
-												cacheExpMap.put(key, newCellValue);
+									if(funcList != null) {
+										ExcelFunction useFunc = null;
+										for(ExcelFunction excelFunc : funcList) {
+											String funcName = excelFunc.getName();
+											String funcName_key = this.defaultPlaceholderPrefix + funcName+"(";
+											if(keyStr.startsWith(funcName_key)) {
+												useFunc = excelFunc;
+												break;
 											}
 										}
+										if(useFunc != null) {
+											List<Object> paramValueList = StringParser.parseParam(keyStr, allEntityMap);
+											newCellValue = useFunc.execute(paramValueList);
+										}
+									}else {
+										newCellValue = allEntityMap.get(keyStr);
 									}
 
 									if(newCellValue != null) {
-										tp_start_index = tp_start_index + new_temp_cell_value.indexOf(this.defaultPlaceholderPrefix)+newCellValue.toString().length();
-										new_temp_cell_value = new_temp_cell_value.replace(pl_key_str, newCellValue.toString());
+										if(newCellValue instanceof byte[]) {
+											// 获取单元格宽度和高度，单位都是像素
+											double cellWidth = temp_sheet.getColumnWidthInPixels(export_cell_index);
+											//double cellHeight = temp_row.getHeightInPoints() / 72 * 96;// getHeightInPoints()方法获取的是点（磅），就是excel设置的行高，1英寸有72磅，一般显示屏一英寸是96个像素
+
+											//设置图片
+											XSSFClientAnchor anchor = new XSSFClientAnchor(0, 0, 0, 0, export_cell_index, temp_row_index+list_row_index, export_cell_index+1, temp_row_index+list_row_index+1);
+											//anchor.setAnchorType(AnchorType.DONT_MOVE_AND_RESIZE); // 设置为不拉伸
+											//anchor.setAnchorType(AnchorType.MOVE_AND_RESIZE);
+											int picIndex = export_workbook.addPicture((byte[])newCellValue, HSSFWorkbook.PICTURE_TYPE_JPEG);
+											SXSSFPicture pic = patriarch.createPicture(anchor, picIndex);
+
+											int imageWidth = pic.getImageDimension().width;
+											if (imageWidth > cellWidth) {
+												double scaleX = cellWidth / imageWidth;// 最终图片大小与单元格宽度的比例
+												// 最终图片大小与单元格高度的比例
+												// 说一下这个比例的计算方式吧：( imageHeight / imageWidth ) 是原图高于宽的比值，则 ( width * ( imageHeight / imageWidth ) ) 就是最终图片高的比值，
+												// 那 ( width * ( imageHeight / imageWidth ) ) / cellHeight 就是所需比例了
+												//double scaleY = ( cellWidth * ( imageHeight / imageWidth ) ) / cellHeight;
+												pic.resize(scaleX, 1);
+											}
+											tp_start_index = tp_start_index + new_temp_cell_value.indexOf(this.defaultPlaceholderPrefix)+pl_key_str.length();
+											new_temp_cell_value = new_temp_cell_value.replace(pl_key_str, newCellValue.toString());
+										}else {
+											tp_start_index = tp_start_index + new_temp_cell_value.indexOf(this.defaultPlaceholderPrefix)+newCellValue.toString().length();
+											new_temp_cell_value = new_temp_cell_value.replace(pl_key_str, newCellValue.toString());
+										}
 									}else {
 										if(autoClearPlaceholder == true) {
 											new_temp_cell_value = new_temp_cell_value.replace(pl_key_str, "");
@@ -288,35 +284,11 @@ public class XlsxWriteStream {
 										}
 									}
 								}
-							}
-							//解析完成
-							//设置new_temp_cell_value
-							if(image_bytes == null) {
 								export_cell.setCellValue(new_temp_cell_value);
 							}else {
-								// 获取单元格宽度和高度，单位都是像素
-								double cellWidth = temp_sheet.getColumnWidthInPixels(export_cell_index);
-								//double cellHeight = temp_row.getHeightInPoints() / 72 * 96;// getHeightInPoints()方法获取的是点（磅），就是excel设置的行高，1英寸有72磅，一般显示屏一英寸是96个像素
-
-								//设置图片
-								XSSFClientAnchor anchor = new XSSFClientAnchor(0, 0, 0, 0, export_cell_index, temp_row_index+list_row_index, export_cell_index+1, temp_row_index+list_row_index+1);
-								//anchor.setAnchorType(AnchorType.DONT_MOVE_AND_RESIZE); // 设置为不拉伸
-								//anchor.setAnchorType(AnchorType.MOVE_AND_RESIZE);
-								int picIndex = export_workbook.addPicture(image_bytes, HSSFWorkbook.PICTURE_TYPE_JPEG);
-								SXSSFPicture pic = patriarch.createPicture(anchor, picIndex);
-
-								int imageWidth = pic.getImageDimension().width;
-								if (imageWidth > cellWidth) {
-									double scaleX = cellWidth / imageWidth;// 最终图片大小与单元格宽度的比例
-									// 最终图片大小与单元格高度的比例
-									// 说一下这个比例的计算方式吧：( imageHeight / imageWidth ) 是原图高于宽的比值，则 ( width * ( imageHeight / imageWidth ) ) 就是最终图片高的比值，
-									// 那 ( width * ( imageHeight / imageWidth ) ) / cellHeight 就是所需比例了
-									//double scaleY = ( cellWidth * ( imageHeight / imageWidth ) ) / cellHeight;
-									pic.resize(scaleX, 1);
-								}
+								export_cell.setCellValue(new_temp_cell_value);
 							}
 						}
-						
 					}
 
 					//判断是否还能继续创建行
@@ -387,7 +359,7 @@ public class XlsxWriteStream {
 		return byteStream.toByteArray();
 	}
 
-
+	
 	public String getDefaultPlaceholderPrefix() {
 		return defaultPlaceholderPrefix;
 	}

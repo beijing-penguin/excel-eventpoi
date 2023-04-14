@@ -28,8 +28,12 @@ import com.dc.eventpoi.core.entity.ExcelCell;
 import com.dc.eventpoi.core.entity.ExcelRow;
 import com.dc.eventpoi.core.entity.ListAndTableEntity;
 import com.dc.eventpoi.core.enums.FileType;
+import com.dc.eventpoi.core.func.DivideFunction;
+import com.dc.eventpoi.core.func.DivideRoundFunction;
+import com.dc.eventpoi.core.func.DivideTruncateFunction;
 import com.dc.eventpoi.core.inter.CellStyleCallBack;
 import com.dc.eventpoi.core.inter.ExcelEventStream;
+import com.dc.eventpoi.core.inter.ExcelFunction;
 import com.dc.eventpoi.core.inter.RowCallBack;
 import com.dc.eventpoi.core.inter.SheetCallBack;
 
@@ -40,6 +44,12 @@ import com.dc.eventpoi.core.inter.SheetCallBack;
  */
 public class ExcelHelper {
 
+	private static List<ExcelFunction> funcList = new ArrayList<>();
+	static {
+		funcList.add(new DivideFunction());
+		funcList.add(new DivideRoundFunction());
+		funcList.add(new DivideTruncateFunction());
+	}
     /**
      * 导出表格 以及 列表数据
      * 
@@ -74,7 +84,7 @@ public class ExcelHelper {
     	writeHelper.setAutoClearPlaceholder(true);
     	writeHelper.setSheetIndex(sheetIndex);
     	writeHelper.setAutoClearPlaceholder(isClearPlaceholder == null?true:isClearPlaceholder);
-    	return writeHelper.exportExcel(tempExcelBtye, listAndTableEntity);
+    	return writeHelper.exportExcel(tempExcelBtye, listAndTableEntity,funcList);
     }
 
     /**

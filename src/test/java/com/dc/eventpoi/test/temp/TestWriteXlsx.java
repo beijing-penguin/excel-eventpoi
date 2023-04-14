@@ -42,7 +42,7 @@ public class TestWriteXlsx {
 		long t1 = System.currentTimeMillis();
 		XlsxWriteStream ww = new XlsxWriteStream();
 		ww.setAutoClearPlaceholder(true);
-		byte[] excelByte = ww.exportExcel(PoiUtils.inputStreamToByte(tempInputStream), tt);
+		byte[] excelByte = ww.exportExcel(PoiUtils.inputStreamToByte(tempInputStream), tt,null);
 		System.err.println("cost="+(System.currentTimeMillis()-t1));
 		Files.write(Paths.get("./my_test_temp/sxssf.xlsx"), excelByte);
 	}
