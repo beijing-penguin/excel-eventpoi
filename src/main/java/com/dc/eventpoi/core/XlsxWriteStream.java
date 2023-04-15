@@ -33,7 +33,6 @@ import org.openxmlformats.schemas.drawingml.x2006.spreadsheetDrawing.CTMarker;
 
 import com.dc.eventpoi.core.entity.ListAndTableEntity;
 import com.dc.eventpoi.core.inter.ExcelFunction;
-import com.googlecode.aviator.AviatorEvaluator;
 
 /**
  * https://poi.apache.org/components/spreadsheet/how-to.html#sxssf
@@ -68,11 +67,11 @@ public class XlsxWriteStream {
 		//全局对象字段缓存
 		Map<Object,Field[]> cacheObject = new HashMap<>();
 		//全局相同表达式缓存
-		Map<String,Object> cacheExpMap = new HashMap<>();
+		//Map<String,Object> cacheExpMap = new HashMap<>();
 		//全局字段名称缓存
 		Map<Object,List<String>> cacheObjectFieldNameKeyWordListMap = new HashMap<>();
 		//全局简单表达式缓存
-		Map<String,List<String>> cacheSimpleExpMap = new HashMap<>();
+		//Map<String,List<String>> cacheSimpleExpMap = new HashMap<>();
 		
 		
 		int sheetStart = 0;
@@ -234,7 +233,7 @@ public class XlsxWriteStream {
 										ExcelFunction useFunc = null;
 										for(ExcelFunction excelFunc : funcList) {
 											String funcName = excelFunc.getName();
-											String funcName_key = this.defaultPlaceholderPrefix + funcName+"(";
+											String funcName_key = funcName+"(";
 											if(keyStr.startsWith(funcName_key)) {
 												useFunc = excelFunc;
 												break;
@@ -243,6 +242,8 @@ public class XlsxWriteStream {
 										if(useFunc != null) {
 											List<Object> paramValueList = StringParser.parseParam(keyStr, allEntityMap);
 											newCellValue = useFunc.execute(paramValueList);
+										}else {
+											newCellValue = allEntityMap.get(keyStr);
 										}
 									}else {
 										newCellValue = allEntityMap.get(keyStr);
@@ -250,6 +251,7 @@ public class XlsxWriteStream {
 
 									if(newCellValue != null) {
 										if(newCellValue instanceof byte[]) {
+											image_bytes = (byte[]) newCellValue;
 											// 获取单元格宽度和高度，单位都是像素
 											double cellWidth = temp_sheet.getColumnWidthInPixels(export_cell_index);
 											//double cellHeight = temp_row.getHeightInPoints() / 72 * 96;// getHeightInPoints()方法获取的是点（磅），就是excel设置的行高，1英寸有72磅，一般显示屏一英寸是96个像素
@@ -272,10 +274,9 @@ public class XlsxWriteStream {
 											}
 											tp_start_index = tp_start_index + new_temp_cell_value.indexOf(this.defaultPlaceholderPrefix)+pl_key_str.length();
 											new_temp_cell_value = new_temp_cell_value.replace(pl_key_str, newCellValue.toString());
-										}else {
-											tp_start_index = tp_start_index + new_temp_cell_value.indexOf(this.defaultPlaceholderPrefix)+newCellValue.toString().length();
-											new_temp_cell_value = new_temp_cell_value.replace(pl_key_str, newCellValue.toString());
 										}
+										tp_start_index = tp_start_index + new_temp_cell_value.indexOf(this.defaultPlaceholderPrefix)+newCellValue.toString().length();
+										new_temp_cell_value = new_temp_cell_value.replace(pl_key_str, newCellValue.toString());
 									}else {
 										if(autoClearPlaceholder == true) {
 											new_temp_cell_value = new_temp_cell_value.replace(pl_key_str, "");
@@ -284,8 +285,9 @@ public class XlsxWriteStream {
 										}
 									}
 								}
-								export_cell.setCellValue(new_temp_cell_value);
-							}else {
+							}
+							
+							if(image_bytes == null) {
 								export_cell.setCellValue(new_temp_cell_value);
 							}
 						}

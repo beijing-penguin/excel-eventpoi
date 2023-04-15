@@ -31,6 +31,7 @@ import com.dc.eventpoi.core.enums.FileType;
 import com.dc.eventpoi.core.func.DivideFunction;
 import com.dc.eventpoi.core.func.DivideRoundFunction;
 import com.dc.eventpoi.core.func.DivideTruncateFunction;
+import com.dc.eventpoi.core.func.IfnullFunction;
 import com.dc.eventpoi.core.inter.CellStyleCallBack;
 import com.dc.eventpoi.core.inter.ExcelEventStream;
 import com.dc.eventpoi.core.inter.ExcelFunction;
@@ -44,11 +45,12 @@ import com.dc.eventpoi.core.inter.SheetCallBack;
  */
 public class ExcelHelper {
 
-	private static List<ExcelFunction> funcList = new ArrayList<>();
+	public static List<ExcelFunction> funcList = new ArrayList<>();
 	static {
 		funcList.add(new DivideFunction());
 		funcList.add(new DivideRoundFunction());
 		funcList.add(new DivideTruncateFunction());
+		funcList.add(new IfnullFunction());
 	}
     /**
      * 导出表格 以及 列表数据
