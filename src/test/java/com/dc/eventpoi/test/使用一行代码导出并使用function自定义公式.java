@@ -24,14 +24,14 @@ public class 使用一行代码导出并使用function自定义公式 {
 
 		List<Person> personList = new ArrayList<Person>();
 		//构造导出时的数据
-		for (int i = 0; i < 1000; i++) {
+		for (int i = 0; i < 10000; i++) {
 
 			Person p1 = new Person();
 			p1.setNo("NO_"+i);
 			p1.setAge(i);
 			p1.setName("ssssss_"+i);
 			p1.setRemark("测试测试啊remar_"+i);
-			if(i%1000==0) {
+			if(i==0) {
 				p1.setHeadImage(imageData);
 			}
 			personList.add(p1);
