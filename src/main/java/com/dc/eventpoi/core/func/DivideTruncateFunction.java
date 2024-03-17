@@ -1,6 +1,7 @@
 package com.dc.eventpoi.core.func;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 
 import com.dc.eventpoi.core.inter.ExcelFunction;
@@ -23,7 +24,7 @@ public class DivideTruncateFunction implements ExcelFunction{
 		Object k2 = paramValueList.get(1);
 		Object k3 = paramValueList.get(2);
 		
-		return new BigDecimal(k1.toString()).divide(new BigDecimal(k2.toString()),Integer.valueOf(k3.toString()),BigDecimal.ROUND_DOWN).stripTrailingZeros().toPlainString();
+		return new BigDecimal(k1.toString()).divide(new BigDecimal(k2.toString()),Integer.valueOf(k3.toString()),RoundingMode.DOWN).stripTrailingZeros().toPlainString();
 	}
 
 }
