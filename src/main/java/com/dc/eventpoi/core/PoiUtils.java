@@ -74,9 +74,7 @@ public class PoiUtils {
 	 * @author beijing-penguin
 	 */
 	public static FileType judgeFileType(InputStream inp) throws Exception {
-		InputStream is = FileMagic.prepareToCheckMagic(inp);
-		FileMagic fm = FileMagic.valueOf(is);
-
+		FileMagic fm = FileMagic.valueOf(inp);
 		switch (fm) {
 		case OLE2:
 			return FileType.XLS;

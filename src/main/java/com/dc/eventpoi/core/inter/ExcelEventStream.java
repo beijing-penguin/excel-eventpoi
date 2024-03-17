@@ -9,6 +9,8 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.List;
 
+import org.apache.poi.poifs.filesystem.FileMagic;
+
 import com.dc.eventpoi.core.ExcelXlsStream;
 import com.dc.eventpoi.core.ExcelXlsxStream;
 import com.dc.eventpoi.core.PoiUtils;
@@ -95,12 +97,14 @@ public interface ExcelEventStream {
      * @throws Exception IOException
      */
     static ExcelEventStream readExcel(InputStream fileStream) throws Exception {
-        FileType fileType = PoiUtils.judgeFileType(fileStream);
+    	InputStream is = FileMagic.prepareToCheckMagic(fileStream);
+        FileType fileType = PoiUtils.judgeFileType(is);
+        
         switch (fileType) {
             case XLS:
-                return new ExcelXlsStream(fileStream);
+                return new ExcelXlsStream(is);
             case XLSX:
-                return new ExcelXlsxStream(fileStream);
+                return new ExcelXlsxStream(is);
             default:
                 throw new Exception("filetype is unsupport");
         }

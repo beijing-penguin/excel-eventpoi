@@ -140,8 +140,10 @@ public class ExcelXlsxStream extends BaseExcelStream implements ExcelEventStream
                     //lastContents = sst.getItemAt(idx).toString();
                     lastContents = BigDecimal.valueOf(Double.parseDouble(lastContents)).stripTrailingZeros().toPlainString();
                 } else {
-                    Integer idx = Integer.valueOf(lastContents);
-                    lastContents = sst.getItemAt(idx).toString();
+                    if(cellDataType != CellDataTypeEnum.DIRECT_STRING) {
+                        Integer idx = Integer.valueOf(lastContents);
+                        lastContents = sst.getItemAt(idx).toString();
+                    }
                 }
 
 
